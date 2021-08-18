@@ -1,0 +1,13 @@
+[package]
+name = "uggo"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+reqwest = { version = "0.11.4", features = ["blocking", "json"] }
+serde = { version = "1.0.127", features = ["derive"] }
+serde_json = "1.0.66"
+lazy_static = "1.4.0"
+colored = "2.0.0"
