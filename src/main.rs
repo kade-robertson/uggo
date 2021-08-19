@@ -7,7 +7,8 @@ mod api;
 enum ExitReasons {
     CouldNotGetVersion = 1,
     CouldNotGetChampData = 2,
-    CouldNotGetRuneData = 3,
+    CouldNotGetItemData = 3,
+    CouldNotGetRuneData = 4,
 }
 
 fn log_error(msg: &str) {
@@ -43,8 +44,25 @@ fn main() {
         exit(ExitReasons::CouldNotGetChampData as i32);
     }
     log_info(&format!(
-        "Got champ data for {} champ(s).",
+        "Got data for {} champ(s).",
         champ_data
+            .clone()
+            .unwrap()
+            .keys()
+            .len()
+            .to_string()
+            .green()
+            .bold()
+    ));
+
+    let item_data = api::get_items(&safe_version);
+    if item_data.is_none() {
+        log_error("Could not download item data, exiting...");
+        exit(ExitReasons::CouldNotGetItemData as i32);
+    }
+    log_info(&format!(
+        "Got data for {} items(s).",
+        item_data
             .clone()
             .unwrap()
             .keys()

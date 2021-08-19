@@ -71,6 +71,30 @@ pub fn get_champ_data(version: &String) -> Option<Map<String, Value>> {
     }
 }
 
+pub fn get_items(version: &String) -> Option<Map<String, Value>> {
+    let champ_data = get_data(format!(
+        "https://static.u.gg/assets/lol/riot_static/{}/data/en_US/item.json",
+        version
+    ));
+    match champ_data {
+        Some(data) => {
+            if data.is_object() && data.as_object().unwrap().contains_key("data") {
+                let unwrapped_data = data.as_object().unwrap();
+                if unwrapped_data.contains_key("data") && unwrapped_data["data"].is_object() {
+                    return Some(unwrapped_data["data"].as_object().unwrap().clone());
+                } else {
+                    return None;
+                }
+            } else {
+                return None;
+            }
+        }
+        None => {
+            return None;
+        }
+    }
+}
+
 pub fn get_runes(version: &String) -> Option<HashMap<i64, Map<String, Value>>> {
     let rune_data = get_data(format!(
         "https://static.u.gg/assets/lol/riot_static/{}/data/en_US/runesReforged.json",
