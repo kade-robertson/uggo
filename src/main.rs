@@ -40,7 +40,7 @@ fn main() {
         exit(ExitReasons::CouldNotGetChampData as i32);
     }
     log_info(&format!(
-        "Got champ data for {} champ(s):",
+        "Got champ data for {} champ(s).",
         champ_data
             .clone()
             .unwrap()
@@ -50,7 +50,16 @@ fn main() {
             .green()
             .bold()
     ));
-    for (key, _) in champ_data.clone().unwrap() {
-        log_info(&format!(" - {}", key));
-    }
+    let rune_data = api::get_runes(version.clone().unwrap());
+    log_info(&format!(
+        "Got rune data for {} rune(s).",
+        rune_data
+            .clone()
+            .unwrap()
+            .keys()
+            .len()
+            .to_string()
+            .green()
+            .bold()
+    ));
 }
