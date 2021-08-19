@@ -47,7 +47,7 @@ pub fn get_current_version() -> Option<String> {
     }
 }
 
-pub fn get_champ_data(version: String) -> Option<Map<String, Value>> {
+pub fn get_champ_data(version: &String) -> Option<Map<String, Value>> {
     let champ_data = get_data(format!(
         "https://static.u.gg/assets/lol/riot_static/{}/data/en_US/champion.json",
         version
@@ -71,7 +71,7 @@ pub fn get_champ_data(version: String) -> Option<Map<String, Value>> {
     }
 }
 
-pub fn get_runes(version: String) -> Option<HashMap<i64, Map<String, Value>>> {
+pub fn get_runes(version: &String) -> Option<HashMap<i64, Map<String, Value>>> {
     let rune_data = get_data(format!(
         "https://static.u.gg/assets/lol/riot_static/{}/data/en_US/runesReforged.json",
         version

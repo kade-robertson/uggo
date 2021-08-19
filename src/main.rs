@@ -7,6 +7,7 @@ mod api;
 enum ExitReasons {
     CouldNotGetVersion = 1,
     CouldNotGetChampData = 2,
+    CouldNotGetRuneData = 3,
 }
 
 fn log_error(msg: &str) {
@@ -30,11 +31,13 @@ fn main() {
         log_error("Could not get current patch version, exiting...");
         exit(ExitReasons::CouldNotGetVersion as i32);
     }
+    let safe_version = version.clone().unwrap();
     log_info(&format!(
         "Getting data for patch {}...",
-        version.clone().unwrap().green().bold()
+        safe_version.green().bold()
     ));
-    let champ_data = api::get_champ_data(version.clone().unwrap());
+
+    let champ_data = api::get_champ_data(&safe_version);
     if champ_data.is_none() {
         log_error("Could not download champ data, exiting...");
         exit(ExitReasons::CouldNotGetChampData as i32);
@@ -50,7 +53,12 @@ fn main() {
             .green()
             .bold()
     ));
-    let rune_data = api::get_runes(version.clone().unwrap());
+
+    let rune_data = api::get_runes(&safe_version);
+    if rune_data.is_none() {
+        log_error("Could not download rune data, exiting...");
+        exit(ExitReasons::CouldNotGetRuneData as i32);
+    }
     log_info(&format!(
         "Got rune data for {} rune(s).",
         rune_data
@@ -62,4 +70,8 @@ fn main() {
             .green()
             .bold()
     ));
+
+    let mut patch_version_split = safe_version.split(".").collect::<Vec<&str>>();
+    patch_version_split.remove(patch_version_split.len() - 1);
+    let patch_version = patch_version_split.join("_");
 }
