@@ -7,6 +7,7 @@ use std::process::exit;
 use text_io::read;
 
 mod api;
+mod mappings;
 
 enum ExitReasons {
     Neutral = 0,
@@ -110,6 +111,38 @@ fn main() {
         print!("query> ");
         io::stdout().flush().unwrap();
         let user_input: String = read!("{}\n");
-        println!("{}", user_input);
+        let user_input_split = user_input.split(',').collect::<Vec<&str>>();
+
+        let mut query_champ = "";
+        let mut query_role = mappings::Role::Automatic;
+        let mut query_region = mappings::Region::NA1;
+
+        if user_input_split.len() < 1 || user_input_split.len() > 3 || user_input_split[0] == "" {
+            log_info("This doesn't look like a valid query.");
+            log_info("Query format is <champion>[,<role>][,<region>]");
+            continue;
+        }
+        if user_input_split.len() >= 1 {
+            query_champ = user_input_split[0];
+        }
+        if user_input_split.len() >= 2 {
+            let try_role = mappings::get_role(&user_input_split[1]);
+            if try_role == query_role {
+                query_region = mappings::get_region(&user_input_split[1]);
+            } else {
+                query_role = try_role;
+            }
+        }
+        if user_input_split.len() == 3 {
+            query_role = mappings::get_role(&user_input_split[1]);
+            query_region = mappings::get_region(&user_input_split[2]);
+        }
+
+        log_info(&format!(
+            "Got query {{ champ: {}, role: {}, region: {} }}",
+            query_champ,
+            query_role.to_string(),
+            query_region.to_string()
+        ));
     }
 }
