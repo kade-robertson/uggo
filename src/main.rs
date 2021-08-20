@@ -1,14 +1,19 @@
 use chrono;
 use colored::*;
+use ctrlc;
+use std::io;
+use std::io::Write;
 use std::process::exit;
+use text_io::read;
 
 mod api;
 
 enum ExitReasons {
-    CouldNotGetVersion = 1,
-    CouldNotGetChampData = 2,
-    CouldNotGetItemData = 3,
-    CouldNotGetRuneData = 4,
+    Neutral = 0,
+    CouldNotGetVersion,
+    CouldNotGetChampData,
+    CouldNotGetItemData,
+    CouldNotGetRuneData,
 }
 
 static TIME_FORMAT: &str = "%Y-%m-%d %H:%M:%S%.3f";
@@ -29,6 +34,12 @@ fn log_info(msg: &str) {
 }
 
 fn main() {
+    ctrlc::set_handler(move || {
+        println!("\nExiting...");
+        exit(ExitReasons::Neutral as i32);
+    })
+    .expect("Couldn't handle Ctrl+C");
+
     let version = api::get_current_version();
     if version.is_none() {
         log_error("Could not get current patch version, exiting...");
@@ -94,4 +105,11 @@ fn main() {
     let mut patch_version_split = safe_version.split(".").collect::<Vec<&str>>();
     patch_version_split.remove(patch_version_split.len() - 1);
     let patch_version = patch_version_split.join("_");
+
+    loop {
+        print!("query> ");
+        io::stdout().flush().unwrap();
+        let user_input: String = read!("{}\n");
+        println!("{}", user_input);
+    }
 }
