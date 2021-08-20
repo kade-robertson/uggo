@@ -11,11 +11,13 @@ enum ExitReasons {
     CouldNotGetRuneData = 4,
 }
 
+static TIME_FORMAT: &str = "%Y-%m-%d %H:%M:%S%.3f";
+
 fn log_error(msg: &str) {
     let now = chrono::Local::now();
     eprintln!(
         "[{}] {} {}",
-        now.format("%Y-%m-%d %H:%M:%S"),
+        now.format(TIME_FORMAT),
         "Error:".red().bold(),
         msg
     );
@@ -23,7 +25,7 @@ fn log_error(msg: &str) {
 
 fn log_info(msg: &str) {
     let now = chrono::Local::now();
-    println!("[{}] {}", now.format("%Y-%m-%d %H:%M:%S"), msg);
+    println!("[{}] {}", now.format(TIME_FORMAT), msg);
 }
 
 fn main() {
@@ -44,7 +46,7 @@ fn main() {
         exit(ExitReasons::CouldNotGetChampData as i32);
     }
     log_info(&format!(
-        "Got data for {} champ(s).",
+        "- Got data for {} champ(s).",
         champ_data
             .clone()
             .unwrap()
@@ -61,7 +63,7 @@ fn main() {
         exit(ExitReasons::CouldNotGetItemData as i32);
     }
     log_info(&format!(
-        "Got data for {} items(s).",
+        "- Got data for {} items(s).",
         item_data
             .clone()
             .unwrap()
@@ -78,7 +80,7 @@ fn main() {
         exit(ExitReasons::CouldNotGetRuneData as i32);
     }
     log_info(&format!(
-        "Got rune data for {} rune(s).",
+        "- Got data for {} rune(s).",
         rune_data
             .clone()
             .unwrap()
