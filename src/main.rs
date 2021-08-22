@@ -26,7 +26,7 @@ enum ExitReasons {
 
 static TIME_FORMAT: &str = "%Y-%m-%d %H:%M:%S%.3f";
 static DEFAULT_ROLE: mappings::Role = mappings::Role::Automatic;
-static DEFAULT_REGION: mappings::Region = mappings::Region::NA1;
+static DEFAULT_REGION: mappings::Region = mappings::Region::World;
 
 fn log_error(msg: &str) {
     let now = chrono::Local::now();
@@ -212,13 +212,13 @@ fn main() {
             &champ_overview[0][0][4].as_array().unwrap(),
             &rune_data.as_ref().unwrap(),
         );
-        let mut table = Table::new();
-        table.set_format(*format::consts::FORMAT_CLEAN);
-        table.add_row(row![
+        let mut rune_table = Table::new();
+        rune_table.set_format(*format::consts::FORMAT_CLEAN);
+        rune_table.add_row(row![
             styling::format_rune_group(&champ_runes[0].0.as_str()),
             styling::format_rune_group(&champ_runes[1].0.as_str())
         ]);
-        table.add_row(row![
+        rune_table.add_row(row![
             &champ_runes[0].1[0]["name"].as_str().unwrap(),
             format!(
                 "{} (Slot {})",
@@ -226,7 +226,7 @@ fn main() {
                 &champ_runes[1].1[0]["slot"]
             )
         ]);
-        table.add_row(row![
+        rune_table.add_row(row![
             &champ_runes[0].1[1]["name"].as_str().unwrap(),
             format!(
                 "{} (Slot {})",
@@ -234,9 +234,9 @@ fn main() {
                 &champ_runes[1].1[1]["slot"]
             )
         ]);
-        table.add_row(row![&champ_runes[0].1[2]["name"].as_str().unwrap()]);
-        table.add_row(row![&champ_runes[0].1[3]["name"].as_str().unwrap()]);
-        table.printstd();
+        rune_table.add_row(row![&champ_runes[0].1[2]["name"].as_str().unwrap()]);
+        rune_table.add_row(row![&champ_runes[0].1[3]["name"].as_str().unwrap()]);
+        rune_table.printstd();
 
         println!();
         println!(
@@ -248,6 +248,31 @@ fn main() {
                 spell_data.as_ref().unwrap()[&champ_overview[0][1][2][1].as_i64().unwrap()]
             )
         );
+
+        let mut item_table = Table::new();
+        item_table.set_format(*format::consts::FORMAT_CLEAN);
+        item_table.add_row(row![
+            r->"Starting:".bright_cyan(),
+            util::process_items(&champ_overview[0][2][2], item_data.as_ref().unwrap(), false)
+        ]);
+        item_table.add_row(row![
+            r->"Core:".bright_cyan(),
+            util::process_items(&champ_overview[0][3][2], item_data.as_ref().unwrap(), false)
+        ]);
+        item_table.add_row(row![
+            r->"4th:".bright_cyan(),
+            util::process_items(&champ_overview[0][5][0], item_data.as_ref().unwrap(), true)
+        ]);
+        item_table.add_row(row![
+            r->"5th:".bright_cyan(),
+            util::process_items(&champ_overview[0][5][1], item_data.as_ref().unwrap(), true)
+        ]);
+        item_table.add_row(row![
+            r->"6th:".bright_cyan(),
+            util::process_items(&champ_overview[0][5][2], item_data.as_ref().unwrap(), true)
+        ]);
+        println!();
+        item_table.printstd();
 
         println!();
     }

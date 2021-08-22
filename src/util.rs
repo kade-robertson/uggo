@@ -43,3 +43,21 @@ pub fn group_runes<'a>(
 
     return grouped_runes;
 }
+
+pub fn process_items(champ_items: &Value, item_data: &Map<String, Value>, nested: bool) -> String {
+    return champ_items
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|v| {
+            item_data[&(if nested { &v[0] } else { v })
+                .as_i64()
+                .unwrap()
+                .to_string()]["name"]
+                .as_str()
+                .unwrap()
+                .to_string()
+        })
+        .collect::<Vec<String>>()
+        .join(", ");
+}
