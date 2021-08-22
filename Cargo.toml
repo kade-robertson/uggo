@@ -16,6 +16,7 @@ text_io = "0.1.9"
 ctrlc = "3.2.0"
 strum = "0.21"
 strum_macros = "0.21"
+levenshtein = "1.0.5"
 
 [profile.release]
 opt-level = "z"

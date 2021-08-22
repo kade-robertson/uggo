@@ -1,7 +1,7 @@
 use strum::IntoEnumIterator;
 use strum_macros::{Display, EnumIter, EnumString};
 
-#[derive(Display, EnumString, EnumIter, PartialEq)]
+#[derive(Copy, Clone, Display, EnumString, EnumIter, PartialEq)]
 pub enum Rank {
     Challenger = 1,
     Master,
@@ -19,7 +19,7 @@ pub enum Rank {
     Diamond2Plus,
 }
 
-#[derive(Display, EnumString, EnumIter, PartialEq)]
+#[derive(Copy, Clone, Display, EnumString, EnumIter, PartialEq)]
 pub enum Region {
     NA1 = 1,
     EUW1,
@@ -47,7 +47,7 @@ pub fn get_region(region: &str) -> Region {
     return Region::NA1;
 }
 
-#[derive(Display, EnumString, EnumIter, PartialEq)]
+#[derive(Copy, Clone, Display, EnumString, EnumIter, PartialEq)]
 pub enum Role {
     Jungle = 1,
     Support,
