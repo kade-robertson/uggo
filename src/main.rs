@@ -239,6 +239,12 @@ fn main() {
         rune_table.printstd();
 
         println!();
+        println!(" {}", "Shards:".magenta().bold());
+        util::process_shards(&champ_overview[0][8][2].as_array().unwrap())
+            .iter()
+            .for_each(|shard| println!(" {}", shard));
+
+        println!();
         println!(
             " {} {}",
             "Spells:".yellow().bold(),
@@ -286,6 +292,14 @@ fn main() {
         ]);
         println!();
         item_table.printstd();
+
+        if champ_overview[0][6][1].as_i64().unwrap() < 1000 {
+            println!();
+            println!(
+                " {} Data has a low sample size for this combination!",
+                "Warning:".yellow().bold()
+            );
+        }
 
         println!();
     }

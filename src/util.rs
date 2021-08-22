@@ -61,3 +61,32 @@ pub fn process_items(champ_items: &Value, item_data: &Map<String, Value>, nested
         .collect::<Vec<String>>()
         .join(", ");
 }
+
+fn get_shard(id: &str) -> &str {
+    return match id {
+        "5001" => "+15-90 Health",
+        "5002" => "+6 Armor",
+        "5003" => "+8 Magic Resist",
+        "5005" => "+10% Attack Speed",
+        "5007" => "+8 Ability Haste",
+        "5008" => "+9 Adaptive Force",
+        _ => "Unknown",
+    };
+}
+
+pub fn process_shards(shards: &Vec<Value>) -> Vec<String> {
+    let mut shard_text: Vec<String> = Vec::new();
+    shard_text.push(format!(
+        "- Offense: {}",
+        get_shard(shards[0].as_str().unwrap())
+    ));
+    shard_text.push(format!(
+        "- Flex: {}",
+        get_shard(shards[1].as_str().unwrap())
+    ));
+    shard_text.push(format!(
+        "- Defense: {}",
+        get_shard(shards[2].as_str().unwrap())
+    ));
+    return shard_text;
+}
