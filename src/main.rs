@@ -204,9 +204,9 @@ fn main() {
             true_length += 15 /* ", playing  lane" */ + overview_role.to_string().len();
         }
         let stats_message_str = stats_message.concat();
-        println!("{}", "-".repeat(true_length));
-        println!("{}", stats_message_str);
-        println!("{}", "-".repeat(true_length));
+        println!(" {}", "-".repeat(true_length));
+        println!(" {}", stats_message_str);
+        println!(" {}", "-".repeat(true_length));
 
         let champ_runes = util::group_runes(
             &champ_overview[0][0][4].as_array().unwrap(),
@@ -249,26 +249,39 @@ fn main() {
             )
         );
 
+        println!();
+        println!(
+            " {} {}",
+            "Ability Order:".bright_cyan().bold(),
+            champ_overview[0][4][3]
+                .as_str()
+                .unwrap()
+                .chars()
+                .map(|c| c.to_string())
+                .collect::<Vec<String>>()
+                .join(" -> ")
+        );
+
         let mut item_table = Table::new();
         item_table.set_format(*format::consts::FORMAT_CLEAN);
         item_table.add_row(row![
-            r->"Starting:".bright_cyan(),
+            r->"Starting:".green(),
             util::process_items(&champ_overview[0][2][2], item_data.as_ref().unwrap(), false)
         ]);
         item_table.add_row(row![
-            r->"Core:".bright_cyan(),
+            r->"Core:".green(),
             util::process_items(&champ_overview[0][3][2], item_data.as_ref().unwrap(), false)
         ]);
         item_table.add_row(row![
-            r->"4th:".bright_cyan(),
+            r->"4th:".green(),
             util::process_items(&champ_overview[0][5][0], item_data.as_ref().unwrap(), true)
         ]);
         item_table.add_row(row![
-            r->"5th:".bright_cyan(),
+            r->"5th:".green(),
             util::process_items(&champ_overview[0][5][1], item_data.as_ref().unwrap(), true)
         ]);
         item_table.add_row(row![
-            r->"6th:".bright_cyan(),
+            r->"6th:".green(),
             util::process_items(&champ_overview[0][5][2], item_data.as_ref().unwrap(), true)
         ]);
         println!();

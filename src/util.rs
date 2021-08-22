@@ -7,9 +7,9 @@ pub fn find_champ<'a>(name: &str, champ_data: &'a Map<String, Value>) -> &'a Val
         return &champ_data[name];
     } else {
         let mut lowest_distance: i32 = i32::MAX;
-        let mut closest_champ: &Value = &champ_data[champ_data.keys().next().unwrap()];
-        for (key, value) in champ_data {
-            let distance = levenshtein(name, key) as i32;
+        let mut closest_champ: &Value = &champ_data["Annie"];
+        for (_key, value) in champ_data {
+            let distance = levenshtein(name, value["name"].as_str().unwrap()) as i32;
             if distance < lowest_distance {
                 lowest_distance = distance;
                 closest_champ = value;
