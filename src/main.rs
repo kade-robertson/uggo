@@ -21,6 +21,7 @@ enum ExitReasons {
     CouldNotGetChampData,
     CouldNotGetItemData,
     CouldNotGetRuneData,
+    CouldNotGetSpellData,
 }
 
 static TIME_FORMAT: &str = "%Y-%m-%d %H:%M:%S%.3f";
@@ -102,6 +103,23 @@ fn main() {
     log_info(&format!(
         "- Got data for {} rune(s).",
         rune_data
+            .clone()
+            .unwrap()
+            .keys()
+            .len()
+            .to_string()
+            .green()
+            .bold()
+    ));
+
+    let spell_data = api::get_summoner_spells(&safe_version);
+    if spell_data.is_none() {
+        log_error("Could not download rune data, exiting...");
+        exit(ExitReasons::CouldNotGetSpellData as i32);
+    }
+    log_info(&format!(
+        "- Got data for {} rune(s).",
+        spell_data
             .clone()
             .unwrap()
             .keys()
@@ -219,5 +237,18 @@ fn main() {
         table.add_row(row![&champ_runes[0].1[2]["name"].as_str().unwrap()]);
         table.add_row(row![&champ_runes[0].1[3]["name"].as_str().unwrap()]);
         table.printstd();
+
+        println!();
+        println!(
+            " {} {}",
+            "Spells:".yellow().bold(),
+            format!(
+                "{}, {}",
+                spell_data.as_ref().unwrap()[&champ_overview[0][1][2][0].as_i64().unwrap()],
+                spell_data.as_ref().unwrap()[&champ_overview[0][1][2][1].as_i64().unwrap()]
+            )
+        );
+
+        println!();
     }
 }

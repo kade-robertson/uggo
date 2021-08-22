@@ -149,6 +149,33 @@ pub fn get_runes(version: &String) -> Option<HashMap<i64, Map<String, Value>>> {
     }
 }
 
+pub fn get_summoner_spells(version: &String) -> Option<HashMap<i64, String>> {
+    let summoner_data = get_data(format!(
+        "https://static.u.gg/assets/lol/riot_static/{}/data/en_US/summoner.json",
+        version
+    ));
+    match summoner_data {
+        Some(spells) => {
+            if spells.is_object() && spells.as_object().unwrap().contains_key("data") {
+                let spell_data = spells.as_object().unwrap()["data"].as_object().unwrap();
+                let mut reduced_data: HashMap<i64, String> = HashMap::new();
+                for (_spell, spell_info) in spell_data {
+                    reduced_data.insert(
+                        spell_info["key"].as_str().unwrap().parse::<i64>().unwrap(),
+                        spell_info["name"].as_str().unwrap().to_string(),
+                    );
+                }
+                return Some(reduced_data);
+            } else {
+                return None;
+            }
+        }
+        None => {
+            return None;
+        }
+    }
+}
+
 pub fn get_stats(
     patch: &str,
     champ: &Value,
