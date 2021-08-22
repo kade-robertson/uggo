@@ -1,6 +1,10 @@
+#[macro_use]
+extern crate prettytable;
+
 use chrono;
 use colored::*;
 use ctrlc;
+use prettytable::{format, Table};
 use std::io;
 use std::io::Write;
 use std::process::exit;
@@ -190,11 +194,30 @@ fn main() {
             &champ_overview[0][0][4].as_array().unwrap(),
             &rune_data.as_ref().unwrap(),
         );
-        println!("Runes");
-        println!("-----");
-        println!("{}", styling::format_rune_group(&champ_runes[0].0.as_str()));
-        champ_runes[0].1.iter().for_each(|r| println!("- {}", r));
-        println!("{}", styling::format_rune_group(&champ_runes[1].0.as_str()));
-        champ_runes[1].1.iter().for_each(|r| println!("- {}", r));
+        let mut table = Table::new();
+        table.set_format(*format::consts::FORMAT_CLEAN);
+        table.add_row(row![
+            styling::format_rune_group(&champ_runes[0].0.as_str()),
+            styling::format_rune_group(&champ_runes[1].0.as_str())
+        ]);
+        table.add_row(row![
+            &champ_runes[0].1[0]["name"].as_str().unwrap(),
+            format!(
+                "{} (Slot {})",
+                &champ_runes[1].1[0]["name"].as_str().unwrap(),
+                &champ_runes[1].1[0]["slot"]
+            )
+        ]);
+        table.add_row(row![
+            &champ_runes[0].1[1]["name"].as_str().unwrap(),
+            format!(
+                "{} (Slot {})",
+                &champ_runes[1].1[1]["name"].as_str().unwrap(),
+                &champ_runes[1].1[1]["slot"]
+            )
+        ]);
+        table.add_row(row![&champ_runes[0].1[2]["name"].as_str().unwrap()]);
+        table.add_row(row![&champ_runes[0].1[3]["name"].as_str().unwrap()]);
+        table.printstd();
     }
 }
