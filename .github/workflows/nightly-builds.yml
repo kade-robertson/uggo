@@ -25,7 +25,7 @@ jobs:
           cargo strip
       - name: Move executable
         run: |
-          npm install -g move-file mkdirp
+          npm install -g move-file-cli mkdirp
           mkdirp artifacts
           if [ "$RUNNER_OS" == "Windows" ]; then
             move-file target/release/uggo.exe artifacts/uggo-windows.exe
