@@ -1,22 +1,28 @@
+use std::convert::TryFrom;
+
 use strum::IntoEnumIterator;
 use strum_macros::{Display, EnumIter, EnumString};
 
 #[derive(Copy, Clone, Display, EnumString, EnumIter, PartialEq)]
 pub enum Rank {
     Challenger = 1,
-    Master,
-    Diamond,
-    Platinum,
-    Gold,
-    Silver,
-    Bronze,
-    Overall,
-    PlatinumPlus,
-    DiamondPlus,
-    Iron,
-    Grandmaster,
-    MasterPlus,
-    Diamond2Plus,
+    Master = 2,
+    Diamond = 3,
+    Platinum = 4,
+    Gold = 5,
+    Silver = 6,
+    Bronze = 7,
+    Overall = 8,
+    PlatinumPlus = 10,
+    DiamondPlus = 11,
+    Iron = 12,
+    Grandmaster = 13,
+    MasterPlus = 14,
+    Diamond2Plus = 15,
+}
+
+pub fn rank_to_str(rank: Rank) -> String {
+    return (rank as i32).to_string();
 }
 
 #[derive(Copy, Clone, Display, EnumString, EnumIter, PartialEq)]
@@ -56,6 +62,25 @@ pub enum Role {
     Mid,
     None,
     Automatic,
+}
+
+impl TryFrom<i32> for Role {
+    type Error = ();
+    fn try_from(v: i32) -> Result<Self, Self::Error> {
+        match v {
+            1 => Ok(Role::Jungle),
+            2 => Ok(Role::Support),
+            3 => Ok(Role::ADCarry),
+            4 => Ok(Role::Top),
+            5 => Ok(Role::Mid),
+            6 => Ok(Role::None),
+            _ => Err(()),
+        }
+    }
+}
+
+pub fn role_to_str(role: Role) -> String {
+    return (role as i32).to_string();
 }
 
 pub fn get_role(role: &str) -> Role {

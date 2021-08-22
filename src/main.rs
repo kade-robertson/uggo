@@ -8,6 +8,7 @@ use text_io::read;
 
 mod api;
 mod mappings;
+mod styling;
 mod util;
 
 enum ExitReasons {
@@ -115,7 +116,6 @@ fn main() {
         io::stdout().flush().unwrap();
         let user_input: String = read!("{}\n");
         let user_input_split = user_input.split(',').collect::<Vec<&str>>();
-        print!("{}[2J", 27 as char);
 
         let mut query_champ_name = "";
         let mut query_role = DEFAULT_ROLE;
@@ -145,10 +145,9 @@ fn main() {
         let cloned_champ_data = &champ_data.clone().unwrap();
         let query_champ = util::find_champ(query_champ_name, cloned_champ_data);
 
-        let mut query_message = vec![format!(
-            "Looking up info for {}",
-            query_champ["name"].as_str().unwrap().green().bold()
-        )];
+        let formatted_champ_name = query_champ["name"].as_str().unwrap().green().bold();
+
+        let mut query_message = vec![format!("Looking up info for {}", formatted_champ_name)];
         if query_role != DEFAULT_ROLE {
             query_message.push(format!(
                 ", playing {}",
@@ -160,5 +159,42 @@ fn main() {
         }
         query_message.push("...".to_string());
         log_info(query_message.concat().as_str());
+
+        let champ_stats = api::get_stats(
+            &patch_version.as_str(),
+            query_champ,
+            query_role,
+            query_region,
+        );
+        if champ_stats.is_none() {
+            log_error(format!("Couldn't get required data for {}.", formatted_champ_name).as_str());
+            continue;
+        }
+
+        let (overview_role, champ_overview) = champ_stats.unwrap();
+        let mut stats_message = vec![format!("Build for {}", formatted_champ_name)];
+        let mut true_length = 10 /* "Build for " */ + query_champ["name"].as_str().unwrap().len();
+        if overview_role != mappings::Role::None {
+            stats_message.push(format!(
+                ", playing {} lane",
+                overview_role.to_string().blue().bold()
+            ));
+            true_length += 15 /* ", playing  lane" */ + overview_role.to_string().len();
+        }
+        let stats_message_str = stats_message.concat();
+        println!("{}", "-".repeat(true_length));
+        println!("{}", stats_message_str);
+        println!("{}", "-".repeat(true_length));
+
+        let champ_runes = util::group_runes(
+            &champ_overview[0][0][4].as_array().unwrap(),
+            &rune_data.as_ref().unwrap(),
+        );
+        println!("Runes");
+        println!("-----");
+        println!("{}", styling::format_rune_group(&champ_runes[0].0.as_str()));
+        champ_runes[0].1.iter().for_each(|r| println!("- {}", r));
+        println!("{}", styling::format_rune_group(&champ_runes[1].0.as_str()));
+        champ_runes[1].1.iter().for_each(|r| println!("- {}", r));
     }
 }

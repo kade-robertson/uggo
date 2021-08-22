@@ -1,5 +1,6 @@
 use levenshtein::levenshtein;
 use serde_json::{Map, Value};
+use std::collections::HashMap;
 
 pub fn find_champ<'a>(name: &str, champ_data: &'a Map<String, Value>) -> &'a Value {
     if champ_data.contains_key(name) {
@@ -16,4 +17,34 @@ pub fn find_champ<'a>(name: &str, champ_data: &'a Map<String, Value>) -> &'a Val
         }
         return closest_champ;
     }
+}
+
+pub fn group_runes(
+    champ_runes: &Vec<Value>,
+    rune_data: &HashMap<i64, Map<String, Value>>,
+) -> Vec<(String, Vec<String>)> {
+    let mut grouped_runes: Vec<(String, Vec<String>)> = Vec::new();
+
+    for rune in champ_runes {
+        let rune_info = &rune_data[&rune.as_i64().unwrap()];
+        let group_name = rune_info["parent"].as_str().unwrap();
+        let group_index = grouped_runes.iter().position(|r| r.0 == group_name);
+        if group_index.is_none() {
+            grouped_runes.push((
+                group_name.to_string(),
+                vec![rune_info["name"].as_str().unwrap().to_string()],
+            ));
+        } else {
+            grouped_runes[group_index.unwrap()]
+                .1
+                .push(rune_info["name"].as_str().unwrap().to_string());
+        }
+    }
+
+    // Make sure primary rune is first
+    if grouped_runes[0].1.len() != 4 {
+        grouped_runes.reverse();
+    }
+
+    return grouped_runes;
 }

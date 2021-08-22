@@ -1,7 +1,8 @@
+use crate::mappings;
 use lazy_static::lazy_static;
 use reqwest::blocking::Client;
 use serde_json::{Map, Number, Value};
-use std::collections::HashMap;
+use std::{collections::HashMap, convert::TryFrom};
 
 lazy_static! {
     static ref CLIENT: Client = Client::new();
@@ -138,6 +139,71 @@ pub fn get_runes(version: &String) -> Option<HashMap<i64, Map<String, Value>>> {
                     }
                 }
                 return Some(processed_data);
+            } else {
+                return None;
+            }
+        }
+        None => {
+            return None;
+        }
+    }
+}
+
+pub fn get_stats(
+    patch: &str,
+    champ: &Value,
+    role: mappings::Role,
+    region: mappings::Region,
+) -> Option<(mappings::Role, Vec<Value>)> {
+    let stats_data = get_data(format!(
+        "https://stats2.u.gg/lol/1.1/overview/{}/ranked_solo_5x5/{}/1.4.0.json",
+        patch,
+        champ["key"].as_str().unwrap()
+    ));
+    match stats_data {
+        Some(champ_stats) => {
+            if champ_stats.is_object() {
+                let unwrapped_stats = champ_stats.as_object().unwrap();
+                let stats_for_region = unwrapped_stats[&(region as i32).to_string()]
+                    .as_object()
+                    .unwrap();
+                let rank_query = if stats_for_region
+                    .contains_key(&mappings::rank_to_str(mappings::Rank::PlatinumPlus))
+                {
+                    mappings::Rank::PlatinumPlus
+                } else {
+                    mappings::Rank::Overall
+                };
+                let stats_for_rank = stats_for_region[&mappings::rank_to_str(rank_query)]
+                    .as_object()
+                    .unwrap();
+                let mut role_query = role;
+                if !stats_for_rank.contains_key(&mappings::role_to_str(role_query)) {
+                    if role_query == mappings::Role::Automatic {
+                        // Go through each role and pick the one with most matches played
+                        let mut most_games = 0;
+                        let mut used_role = stats_for_rank.keys().next().unwrap();
+                        for (role_key, role_stats) in stats_for_rank {
+                            let games_played = role_stats[0][6][1].as_i64().unwrap();
+                            if games_played > most_games {
+                                most_games = games_played;
+                                used_role = role_key;
+                            }
+                        }
+                        role_query =
+                            mappings::Role::try_from(used_role.parse::<i32>().unwrap()).unwrap();
+                    } else {
+                        // This should only happen in ARAM
+                        role_query = mappings::Role::None;
+                    }
+                }
+                return Some((
+                    role_query,
+                    stats_for_rank[&mappings::role_to_str(role_query)]
+                        .as_array()
+                        .unwrap()
+                        .clone(),
+                ));
             } else {
                 return None;
             }
