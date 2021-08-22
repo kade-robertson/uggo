@@ -33,6 +33,7 @@ jobs:
             move-file target/release/uggo artifacts/uggo-linux
           else
             move-file target/release/uggo artifacts/uggo-mac
+          fi
         shell: bash
       - name: Release
         uses: softprops/action-gh-release@v1
