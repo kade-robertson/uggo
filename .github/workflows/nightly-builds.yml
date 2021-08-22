@@ -1,0 +1,35 @@
+jobs:
+  nightly_builds:
+    name: uggo
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      - name: Build
+        run: |
+          cargo install --force cargo-strip
+          cargo build --release
+          cargo strip
+      - name: Move executable
+        run: |
+          npm install -g move-file mkdirp
+          mkdirp artifacts
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            move-file target/release/uggo.exe artifacts/uggo-windows.exe
+          elif [ "$RUNNER_OS" == "Linux" ]; then
+            move-file target/release/uggo artifacts/uggo-linux
+          else
+            move-file target/release/uggo artifacts/uggo-mac
+        shell: bash
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: artifacts/*
