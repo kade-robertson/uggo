@@ -18,6 +18,7 @@ mod util;
 mod types {
     pub mod champion;
     pub mod item;
+    pub mod summonerspell;
 }
 
 enum ExitReasons {

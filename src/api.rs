@@ -1,6 +1,7 @@
 use crate::mappings;
 use crate::types::champion::{ChampionData, ChampionDatum};
 use crate::types::item::{ItemData, ItemDatum};
+use crate::types::summonerspell::SummonerSpellData;
 use lazy_static::lazy_static;
 use reqwest::blocking::Client;
 use serde::de::DeserializeOwned;
@@ -127,30 +128,20 @@ pub fn get_runes(version: &String) -> Option<Box<HashMap<i64, Map<String, Value>
     }
 }
 
-pub fn get_summoner_spells(version: &String) -> Option<HashMap<i64, String>> {
-    let summoner_data = get_data::<Value>(format!(
+pub fn get_summoner_spells(version: &String) -> Option<Box<HashMap<i64, String>>> {
+    let summoner_data = get_data::<SummonerSpellData>(format!(
         "https://static.u.gg/assets/lol/riot_static/{}/data/en_US/summoner.json",
         version
     ));
     match summoner_data {
         Some(spells) => {
-            if spells.is_object() && spells.as_object().unwrap().contains_key("data") {
-                let spell_data = spells.as_object().unwrap()["data"].as_object().unwrap();
-                let mut reduced_data: HashMap<i64, String> = HashMap::new();
-                for (_spell, spell_info) in spell_data {
-                    reduced_data.insert(
-                        spell_info["key"].as_str().unwrap().parse::<i64>().unwrap(),
-                        spell_info["name"].as_str().unwrap().to_string(),
-                    );
-                }
-                return Some(reduced_data);
-            } else {
-                return None;
+            let mut reduced_data: HashMap<i64, String> = HashMap::new();
+            for (_spell, spell_info) in spells.data {
+                reduced_data.insert(spell_info.key.parse::<i64>().unwrap(), spell_info.name);
             }
+            return Some(Box::new(reduced_data));
         }
-        None => {
-            return None;
-        }
+        None => None,
     }
 }
 
