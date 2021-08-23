@@ -137,7 +137,7 @@ fn main() {
         print!("query> ");
         io::stdout().flush().unwrap();
         let user_input: String = read!("{}\n");
-        let user_input_split = user_input.split(',').collect::<Vec<&str>>();
+        let user_input_split = user_input.trim().split(',').collect::<Vec<&str>>();
 
         let mut query_champ_name = "";
         let mut query_role = DEFAULT_ROLE;
