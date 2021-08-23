@@ -41,6 +41,22 @@ pub fn group_runes<'a>(
         grouped_runes.reverse();
     }
 
+    grouped_runes[0].1.sort_by(|&a, &b| {
+        a["slot"]
+            .as_i64()
+            .unwrap()
+            .partial_cmp(&b["slot"].as_i64().unwrap())
+            .unwrap()
+    });
+
+    grouped_runes[1].1.sort_by(|&a, &b| {
+        a["slot"]
+            .as_i64()
+            .unwrap()
+            .partial_cmp(&b["slot"].as_i64().unwrap())
+            .unwrap()
+    });
+
     return grouped_runes;
 }
 
