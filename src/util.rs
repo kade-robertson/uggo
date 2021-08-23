@@ -2,14 +2,17 @@ use levenshtein::levenshtein;
 use serde_json::{Map, Value};
 use std::collections::HashMap;
 
-use crate::types::champion::Datum;
+use crate::types::{champion::ChampionDatum, item::ItemDatum};
 
-pub fn find_champ<'a>(name: &str, champ_data: &'a HashMap<String, Datum>) -> &'a Datum {
+pub fn find_champ<'a>(
+    name: &str,
+    champ_data: &'a HashMap<String, ChampionDatum>,
+) -> &'a ChampionDatum {
     if champ_data.contains_key(name) {
         return &champ_data[name];
     } else {
         let mut lowest_distance: i32 = i32::MAX;
-        let mut closest_champ: &Datum = &champ_data["Annie"];
+        let mut closest_champ: &ChampionDatum = &champ_data["Annie"];
         for (_key, value) in champ_data {
             let distance = levenshtein(name, value.name.as_str()) as i32;
             if distance < lowest_distance {
@@ -62,7 +65,11 @@ pub fn group_runes<'a>(
     return grouped_runes;
 }
 
-pub fn process_items(champ_items: &Value, item_data: &Map<String, Value>, nested: bool) -> String {
+pub fn process_items(
+    champ_items: &Value,
+    item_data: &HashMap<String, ItemDatum>,
+    nested: bool,
+) -> String {
     return champ_items
         .as_array()
         .unwrap()
@@ -71,10 +78,9 @@ pub fn process_items(champ_items: &Value, item_data: &Map<String, Value>, nested
             item_data[&(if nested { &v[0] } else { v })
                 .as_i64()
                 .unwrap()
-                .to_string()]["name"]
-                .as_str()
-                .unwrap()
-                .to_string()
+                .to_string()]
+                .name
+                .clone()
         })
         .collect::<Vec<String>>()
         .join(", ");

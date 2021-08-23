@@ -17,6 +17,7 @@ mod styling;
 mod util;
 mod types {
     pub mod champion;
+    pub mod item;
 }
 
 enum ExitReasons {

@@ -1,5 +1,6 @@
-use crate::types::champion::ChampionData;
-use crate::{mappings, types::champion::Datum};
+use crate::mappings;
+use crate::types::champion::{ChampionData, ChampionDatum};
+use crate::types::item::{ItemData, ItemDatum};
 use lazy_static::lazy_static;
 use reqwest::blocking::Client;
 use serde::de::DeserializeOwned;
@@ -51,44 +52,25 @@ pub fn get_current_version() -> Option<String> {
     }
 }
 
-pub fn get_champ_data(version: &String) -> Option<Box<HashMap<String, Datum>>> {
+pub fn get_champ_data(version: &String) -> Option<Box<HashMap<String, ChampionDatum>>> {
     let champ_data = get_data::<ChampionData>(format!(
         "https://static.u.gg/assets/lol/riot_static/{}/data/en_US/champion.json",
         version
     ));
     match champ_data {
-        Some(data) => {
-            return Some(Box::new(data.data));
-        }
-        None => {
-            return None;
-        }
+        Some(data) => Some(Box::new(data.data)),
+        None => None,
     }
 }
 
-pub fn get_items(version: &String) -> Option<Box<Map<String, Value>>> {
-    let champ_data = get_data::<Value>(format!(
+pub fn get_items(version: &String) -> Option<Box<HashMap<String, ItemDatum>>> {
+    let champ_data = get_data::<ItemData>(format!(
         "https://static.u.gg/assets/lol/riot_static/{}/data/en_US/item.json",
         version
     ));
     match champ_data {
-        Some(data) => {
-            if data.is_object() && data.as_object().unwrap().contains_key("data") {
-                let unwrapped_data = data.as_object().unwrap();
-                if unwrapped_data.contains_key("data") && unwrapped_data["data"].is_object() {
-                    return Some(Box::new(
-                        unwrapped_data["data"].as_object().unwrap().clone(),
-                    ));
-                } else {
-                    return None;
-                }
-            } else {
-                return None;
-            }
-        }
-        None => {
-            return None;
-        }
+        Some(data) => Some(Box::new(data.data)),
+        None => None,
     }
 }
 
@@ -174,7 +156,7 @@ pub fn get_summoner_spells(version: &String) -> Option<HashMap<i64, String>> {
 
 pub fn get_stats(
     patch: &str,
-    champ: &Datum,
+    champ: &ChampionDatum,
     role: mappings::Role,
     region: mappings::Region,
     mode: mappings::Mode,

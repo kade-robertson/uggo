@@ -7,11 +7,11 @@ pub struct ChampionData {
     pub welcome_type: Type,
     pub format: String,
     pub version: String,
-    pub data: HashMap<String, Datum>,
+    pub data: HashMap<String, ChampionDatum>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct Datum {
+pub struct ChampionDatum {
     pub version: String,
     pub id: String,
     pub key: String,
