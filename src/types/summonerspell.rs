@@ -15,7 +15,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct SummonerSpellData {
+pub struct SummonerSpells {
     #[serde(rename = "type")]
     pub summoner_spell_data_type: String,
     pub version: String,

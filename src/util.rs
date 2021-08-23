@@ -1,8 +1,8 @@
 use levenshtein::levenshtein;
-use serde_json::{Map, Value};
+use serde_json::Value;
 use std::collections::HashMap;
 
-use crate::types::{champion::ChampionDatum, item::ItemDatum};
+use crate::types::{champion::ChampionDatum, item::ItemDatum, rune::RuneExtended};
 
 pub fn find_champ<'a>(
     name: &str,
@@ -26,16 +26,15 @@ pub fn find_champ<'a>(
 
 pub fn group_runes<'a>(
     champ_runes: &Vec<Value>,
-    rune_data: &'a HashMap<i64, Map<String, Value>>,
-) -> Vec<(String, Vec<&'a Map<String, Value>>)> {
-    let mut grouped_runes: Vec<(String, Vec<&'a Map<String, Value>>)> = Vec::new();
+    rune_data: &'a HashMap<i64, RuneExtended>,
+) -> Vec<(String, Vec<&'a RuneExtended>)> {
+    let mut grouped_runes: Vec<(String, Vec<&'a RuneExtended>)> = Vec::new();
 
     for rune in champ_runes {
         let rune_info = &rune_data[&rune.as_i64().unwrap()];
-        let group_name = rune_info["parent"].as_str().unwrap();
-        let group_index = grouped_runes.iter().position(|r| r.0 == group_name);
+        let group_index = grouped_runes.iter().position(|r| r.0 == rune_info.parent);
         if group_index.is_none() {
-            grouped_runes.push((group_name.to_string(), vec![rune_info]));
+            grouped_runes.push((rune_info.parent.to_string(), vec![rune_info]));
         } else {
             grouped_runes[group_index.unwrap()].1.push(rune_info);
         }
@@ -46,21 +45,9 @@ pub fn group_runes<'a>(
         grouped_runes.reverse();
     }
 
-    grouped_runes[0].1.sort_by(|&a, &b| {
-        a["slot"]
-            .as_i64()
-            .unwrap()
-            .partial_cmp(&b["slot"].as_i64().unwrap())
-            .unwrap()
-    });
-
-    grouped_runes[1].1.sort_by(|&a, &b| {
-        a["slot"]
-            .as_i64()
-            .unwrap()
-            .partial_cmp(&b["slot"].as_i64().unwrap())
-            .unwrap()
-    });
+    grouped_runes
+        .iter_mut()
+        .for_each(|group| group.1.sort_by(|&a, &b| a.slot.cmp(&b.slot)));
 
     return grouped_runes;
 }

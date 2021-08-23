@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct ItemData {
+pub struct Items {
     #[serde(rename = "type")]
     pub item_data_type: Type,
     pub version: String,

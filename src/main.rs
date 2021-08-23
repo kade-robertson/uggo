@@ -18,6 +18,7 @@ mod util;
 mod types {
     pub mod champion;
     pub mod item;
+    pub mod rune;
     pub mod summonerspell;
 }
 
@@ -216,23 +217,21 @@ fn main() {
             styling::format_rune_group(&champ_runes[1].0.as_str())
         ]);
         rune_table.add_row(row![
-            &champ_runes[0].1[0]["name"].as_str().unwrap(),
+            &champ_runes[0].1[0].rune.name,
             format!(
                 "{} (Slot {})",
-                &champ_runes[1].1[0]["name"].as_str().unwrap(),
-                &champ_runes[1].1[0]["slot"]
+                &champ_runes[1].1[0].rune.name, &champ_runes[1].1[0].slot
             )
         ]);
         rune_table.add_row(row![
-            &champ_runes[0].1[1]["name"].as_str().unwrap(),
+            &champ_runes[0].1[1].rune.name,
             format!(
                 "{} (Slot {})",
-                &champ_runes[1].1[1]["name"].as_str().unwrap(),
-                &champ_runes[1].1[1]["slot"]
+                &champ_runes[1].1[1].rune.name, &champ_runes[1].1[1].slot
             )
         ]);
-        rune_table.add_row(row![&champ_runes[0].1[2]["name"].as_str().unwrap()]);
-        rune_table.add_row(row![&champ_runes[0].1[3]["name"].as_str().unwrap()]);
+        rune_table.add_row(row![&champ_runes[0].1[2].rune.name]);
+        rune_table.add_row(row![&champ_runes[0].1[3].rune.name]);
         rune_table.printstd();
 
         println!();

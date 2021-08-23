@@ -1,11 +1,12 @@
 use crate::mappings;
-use crate::types::champion::{ChampionData, ChampionDatum};
-use crate::types::item::{ItemData, ItemDatum};
-use crate::types::summonerspell::SummonerSpellData;
+use crate::types::champion::{ChampionDatum, Champions};
+use crate::types::item::{ItemDatum, Items};
+use crate::types::rune::{RuneExtended, RunePaths};
+use crate::types::summonerspell::SummonerSpells;
 use lazy_static::lazy_static;
 use reqwest::blocking::Client;
 use serde::de::DeserializeOwned;
-use serde_json::{Map, Number, Value};
+use serde_json::Value;
 use std::{collections::HashMap, convert::TryFrom};
 
 lazy_static! {
@@ -36,25 +37,17 @@ fn get_data<T: DeserializeOwned>(url: String) -> Option<T> {
 }
 
 pub fn get_current_version() -> Option<String> {
-    let versions = get_data::<Value>(
+    let versions = get_data::<Vec<String>>(
         "https://static.u.gg/assets/lol/riot_patch_update/prod/versions.json".to_string(),
     );
     match versions {
-        Some(vers) => {
-            if vers.is_array() && vers[0].is_string() {
-                return Some(String::from(vers[0].as_str().unwrap()));
-            } else {
-                return None;
-            }
-        }
-        None => {
-            return None;
-        }
+        Some(vers) => Some(vers[0].as_str().to_string()),
+        None => None,
     }
 }
 
 pub fn get_champ_data(version: &String) -> Option<Box<HashMap<String, ChampionDatum>>> {
-    let champ_data = get_data::<ChampionData>(format!(
+    let champ_data = get_data::<Champions>(format!(
         "https://static.u.gg/assets/lol/riot_static/{}/data/en_US/champion.json",
         version
     ));
@@ -65,7 +58,7 @@ pub fn get_champ_data(version: &String) -> Option<Box<HashMap<String, ChampionDa
 }
 
 pub fn get_items(version: &String) -> Option<Box<HashMap<String, ItemDatum>>> {
-    let champ_data = get_data::<ItemData>(format!(
+    let champ_data = get_data::<Items>(format!(
         "https://static.u.gg/assets/lol/riot_static/{}/data/en_US/item.json",
         version
     ));
@@ -75,61 +68,35 @@ pub fn get_items(version: &String) -> Option<Box<HashMap<String, ItemDatum>>> {
     }
 }
 
-pub fn get_runes(version: &String) -> Option<Box<HashMap<i64, Map<String, Value>>>> {
-    let rune_data = get_data::<Value>(format!(
+pub fn get_runes(version: &String) -> Option<Box<HashMap<i64, RuneExtended>>> {
+    let rune_data = get_data::<RunePaths>(format!(
         "https://static.u.gg/assets/lol/riot_static/{}/data/en_US/runesReforged.json",
         version
     ));
     match rune_data {
         Some(data) => {
-            if data.is_array() && data.as_array().unwrap().len() > 0 {
-                let unwrapped_data = data.as_array().unwrap();
-                let mut processed_data = HashMap::new();
-                for class in unwrapped_data {
-                    if class.is_object() && class.as_object().unwrap().contains_key("slots") {
-                        let unwrapped_class = class.as_object().unwrap();
-                        let rune_slots = &unwrapped_class["slots"];
-                        for (slot_index, slot) in rune_slots.as_array().unwrap().iter().enumerate()
-                        {
-                            let runes = &slot.as_object().unwrap()["runes"];
-                            for (index, rune) in runes.as_array().unwrap().iter().enumerate() {
-                                let mut cloned_rune = rune.clone();
-                                let unwrapped_rune = cloned_rune.as_object_mut().unwrap();
-                                unwrapped_rune.insert(
-                                    "slot".to_string(),
-                                    Value::Number(Number::from(slot_index)),
-                                );
-                                unwrapped_rune.insert(
-                                    "index".to_string(),
-                                    Value::Number(Number::from(index)),
-                                );
-                                unwrapped_rune.insert(
-                                    "parent".to_string(),
-                                    Value::String(
-                                        unwrapped_class["name"].as_str().unwrap().to_string(),
-                                    ),
-                                );
-                                processed_data.insert(
-                                    unwrapped_rune["id"].as_i64().unwrap(),
-                                    unwrapped_rune.clone(),
-                                );
-                            }
-                        }
+            let mut processed_data = HashMap::new();
+            for class in data {
+                for (slot_index, slot) in class.slots.iter().enumerate() {
+                    for (index, rune) in slot.runes.iter().enumerate() {
+                        let extended_rune = RuneExtended {
+                            rune: (*rune).clone(),
+                            slot: slot_index as i64,
+                            index: index as i64,
+                            parent: class.name.clone(),
+                        };
+                        processed_data.insert(rune.id, extended_rune);
                     }
                 }
-                return Some(Box::new(processed_data));
-            } else {
-                return None;
             }
+            return Some(Box::new(processed_data));
         }
-        None => {
-            return None;
-        }
+        None => None,
     }
 }
 
 pub fn get_summoner_spells(version: &String) -> Option<Box<HashMap<i64, String>>> {
-    let summoner_data = get_data::<SummonerSpellData>(format!(
+    let summoner_data = get_data::<SummonerSpells>(format!(
         "https://static.u.gg/assets/lol/riot_static/{}/data/en_US/summoner.json",
         version
     ));
