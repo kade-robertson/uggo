@@ -66,7 +66,7 @@ pub fn get_champ_data(version: &String) -> Option<Box<HashMap<String, Datum>>> {
     }
 }
 
-pub fn get_items(version: &String) -> Option<Map<String, Value>> {
+pub fn get_items(version: &String) -> Option<Box<Map<String, Value>>> {
     let champ_data = get_data::<Value>(format!(
         "https://static.u.gg/assets/lol/riot_static/{}/data/en_US/item.json",
         version
@@ -76,7 +76,9 @@ pub fn get_items(version: &String) -> Option<Map<String, Value>> {
             if data.is_object() && data.as_object().unwrap().contains_key("data") {
                 let unwrapped_data = data.as_object().unwrap();
                 if unwrapped_data.contains_key("data") && unwrapped_data["data"].is_object() {
-                    return Some(unwrapped_data["data"].as_object().unwrap().clone());
+                    return Some(Box::new(
+                        unwrapped_data["data"].as_object().unwrap().clone(),
+                    ));
                 } else {
                     return None;
                 }
@@ -90,7 +92,7 @@ pub fn get_items(version: &String) -> Option<Map<String, Value>> {
     }
 }
 
-pub fn get_runes(version: &String) -> Option<HashMap<i64, Map<String, Value>>> {
+pub fn get_runes(version: &String) -> Option<Box<HashMap<i64, Map<String, Value>>>> {
     let rune_data = get_data::<Value>(format!(
         "https://static.u.gg/assets/lol/riot_static/{}/data/en_US/runesReforged.json",
         version
@@ -132,7 +134,7 @@ pub fn get_runes(version: &String) -> Option<HashMap<i64, Map<String, Value>>> {
                         }
                     }
                 }
-                return Some(processed_data);
+                return Some(Box::new(processed_data));
             } else {
                 return None;
             }
@@ -176,7 +178,7 @@ pub fn get_stats(
     role: mappings::Role,
     region: mappings::Region,
     mode: mappings::Mode,
-) -> Option<(mappings::Role, Vec<Value>)> {
+) -> Option<Box<(mappings::Role, Vec<Value>)>> {
     let stats_data = get_data::<Value>(format!(
         "https://stats2.u.gg/lol/1.1/overview/{}/{}/{}/1.4.0.json",
         patch,
@@ -220,13 +222,13 @@ pub fn get_stats(
                         role_query = mappings::Role::None;
                     }
                 }
-                return Some((
+                return Some(Box::new((
                     role_query,
                     stats_for_rank[&mappings::role_to_str(role_query)]
                         .as_array()
                         .unwrap()
                         .clone(),
-                ));
+                )));
             } else {
                 return None;
             }

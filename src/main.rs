@@ -54,18 +54,19 @@ fn main() {
     })
     .expect("Couldn't handle Ctrl+C");
 
-    let version = api::get_current_version();
-    if version.is_none() {
-        log_error("Could not get current patch version, exiting...");
-        exit(ExitReasons::CouldNotGetVersion as i32);
-    }
-    let safe_version = version.clone().unwrap();
+    let version = match api::get_current_version() {
+        Some(data) => data,
+        None => {
+            log_error("Could not get current patch version, exiting...");
+            exit(ExitReasons::CouldNotGetVersion as i32);
+        }
+    };
     log_info(&format!(
         "Getting data for patch {}...",
-        safe_version.green().bold()
+        version.green().bold()
     ));
 
-    let champ_data = match api::get_champ_data(&safe_version) {
+    let champ_data = match api::get_champ_data(&version) {
         Some(data) => data,
         None => {
             log_error("Could not download champ data, exiting...");
@@ -77,58 +78,43 @@ fn main() {
         champ_data.keys().len().to_string().green().bold()
     ));
 
-    let item_data = api::get_items(&safe_version);
-    if item_data.is_none() {
-        log_error("Could not download item data, exiting...");
-        exit(ExitReasons::CouldNotGetItemData as i32);
-    }
+    let item_data = match api::get_items(&version) {
+        Some(data) => data,
+        None => {
+            log_error("Could not download item data, exiting...");
+            exit(ExitReasons::CouldNotGetItemData as i32);
+        }
+    };
     log_info(&format!(
         "- Got data for {} items(s).",
-        item_data
-            .clone()
-            .unwrap()
-            .keys()
-            .len()
-            .to_string()
-            .green()
-            .bold()
+        item_data.keys().len().to_string().green().bold()
     ));
 
-    let rune_data = api::get_runes(&safe_version);
-    if rune_data.is_none() {
-        log_error("Could not download rune data, exiting...");
-        exit(ExitReasons::CouldNotGetRuneData as i32);
-    }
+    let rune_data = match api::get_runes(&version) {
+        Some(data) => data,
+        None => {
+            log_error("Could not download rune data, exiting...");
+            exit(ExitReasons::CouldNotGetRuneData as i32);
+        }
+    };
     log_info(&format!(
         "- Got data for {} rune(s).",
-        rune_data
-            .clone()
-            .unwrap()
-            .keys()
-            .len()
-            .to_string()
-            .green()
-            .bold()
+        rune_data.keys().len().to_string().green().bold()
     ));
 
-    let spell_data = api::get_summoner_spells(&safe_version);
-    if spell_data.is_none() {
-        log_error("Could not download rune data, exiting...");
-        exit(ExitReasons::CouldNotGetSpellData as i32);
-    }
+    let spell_data = match api::get_summoner_spells(&version) {
+        Some(data) => data,
+        None => {
+            log_error("Could not download rune data, exiting...");
+            exit(ExitReasons::CouldNotGetSpellData as i32);
+        }
+    };
     log_info(&format!(
         "- Got data for {} rune(s).",
-        spell_data
-            .clone()
-            .unwrap()
-            .keys()
-            .len()
-            .to_string()
-            .green()
-            .bold()
+        spell_data.keys().len().to_string().green().bold()
     ));
 
-    let mut patch_version_split = safe_version.split(".").collect::<Vec<&str>>();
+    let mut patch_version_split = version.split(".").collect::<Vec<&str>>();
     patch_version_split.remove(patch_version_split.len() - 1);
     let patch_version = patch_version_split.join("_");
 
@@ -189,19 +175,22 @@ fn main() {
         query_message.push("...".to_string());
         log_info(query_message.concat().as_str());
 
-        let champ_stats = api::get_stats(
+        let (overview_role, champ_overview) = match api::get_stats(
             &patch_version.as_str(),
             query_champ,
             query_role,
             query_region,
             mode,
-        );
-        if champ_stats.is_none() {
-            log_error(format!("Couldn't get required data for {}.", formatted_champ_name).as_str());
-            continue;
-        }
+        ) {
+            Some(data) => *data,
+            None => {
+                log_error(
+                    format!("Couldn't get required data for {}.", formatted_champ_name).as_str(),
+                );
+                continue;
+            }
+        };
 
-        let (overview_role, champ_overview) = champ_stats.unwrap();
         let mut stats_message = vec![format!("Build for {}", formatted_champ_name)];
         let mut true_length = 10 /* "Build for " */ + query_champ.name.len();
         if overview_role != mappings::Role::None {
@@ -216,10 +205,8 @@ fn main() {
         println!(" {}", stats_message_str);
         println!(" {}", "-".repeat(true_length));
 
-        let champ_runes = util::group_runes(
-            &champ_overview[0][0][4].as_array().unwrap(),
-            &rune_data.as_ref().unwrap(),
-        );
+        let champ_runes =
+            util::group_runes(&champ_overview[0][0][4].as_array().unwrap(), &rune_data);
         let mut rune_table = Table::new();
         rune_table.set_format(*format::consts::FORMAT_CLEAN);
         rune_table.add_row(row![
@@ -258,8 +245,8 @@ fn main() {
             "Spells:".yellow().bold(),
             format!(
                 "{}, {}",
-                spell_data.as_ref().unwrap()[&champ_overview[0][1][2][0].as_i64().unwrap()],
-                spell_data.as_ref().unwrap()[&champ_overview[0][1][2][1].as_i64().unwrap()]
+                &spell_data[&champ_overview[0][1][2][0].as_i64().unwrap()],
+                &spell_data[&champ_overview[0][1][2][1].as_i64().unwrap()]
             )
         );
 
@@ -280,23 +267,23 @@ fn main() {
         item_table.set_format(*format::consts::FORMAT_CLEAN);
         item_table.add_row(row![
             r->"Starting:".green(),
-            util::process_items(&champ_overview[0][2][2], item_data.as_ref().unwrap(), false)
+            util::process_items(&champ_overview[0][2][2], &item_data, false)
         ]);
         item_table.add_row(row![
             r->"Core:".green(),
-            util::process_items(&champ_overview[0][3][2], item_data.as_ref().unwrap(), false)
+            util::process_items(&champ_overview[0][3][2], &item_data, false)
         ]);
         item_table.add_row(row![
             r->"4th:".green(),
-            util::process_items(&champ_overview[0][5][0], item_data.as_ref().unwrap(), true)
+            util::process_items(&champ_overview[0][5][0], &item_data, true)
         ]);
         item_table.add_row(row![
             r->"5th:".green(),
-            util::process_items(&champ_overview[0][5][1], item_data.as_ref().unwrap(), true)
+            util::process_items(&champ_overview[0][5][1], &item_data, true)
         ]);
         item_table.add_row(row![
             r->"6th:".green(),
-            util::process_items(&champ_overview[0][5][2], item_data.as_ref().unwrap(), true)
+            util::process_items(&champ_overview[0][5][2], &item_data, true)
         ]);
         println!();
         item_table.printstd();
