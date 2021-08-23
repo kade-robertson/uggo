@@ -92,3 +92,15 @@ pub fn get_role(role: &str) -> Role {
     }
     return Role::Automatic;
 }
+
+#[derive(Copy, Clone, Display, EnumString, EnumIter, PartialEq)]
+pub enum Mode {
+    #[strum(serialize = "ranked_solo_5x5", serialize = "normal")]
+    Normal,
+
+    #[strum(serialize = "normal_aram", serialize = "aram")]
+    ARAM,
+
+    #[strum(serialize = "one_for_all", serialize = "oneforall")]
+    OneForAll,
+}

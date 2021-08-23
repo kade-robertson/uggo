@@ -8,6 +8,7 @@ use prettytable::{format, Table};
 use std::io;
 use std::io::Write;
 use std::process::exit;
+use std::str::FromStr;
 use text_io::read;
 
 mod api;
@@ -133,11 +134,20 @@ fn main() {
     patch_version_split.remove(patch_version_split.len() - 1);
     let patch_version = patch_version_split.join("_");
 
+    let mut mode = mappings::Mode::Normal;
+
     loop {
         print!("query> ");
         io::stdout().flush().unwrap();
         let user_input: String = read!("{}\n");
         let user_input_split = user_input.trim().split(',').collect::<Vec<&str>>();
+
+        if user_input.starts_with("mode") {
+            let mode_to_set = user_input.trim().split(' ').collect::<Vec<&str>>()[1];
+            mode = mappings::Mode::from_str(mode_to_set).unwrap();
+            log_info("Switching mode...");
+            continue;
+        }
 
         let mut query_champ_name = "";
         let mut query_role = DEFAULT_ROLE;
@@ -187,6 +197,7 @@ fn main() {
             query_champ,
             query_role,
             query_region,
+            mode,
         );
         if champ_stats.is_none() {
             log_error(format!("Couldn't get required data for {}.", formatted_champ_name).as_str());

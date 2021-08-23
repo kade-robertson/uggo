@@ -181,10 +181,12 @@ pub fn get_stats(
     champ: &Value,
     role: mappings::Role,
     region: mappings::Region,
+    mode: mappings::Mode,
 ) -> Option<(mappings::Role, Vec<Value>)> {
     let stats_data = get_data(format!(
-        "https://stats2.u.gg/lol/1.1/overview/{}/ranked_solo_5x5/{}/1.4.0.json",
+        "https://stats2.u.gg/lol/1.1/overview/{}/{}/{}/1.4.0.json",
         patch,
+        mode.to_string(),
         champ["key"].as_str().unwrap()
     ));
     match stats_data {
