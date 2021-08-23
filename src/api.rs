@@ -1,6 +1,8 @@
-use crate::mappings;
+use crate::types::champion::ChampionData;
+use crate::{mappings, types::champion::Datum};
 use lazy_static::lazy_static;
 use reqwest::blocking::Client;
+use serde::de::DeserializeOwned;
 use serde_json::{Map, Number, Value};
 use std::{collections::HashMap, convert::TryFrom};
 
@@ -8,11 +10,11 @@ lazy_static! {
     static ref CLIENT: Client = Client::new();
 }
 
-fn get_data(url: String) -> Option<Value> {
+fn get_data<T: DeserializeOwned>(url: String) -> Option<T> {
     match CLIENT.get(url).send() {
         Ok(response) => {
             if response.status().is_success() {
-                let json_data = response.json::<Value>();
+                let json_data = response.json::<T>();
                 match json_data {
                     Ok(json) => {
                         return Some(json);
@@ -32,8 +34,9 @@ fn get_data(url: String) -> Option<Value> {
 }
 
 pub fn get_current_version() -> Option<String> {
-    let versions =
-        get_data("https://static.u.gg/assets/lol/riot_patch_update/prod/versions.json".to_string());
+    let versions = get_data::<Value>(
+        "https://static.u.gg/assets/lol/riot_patch_update/prod/versions.json".to_string(),
+    );
     match versions {
         Some(vers) => {
             if vers.is_array() && vers[0].is_string() {
@@ -48,23 +51,14 @@ pub fn get_current_version() -> Option<String> {
     }
 }
 
-pub fn get_champ_data(version: &String) -> Option<Map<String, Value>> {
-    let champ_data = get_data(format!(
+pub fn get_champ_data(version: &String) -> Option<Box<HashMap<String, Datum>>> {
+    let champ_data = get_data::<ChampionData>(format!(
         "https://static.u.gg/assets/lol/riot_static/{}/data/en_US/champion.json",
         version
     ));
     match champ_data {
         Some(data) => {
-            if data.is_object() && data.as_object().unwrap().contains_key("data") {
-                let unwrapped_data = data.as_object().unwrap();
-                if unwrapped_data.contains_key("data") && unwrapped_data["data"].is_object() {
-                    return Some(unwrapped_data["data"].as_object().unwrap().clone());
-                } else {
-                    return None;
-                }
-            } else {
-                return None;
-            }
+            return Some(Box::new(data.data));
         }
         None => {
             return None;
@@ -73,7 +67,7 @@ pub fn get_champ_data(version: &String) -> Option<Map<String, Value>> {
 }
 
 pub fn get_items(version: &String) -> Option<Map<String, Value>> {
-    let champ_data = get_data(format!(
+    let champ_data = get_data::<Value>(format!(
         "https://static.u.gg/assets/lol/riot_static/{}/data/en_US/item.json",
         version
     ));
@@ -97,7 +91,7 @@ pub fn get_items(version: &String) -> Option<Map<String, Value>> {
 }
 
 pub fn get_runes(version: &String) -> Option<HashMap<i64, Map<String, Value>>> {
-    let rune_data = get_data(format!(
+    let rune_data = get_data::<Value>(format!(
         "https://static.u.gg/assets/lol/riot_static/{}/data/en_US/runesReforged.json",
         version
     ));
@@ -150,7 +144,7 @@ pub fn get_runes(version: &String) -> Option<HashMap<i64, Map<String, Value>>> {
 }
 
 pub fn get_summoner_spells(version: &String) -> Option<HashMap<i64, String>> {
-    let summoner_data = get_data(format!(
+    let summoner_data = get_data::<Value>(format!(
         "https://static.u.gg/assets/lol/riot_static/{}/data/en_US/summoner.json",
         version
     ));
@@ -178,16 +172,16 @@ pub fn get_summoner_spells(version: &String) -> Option<HashMap<i64, String>> {
 
 pub fn get_stats(
     patch: &str,
-    champ: &Value,
+    champ: &Datum,
     role: mappings::Role,
     region: mappings::Region,
     mode: mappings::Mode,
 ) -> Option<(mappings::Role, Vec<Value>)> {
-    let stats_data = get_data(format!(
+    let stats_data = get_data::<Value>(format!(
         "https://stats2.u.gg/lol/1.1/overview/{}/{}/{}/1.4.0.json",
         patch,
         mode.to_string(),
-        champ["key"].as_str().unwrap()
+        champ.key.as_str()
     ));
     match stats_data {
         Some(champ_stats) => {

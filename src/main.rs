@@ -15,6 +15,9 @@ mod api;
 mod mappings;
 mod styling;
 mod util;
+mod types {
+    pub mod champion;
+}
 
 enum ExitReasons {
     Neutral = 0,
@@ -62,21 +65,16 @@ fn main() {
         safe_version.green().bold()
     ));
 
-    let champ_data = api::get_champ_data(&safe_version);
-    if champ_data.is_none() {
-        log_error("Could not download champ data, exiting...");
-        exit(ExitReasons::CouldNotGetChampData as i32);
-    }
+    let champ_data = match api::get_champ_data(&safe_version) {
+        Some(data) => data,
+        None => {
+            log_error("Could not download champ data, exiting...");
+            exit(ExitReasons::CouldNotGetChampData as i32);
+        }
+    };
     log_info(&format!(
         "- Got data for {} champ(s).",
-        champ_data
-            .clone()
-            .unwrap()
-            .keys()
-            .len()
-            .to_string()
-            .green()
-            .bold()
+        champ_data.keys().len().to_string().green().bold()
     ));
 
     let item_data = api::get_items(&safe_version);
@@ -174,10 +172,9 @@ fn main() {
             query_region = mappings::get_region(&user_input_split[2]);
         }
 
-        let cloned_champ_data = &champ_data.clone().unwrap();
-        let query_champ = util::find_champ(query_champ_name, cloned_champ_data);
+        let query_champ = util::find_champ(query_champ_name, &champ_data);
 
-        let formatted_champ_name = query_champ["name"].as_str().unwrap().green().bold();
+        let formatted_champ_name = query_champ.name.as_str().green().bold();
 
         let mut query_message = vec![format!("Looking up info for {}", formatted_champ_name)];
         if query_role != DEFAULT_ROLE {
@@ -206,7 +203,7 @@ fn main() {
 
         let (overview_role, champ_overview) = champ_stats.unwrap();
         let mut stats_message = vec![format!("Build for {}", formatted_champ_name)];
-        let mut true_length = 10 /* "Build for " */ + query_champ["name"].as_str().unwrap().len();
+        let mut true_length = 10 /* "Build for " */ + query_champ.name.len();
         if overview_role != mappings::Role::None {
             stats_message.push(format!(
                 ", playing {} lane",

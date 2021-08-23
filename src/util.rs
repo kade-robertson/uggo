@@ -2,14 +2,16 @@ use levenshtein::levenshtein;
 use serde_json::{Map, Value};
 use std::collections::HashMap;
 
-pub fn find_champ<'a>(name: &str, champ_data: &'a Map<String, Value>) -> &'a Value {
+use crate::types::champion::Datum;
+
+pub fn find_champ<'a>(name: &str, champ_data: &'a HashMap<String, Datum>) -> &'a Datum {
     if champ_data.contains_key(name) {
         return &champ_data[name];
     } else {
         let mut lowest_distance: i32 = i32::MAX;
-        let mut closest_champ: &Value = &champ_data["Annie"];
+        let mut closest_champ: &Datum = &champ_data["Annie"];
         for (_key, value) in champ_data {
-            let distance = levenshtein(name, value["name"].as_str().unwrap()) as i32;
+            let distance = levenshtein(name, value.name.as_str()) as i32;
             if distance < lowest_distance {
                 lowest_distance = distance;
                 closest_champ = value;
