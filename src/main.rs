@@ -1,6 +1,7 @@
 #[macro_use]
 extern crate prettytable;
 
+#[cfg(debug_assertions)]
 use chrono;
 use colored::*;
 use ctrlc;
@@ -32,23 +33,31 @@ enum ExitReasons {
     CouldNotGetSpellData,
 }
 
+#[cfg(debug_assertions)]
 static TIME_FORMAT: &str = "[%Y-%m-%d %H:%M:%S%.3f] ";
+
 static DEFAULT_ROLE: mappings::Role = mappings::Role::Automatic;
 static DEFAULT_REGION: mappings::Region = mappings::Region::World;
 
 fn log_error(msg: &str) {
-    let now = chrono::Local::now();
-    eprintln!(
-        "[{}] {} {}",
-        now.format(TIME_FORMAT),
-        "Error:".red().bold(),
-        msg
-    );
+    #[cfg(debug_assertions)]
+    {
+        let now = chrono::Local::now();
+        eprint!("{}", now.format(TIME_FORMAT).to_string().as_str());
+    }
+    eprint!("{} ", "Error:".red().bold());
+    eprintln!("{}", msg);
 }
 
 fn log_info(msg: &str) {
-    let now = chrono::Local::now();
-    println!("[{}] {}", now.format(TIME_FORMAT), msg);
+    let mut message = String::new();
+    #[cfg(debug_assertions)]
+    {
+        let now = chrono::Local::now();
+        message.push_str(now.format(TIME_FORMAT).to_string().as_str());
+    }
+    message.push_str(msg);
+    println!("{}", message);
 }
 
 fn main() {
@@ -77,6 +86,7 @@ fn main() {
             exit(ExitReasons::CouldNotGetChampData as i32);
         }
     };
+    #[cfg(debug_assertions)]
     log_info(&format!(
         "- Got data for {} champ(s).",
         champ_data.keys().len().to_string().green().bold()
@@ -89,6 +99,7 @@ fn main() {
             exit(ExitReasons::CouldNotGetItemData as i32);
         }
     };
+    #[cfg(debug_assertions)]
     log_info(&format!(
         "- Got data for {} items(s).",
         item_data.keys().len().to_string().green().bold()
@@ -101,6 +112,7 @@ fn main() {
             exit(ExitReasons::CouldNotGetRuneData as i32);
         }
     };
+    #[cfg(debug_assertions)]
     log_info(&format!(
         "- Got data for {} rune(s).",
         rune_data.keys().len().to_string().green().bold()
@@ -109,12 +121,13 @@ fn main() {
     let spell_data = match api::get_summoner_spells(&version) {
         Some(data) => data,
         None => {
-            log_error("Could not download rune data, exiting...");
+            log_error("Could not download summoner spell data, exiting...");
             exit(ExitReasons::CouldNotGetSpellData as i32);
         }
     };
+    #[cfg(debug_assertions)]
     log_info(&format!(
-        "- Got data for {} rune(s).",
+        "- Got data for {} summoner spell(s).",
         spell_data.keys().len().to_string().green().bold()
     ));
 
