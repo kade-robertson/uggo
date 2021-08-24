@@ -1,3 +1,6 @@
+// Credit to https://github.com/pradishb/ugg-parser for figuring out the
+// structure of the champ overview stats data.
+
 use crate::mappings;
 use serde::de::{Deserialize, Deserializer, IgnoredAny, SeqAccess, Visitor};
 use serde_json::Value;
