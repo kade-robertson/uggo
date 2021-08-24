@@ -32,7 +32,7 @@ enum ExitReasons {
     CouldNotGetSpellData,
 }
 
-static TIME_FORMAT: &str = "%Y-%m-%d %H:%M:%S%.3f";
+static TIME_FORMAT: &str = "[%Y-%m-%d %H:%M:%S%.3f] ";
 static DEFAULT_ROLE: mappings::Role = mappings::Role::Automatic;
 static DEFAULT_REGION: mappings::Region = mappings::Region::World;
 
@@ -57,11 +57,6 @@ fn main() {
         exit(ExitReasons::Neutral as i32);
     })
     .expect("Couldn't handle Ctrl+C");
-
-    match api::get_stats_test() {
-        Some(data) => println!("{:#?}", data),
-        None => (),
-    }
 
     let version = match api::get_current_version() {
         Some(data) => data,
@@ -214,8 +209,7 @@ fn main() {
         println!(" {}", stats_message_str);
         println!(" {}", "-".repeat(true_length));
 
-        let champ_runes =
-            util::group_runes(&champ_overview[0][0][4].as_array().unwrap(), &rune_data);
+        let champ_runes = util::group_runes(&champ_overview.runes.rune_ids, &rune_data);
         let mut rune_table = Table::new();
         rune_table.set_format(*format::consts::FORMAT_CLEAN);
         rune_table.add_row(row![
@@ -242,7 +236,7 @@ fn main() {
 
         println!();
         println!(" {}", "Shards:".magenta().bold());
-        util::process_shards(&champ_overview[0][8][2].as_array().unwrap())
+        util::process_shards(&champ_overview.shards.shard_ids)
             .iter()
             .for_each(|shard| println!(" {}", shard));
 
@@ -252,8 +246,8 @@ fn main() {
             "Spells:".yellow().bold(),
             format!(
                 "{}, {}",
-                &spell_data[&champ_overview[0][1][2][0].as_i64().unwrap()],
-                &spell_data[&champ_overview[0][1][2][1].as_i64().unwrap()]
+                &spell_data[&champ_overview.summoner_spells.spell_ids[0]],
+                &spell_data[&champ_overview.summoner_spells.spell_ids[1]]
             )
         );
 
@@ -261,9 +255,9 @@ fn main() {
         println!(
             " {} {}",
             "Ability Order:".bright_cyan().bold(),
-            champ_overview[0][4][3]
-                .as_str()
-                .unwrap()
+            champ_overview
+                .abilities
+                .ability_max_order
                 .chars()
                 .map(|c| c.to_string())
                 .collect::<Vec<String>>()
@@ -274,28 +268,28 @@ fn main() {
         item_table.set_format(*format::consts::FORMAT_CLEAN);
         item_table.add_row(row![
             r->"Starting:".green(),
-            util::process_items(&champ_overview[0][2][2], &item_data, false)
+            util::process_items(&champ_overview.starting_items.item_ids, &item_data)
         ]);
         item_table.add_row(row![
             r->"Core:".green(),
-            util::process_items(&champ_overview[0][3][2], &item_data, false)
+            util::process_items(&champ_overview.core_items.item_ids, &item_data)
         ]);
         item_table.add_row(row![
             r->"4th:".green(),
-            util::process_items(&champ_overview[0][5][0], &item_data, true)
+            util::process_items(&champ_overview.item_4_options.iter().map(|x| x.id).collect::<Vec<i64>>(), &item_data)
         ]);
         item_table.add_row(row![
             r->"5th:".green(),
-            util::process_items(&champ_overview[0][5][1], &item_data, true)
+            util::process_items(&champ_overview.item_5_options.iter().map(|x| x.id).collect::<Vec<i64>>(), &item_data)
         ]);
         item_table.add_row(row![
             r->"6th:".green(),
-            util::process_items(&champ_overview[0][5][2], &item_data, true)
+            util::process_items(&champ_overview.item_6_options.iter().map(|x| x.id).collect::<Vec<i64>>(), &item_data)
         ]);
         println!();
         item_table.printstd();
 
-        if champ_overview[0][6][1].as_i64().unwrap() < 1000 {
+        if champ_overview.low_sample_size {
             println!();
             println!(
                 " {} Data has a low sample size for this combination!",

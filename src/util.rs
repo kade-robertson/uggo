@@ -1,5 +1,4 @@
 use levenshtein::levenshtein;
-use serde_json::Value;
 use std::collections::HashMap;
 
 use crate::types::{champion::ChampionDatum, item::ItemDatum, rune::RuneExtended};
@@ -25,13 +24,13 @@ pub fn find_champ<'a>(
 }
 
 pub fn group_runes<'a>(
-    champ_runes: &Vec<Value>,
+    rune_ids: &Vec<i64>,
     rune_data: &'a HashMap<i64, RuneExtended>,
 ) -> Vec<(String, Vec<&'a RuneExtended>)> {
     let mut grouped_runes: Vec<(String, Vec<&'a RuneExtended>)> = Vec::new();
 
-    for rune in champ_runes {
-        let rune_info = &rune_data[&rune.as_i64().unwrap()];
+    for rune in rune_ids {
+        let rune_info = &rune_data[rune];
         let group_index = grouped_runes.iter().position(|r| r.0 == rune_info.parent);
         if group_index.is_none() {
             grouped_runes.push((rune_info.parent.to_string(), vec![rune_info]));
@@ -52,52 +51,30 @@ pub fn group_runes<'a>(
     return grouped_runes;
 }
 
-pub fn process_items(
-    champ_items: &Value,
-    item_data: &HashMap<String, ItemDatum>,
-    nested: bool,
-) -> String {
+pub fn process_items(champ_items: &Vec<i64>, item_data: &HashMap<String, ItemDatum>) -> String {
     return champ_items
-        .as_array()
-        .unwrap()
         .iter()
-        .map(|v| {
-            item_data[&(if nested { &v[0] } else { v })
-                .as_i64()
-                .unwrap()
-                .to_string()]
-                .name
-                .clone()
-        })
+        .map(|v| item_data[&v.to_string()].name.clone())
         .collect::<Vec<String>>()
         .join(", ");
 }
 
-fn get_shard(id: &str) -> &str {
+fn get_shard(id: &i64) -> &str {
     return match id {
-        "5001" => "+15-90 Health",
-        "5002" => "+6 Armor",
-        "5003" => "+8 Magic Resist",
-        "5005" => "+10% Attack Speed",
-        "5007" => "+8 Ability Haste",
-        "5008" => "+9 Adaptive Force",
+        5001 => "+15-90 Health",
+        5002 => "+6 Armor",
+        5003 => "+8 Magic Resist",
+        5005 => "+10% Attack Speed",
+        5007 => "+8 Ability Haste",
+        5008 => "+9 Adaptive Force",
         _ => "Unknown",
     };
 }
 
-pub fn process_shards(shards: &Vec<Value>) -> Vec<String> {
+pub fn process_shards(shards: &Vec<i64>) -> Vec<String> {
     let mut shard_text: Vec<String> = Vec::new();
-    shard_text.push(format!(
-        "- Offense: {}",
-        get_shard(shards[0].as_str().unwrap())
-    ));
-    shard_text.push(format!(
-        "- Flex: {}",
-        get_shard(shards[1].as_str().unwrap())
-    ));
-    shard_text.push(format!(
-        "- Defense: {}",
-        get_shard(shards[2].as_str().unwrap())
-    ));
+    shard_text.push(format!("- Offense: {}", get_shard(&shards[0])));
+    shard_text.push(format!("- Flex: {}", get_shard(&shards[1])));
+    shard_text.push(format!("- Defense: {}", get_shard(&shards[2])));
     return shard_text;
 }

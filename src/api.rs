@@ -1,13 +1,12 @@
 use crate::mappings;
 use crate::types::champion::{ChampionDatum, Champions};
 use crate::types::item::{ItemDatum, Items};
-use crate::types::overview::{ChampOverview, ChampOverviewNew};
+use crate::types::overview::{ChampOverview, OverviewData};
 use crate::types::rune::{RuneExtended, RunePaths};
 use crate::types::summonerspell::SummonerSpells;
 use lazy_static::lazy_static;
 use reqwest::blocking::Client;
 use serde::de::DeserializeOwned;
-use serde_json::Value;
 use std::collections::HashMap;
 
 lazy_static! {
@@ -113,7 +112,7 @@ pub fn get_stats(
     role: mappings::Role,
     region: mappings::Region,
     mode: mappings::Mode,
-) -> Option<Box<(mappings::Role, Vec<Value>)>> {
+) -> Option<Box<(mappings::Role, OverviewData)>> {
     let stats_data = get_data::<ChampOverview>(format!(
         "https://stats2.u.gg/lol/1.1/overview/{}/{}/{}/1.4.0.json",
         patch,
@@ -142,9 +141,8 @@ pub fn get_stats(
                     let mut most_games = 0;
                     let mut used_role = role;
                     for (role_key, role_stats) in &champ_stats[&region_query][&rank_query] {
-                        let games_played = role_stats[0][6][1].as_i64().unwrap();
-                        if games_played > most_games {
-                            most_games = games_played;
+                        if role_stats.data.matches > most_games {
+                            most_games = role_stats.data.matches;
                             used_role = role_key.clone();
                         }
                     }
@@ -156,22 +154,11 @@ pub fn get_stats(
             }
             return Some(Box::new((
                 role_query,
-                champ_stats[&region_query][&rank_query][&role_query].clone(),
+                champ_stats[&region_query][&rank_query][&role_query]
+                    .data
+                    .clone(),
             )));
         }
         None => None,
-    }
-}
-
-pub fn get_stats_test() -> Option<Box<ChampOverviewNew>> {
-    let overview_data = get_data::<ChampOverviewNew>(
-        "https://stats2.u.gg/lol/1.1/overview/11_16/ranked_solo_5x5/99/1.4.0.json".to_string(),
-    );
-    match overview_data {
-        Some(data) => Some(Box::new(data)),
-        None => {
-            println!("Fail!");
-            None
-        }
     }
 }

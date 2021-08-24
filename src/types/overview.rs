@@ -3,14 +3,10 @@
 
 use crate::mappings;
 use serde::de::{Deserialize, Deserializer, IgnoredAny, SeqAccess, Visitor};
-use serde_json::Value;
 use std::collections::HashMap;
 use std::fmt;
 
-pub type ChampOverview =
-    HashMap<mappings::Region, HashMap<mappings::Rank, HashMap<mappings::Role, Vec<Value>>>>;
-
-pub type ChampOverviewNew = HashMap<
+pub type ChampOverview = HashMap<
     mappings::Region,
     HashMap<mappings::Rank, HashMap<mappings::Role, WrappedOverviewData>>,
 >;
@@ -27,7 +23,7 @@ fn handle_unknown<T, E>(result: Result<Option<T>, E>, default: T) -> T {
 
 #[derive(Debug)]
 pub struct WrappedOverviewData {
-    data: OverviewData,
+    pub data: OverviewData,
 }
 
 impl<'de> Deserialize<'de> for WrappedOverviewData {
@@ -63,7 +59,7 @@ impl<'de> Deserialize<'de> for WrappedOverviewData {
         deserializer.deserialize_seq(WrappedOverviewDataVisitor)
     }
 }
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct OverviewData {
     pub runes: Runes,
     pub summoner_spells: SummonerSpells,
@@ -79,7 +75,7 @@ pub struct OverviewData {
     pub shards: Shards,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Runes {
     pub matches: i64,
     pub wins: i64,
@@ -129,7 +125,7 @@ impl<'de> Deserialize<'de> for Runes {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct SummonerSpells {
     pub matches: i64,
     pub wins: i64,
@@ -169,7 +165,7 @@ impl<'de> Deserialize<'de> for SummonerSpells {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Items {
     pub matches: i64,
     pub wins: i64,
@@ -209,7 +205,7 @@ impl<'de> Deserialize<'de> for Items {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Abilities {
     pub matches: i64,
     pub wins: i64,
@@ -291,7 +287,7 @@ impl<'de> Deserialize<'de> for LateItem {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Shards {
     pub matches: i64,
     pub wins: i64,
