@@ -1,7 +1,34 @@
+#[cfg(debug_assertions)]
+use chrono;
+use colored::*;
 use levenshtein::levenshtein;
 use std::collections::HashMap;
 
 use crate::types::{champion::ChampionDatum, item::ItemDatum, rune::RuneExtended};
+
+#[cfg(debug_assertions)]
+static TIME_FORMAT: &str = "[%Y-%m-%d %H:%M:%S%.3f] ";
+
+pub fn log_error(msg: &str) {
+    #[cfg(debug_assertions)]
+    {
+        let now = chrono::Local::now();
+        eprint!("{}", now.format(TIME_FORMAT).to_string().as_str());
+    }
+    eprint!("{} ", "Error:".red().bold());
+    eprintln!("{}", msg);
+}
+
+pub fn log_info(msg: &str) {
+    let mut message = String::new();
+    #[cfg(debug_assertions)]
+    {
+        let now = chrono::Local::now();
+        message.push_str(now.format(TIME_FORMAT).to_string().as_str());
+    }
+    message.push_str(msg);
+    println!("{}", message);
+}
 
 pub fn find_champ<'a>(
     name: &str,

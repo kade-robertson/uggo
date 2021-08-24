@@ -1,8 +1,6 @@
 #[macro_use]
 extern crate prettytable;
 
-#[cfg(debug_assertions)]
-use chrono;
 use colored::*;
 use ctrlc;
 use prettytable::{format, Table};
@@ -33,32 +31,8 @@ enum ExitReasons {
     CouldNotGetSpellData,
 }
 
-#[cfg(debug_assertions)]
-static TIME_FORMAT: &str = "[%Y-%m-%d %H:%M:%S%.3f] ";
-
 static DEFAULT_ROLE: mappings::Role = mappings::Role::Automatic;
 static DEFAULT_REGION: mappings::Region = mappings::Region::World;
-
-fn log_error(msg: &str) {
-    #[cfg(debug_assertions)]
-    {
-        let now = chrono::Local::now();
-        eprint!("{}", now.format(TIME_FORMAT).to_string().as_str());
-    }
-    eprint!("{} ", "Error:".red().bold());
-    eprintln!("{}", msg);
-}
-
-fn log_info(msg: &str) {
-    let mut message = String::new();
-    #[cfg(debug_assertions)]
-    {
-        let now = chrono::Local::now();
-        message.push_str(now.format(TIME_FORMAT).to_string().as_str());
-    }
-    message.push_str(msg);
-    println!("{}", message);
-}
 
 fn main() {
     ctrlc::set_handler(move || {
@@ -70,11 +44,11 @@ fn main() {
     let version = match api::get_current_version() {
         Some(data) => data,
         None => {
-            log_error("Could not get current patch version, exiting...");
+            util::log_error("Could not get current patch version, exiting...");
             exit(ExitReasons::CouldNotGetVersion as i32);
         }
     };
-    log_info(&format!(
+    util::log_info(&format!(
         "Getting data for patch {}...",
         version.green().bold()
     ));
@@ -82,12 +56,12 @@ fn main() {
     let champ_data = match api::get_champ_data(&version) {
         Some(data) => data,
         None => {
-            log_error("Could not download champ data, exiting...");
+            util::log_error("Could not download champ data, exiting...");
             exit(ExitReasons::CouldNotGetChampData as i32);
         }
     };
     #[cfg(debug_assertions)]
-    log_info(&format!(
+    util::log_info(&format!(
         "- Got data for {} champ(s).",
         champ_data.keys().len().to_string().green().bold()
     ));
@@ -95,12 +69,12 @@ fn main() {
     let item_data = match api::get_items(&version) {
         Some(data) => data,
         None => {
-            log_error("Could not download item data, exiting...");
+            util::log_error("Could not download item data, exiting...");
             exit(ExitReasons::CouldNotGetItemData as i32);
         }
     };
     #[cfg(debug_assertions)]
-    log_info(&format!(
+    util::log_info(&format!(
         "- Got data for {} items(s).",
         item_data.keys().len().to_string().green().bold()
     ));
@@ -108,12 +82,12 @@ fn main() {
     let rune_data = match api::get_runes(&version) {
         Some(data) => data,
         None => {
-            log_error("Could not download rune data, exiting...");
+            util::log_error("Could not download rune data, exiting...");
             exit(ExitReasons::CouldNotGetRuneData as i32);
         }
     };
     #[cfg(debug_assertions)]
-    log_info(&format!(
+    util::log_info(&format!(
         "- Got data for {} rune(s).",
         rune_data.keys().len().to_string().green().bold()
     ));
@@ -121,12 +95,12 @@ fn main() {
     let spell_data = match api::get_summoner_spells(&version) {
         Some(data) => data,
         None => {
-            log_error("Could not download summoner spell data, exiting...");
+            util::log_error("Could not download summoner spell data, exiting...");
             exit(ExitReasons::CouldNotGetSpellData as i32);
         }
     };
     #[cfg(debug_assertions)]
-    log_info(&format!(
+    util::log_info(&format!(
         "- Got data for {} summoner spell(s).",
         spell_data.keys().len().to_string().green().bold()
     ));
@@ -146,7 +120,7 @@ fn main() {
         if user_input.starts_with("mode") {
             let mode_to_set = user_input.trim().split(' ').collect::<Vec<&str>>()[1];
             mode = mappings::Mode::from_str(mode_to_set).unwrap();
-            log_info("Switching mode...");
+            util::log_info(format!("Switching mode to {:?}...", mode).as_str());
             continue;
         }
 
@@ -155,8 +129,8 @@ fn main() {
         let mut query_region = DEFAULT_REGION;
 
         if user_input_split.len() < 1 || user_input_split.len() > 3 || user_input_split[0] == "" {
-            log_info("This doesn't look like a valid query.");
-            log_info("Query format is <champion>[,<role>][,<region>]");
+            util::log_info("This doesn't look like a valid query.");
+            util::log_info("Query format is <champion>[,<role>][,<region>]");
             continue;
         }
         if user_input_split.len() >= 1 {
@@ -190,7 +164,7 @@ fn main() {
             query_message.push(format!(", in {}", query_region.to_string().red().bold()));
         }
         query_message.push("...".to_string());
-        log_info(query_message.concat().as_str());
+        util::log_info(query_message.concat().as_str());
 
         let (overview_role, champ_overview) = match api::get_stats(
             &patch_version.as_str(),
@@ -201,7 +175,7 @@ fn main() {
         ) {
             Some(data) => *data,
             None => {
-                log_error(
+                util::log_error(
                     format!("Couldn't get required data for {}.", formatted_champ_name).as_str(),
                 );
                 continue;

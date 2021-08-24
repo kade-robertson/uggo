@@ -155,7 +155,7 @@ pub fn get_role(role: &str) -> Role {
     return Role::Automatic;
 }
 
-#[derive(Copy, Clone, Display, EnumString, EnumIter, PartialEq)]
+#[derive(Copy, Clone, Display, EnumString, EnumIter, PartialEq, Debug)]
 pub enum Mode {
     #[strum(serialize = "ranked_solo_5x5", serialize = "normal")]
     Normal,
