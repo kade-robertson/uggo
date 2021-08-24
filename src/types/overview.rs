@@ -44,15 +44,16 @@ impl<'de> Deserialize<'de> for WrappedOverviewData {
             where
                 V: SeqAccess<'de>,
             {
-                let data = visitor
-                    .next_element::<OverviewData>()
-                    .ok()
-                    .unwrap()
-                    .unwrap();
-                while let Some(IgnoredAny) = visitor.next_element()? {
-                    // ignore
+                match visitor.next_element::<OverviewData>().ok() {
+                    Some(maybe_data) => match maybe_data {
+                        Some(data) => {
+                            while let Some(IgnoredAny) = visitor.next_element()? {}
+                            Ok(WrappedOverviewData { data })
+                        }
+                        None => Err(serde::de::Error::missing_field("top-level element")),
+                    },
+                    None => Err(serde::de::Error::missing_field("top-level element")),
                 }
-                Ok(WrappedOverviewData { data })
             }
         }
 
@@ -320,7 +321,7 @@ impl<'de> Deserialize<'de> for Shards {
                         vec![],
                     )
                     .iter()
-                    .map(|x| x.parse::<i64>().ok().unwrap())
+                    .map(|x| x.parse::<i64>().ok().unwrap_or(0))
                     .collect::<Vec<i64>>(),
                 })
             }
@@ -363,7 +364,10 @@ impl<'de> Deserialize<'de> for OverviewData {
                     .ok()
                     .unwrap()
                     .unwrap();
-                let match_info = visitor.next_element::<Vec<i64>>().ok().unwrap().unwrap();
+                let match_info = handle_unknown::<Vec<i64>, V::Error>(
+                    visitor.next_element::<Vec<i64>>(),
+                    vec![],
+                );
                 let low_sample_size = match_info[1] < 1000;
 
                 // this is the original low sample size value, it's always false though, so ignore.

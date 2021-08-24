@@ -58,11 +58,9 @@ pub fn group_runes<'a>(
 
     for rune in rune_ids {
         let rune_info = &rune_data[rune];
-        let group_index = grouped_runes.iter().position(|r| r.0 == rune_info.parent);
-        if group_index.is_none() {
-            grouped_runes.push((rune_info.parent.to_string(), vec![rune_info]));
-        } else {
-            grouped_runes[group_index.unwrap()].1.push(rune_info);
+        match grouped_runes.iter().position(|r| r.0 == rune_info.parent) {
+            Some(group_index) => grouped_runes[group_index].1.push(rune_info),
+            None => grouped_runes.push((rune_info.parent.to_string(), vec![rune_info])),
         }
     }
 

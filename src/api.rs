@@ -98,7 +98,10 @@ pub fn get_summoner_spells(version: &String) -> Option<Box<HashMap<i64, String>>
         Some(spells) => {
             let mut reduced_data: HashMap<i64, String> = HashMap::new();
             for (_spell, spell_info) in spells.data {
-                reduced_data.insert(spell_info.key.parse::<i64>().unwrap(), spell_info.name);
+                reduced_data.insert(
+                    spell_info.key.parse::<i64>().ok().unwrap_or(0),
+                    spell_info.name,
+                );
             }
             return Some(Box::new(reduced_data));
         }
