@@ -1,4 +1,4 @@
-use std::convert::TryFrom;
+use std::{convert::TryFrom, str::FromStr};
 
 use serde::{Deserialize, Serialize};
 use strum::IntoEnumIterator;
@@ -163,6 +163,20 @@ pub enum Mode {
     #[strum(serialize = "normal_aram", serialize = "aram")]
     ARAM,
 
-    #[strum(serialize = "one_for_all", serialize = "oneforall")]
+    #[strum(
+        serialize = "one_for_all",
+        serialize = "oneforall",
+        serialize = "one for all"
+    )]
     OneForAll,
+}
+
+pub fn get_mode(mode: &str) -> Mode {
+    match Mode::from_str(mode) {
+        Ok(variant) => variant,
+        Err(_) => match Mode::from_str(&mode.to_lowercase()) {
+            Ok(variant) => variant,
+            Err(_) => Mode::Normal,
+        },
+    }
 }

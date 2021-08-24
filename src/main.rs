@@ -7,7 +7,7 @@ use prettytable::{format, Table};
 use std::io;
 use std::io::Write;
 use std::process::exit;
-use std::str::FromStr;
+use strum::IntoEnumIterator;
 use text_io::read;
 
 mod api;
@@ -117,11 +117,22 @@ fn main() {
         let user_input: String = read!("{}\n");
         let user_input_split = user_input.trim().split(',').collect::<Vec<&str>>();
 
-        if user_input.starts_with("mode") {
-            let mode_to_set = user_input.trim().split(' ').collect::<Vec<&str>>()[1];
-            mode = mappings::Mode::from_str(mode_to_set).unwrap();
-            util::log_info(format!("Switching mode to {:?}...", mode).as_str());
+        if user_input == "modes" {
+            util::log_info("Available modes:");
+            mappings::Mode::iter().for_each(|m| util::log_info(format!("- {:?}", m).as_str()));
             continue;
+        }
+
+        if user_input.starts_with("mode") {
+            let mode_to_set = user_input.trim().split(' ').collect::<Vec<&str>>();
+            if mode_to_set.len() > 1 {
+                mode = mappings::get_mode(mode_to_set[1]);
+                util::log_info(format!("Switching mode to {:?}...", mode).as_str());
+                continue;
+            } else {
+                util::log_info(format!("Current mode: {:?}", mode).as_str());
+                continue;
+            }
         }
 
         let mut query_champ_name = "";
