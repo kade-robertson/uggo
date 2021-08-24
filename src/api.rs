@@ -1,13 +1,14 @@
 use crate::mappings;
 use crate::types::champion::{ChampionDatum, Champions};
 use crate::types::item::{ItemDatum, Items};
+use crate::types::overview::ChampOverview;
 use crate::types::rune::{RuneExtended, RunePaths};
 use crate::types::summonerspell::SummonerSpells;
 use lazy_static::lazy_static;
 use reqwest::blocking::Client;
 use serde::de::DeserializeOwned;
 use serde_json::Value;
-use std::{collections::HashMap, convert::TryFrom};
+use std::collections::HashMap;
 
 lazy_static! {
     static ref CLIENT: Client = Client::new();
@@ -19,20 +20,14 @@ fn get_data<T: DeserializeOwned>(url: String) -> Option<T> {
             if response.status().is_success() {
                 let json_data = response.json::<T>();
                 match json_data {
-                    Ok(json) => {
-                        return Some(json);
-                    }
-                    Err(_) => {
-                        return None;
-                    }
+                    Ok(json) => Some(json),
+                    Err(_) => None,
                 }
             } else {
                 return None;
             }
         }
-        Err(_) => {
-            return None;
-        }
+        Err(_) => None,
     }
 }
 
@@ -119,7 +114,7 @@ pub fn get_stats(
     region: mappings::Region,
     mode: mappings::Mode,
 ) -> Option<Box<(mappings::Role, Vec<Value>)>> {
-    let stats_data = get_data::<Value>(format!(
+    let stats_data = get_data::<ChampOverview>(format!(
         "https://stats2.u.gg/lol/1.1/overview/{}/{}/{}/1.4.0.json",
         patch,
         mode.to_string(),
@@ -127,54 +122,43 @@ pub fn get_stats(
     ));
     match stats_data {
         Some(champ_stats) => {
-            if champ_stats.is_object() {
-                let unwrapped_stats = champ_stats.as_object().unwrap();
-                let stats_for_region = unwrapped_stats[&(region as i32).to_string()]
-                    .as_object()
-                    .unwrap();
-                let rank_query = if stats_for_region
-                    .contains_key(&mappings::rank_to_str(mappings::Rank::PlatinumPlus))
-                {
+            let region_query = if champ_stats.contains_key(&region) {
+                region
+            } else {
+                mappings::Region::World
+            };
+
+            let rank_query =
+                if champ_stats[&region_query].contains_key(&mappings::Rank::PlatinumPlus) {
                     mappings::Rank::PlatinumPlus
                 } else {
                     mappings::Rank::Overall
                 };
-                let stats_for_rank = stats_for_region[&mappings::rank_to_str(rank_query)]
-                    .as_object()
-                    .unwrap();
-                let mut role_query = role;
-                if !stats_for_rank.contains_key(&mappings::role_to_str(role_query)) {
-                    if role_query == mappings::Role::Automatic {
-                        // Go through each role and pick the one with most matches played
-                        let mut most_games = 0;
-                        let mut used_role = stats_for_rank.keys().next().unwrap();
-                        for (role_key, role_stats) in stats_for_rank {
-                            let games_played = role_stats[0][6][1].as_i64().unwrap();
-                            if games_played > most_games {
-                                most_games = games_played;
-                                used_role = role_key;
-                            }
+
+            let mut role_query = role;
+            if !champ_stats[&region_query][&rank_query].contains_key(&role_query) {
+                if role_query == mappings::Role::Automatic {
+                    // Go through each role and pick the one with most matches played
+                    let mut most_games = 0;
+                    let mut used_role = role;
+                    for (role_key, role_stats) in &champ_stats[&region_query][&rank_query] {
+                        let games_played = role_stats[0][6][1].as_i64().unwrap();
+                        if games_played > most_games {
+                            most_games = games_played;
+                            used_role = role_key.clone();
                         }
-                        role_query =
-                            mappings::Role::try_from(used_role.parse::<i32>().unwrap()).unwrap();
-                    } else {
-                        // This should only happen in ARAM
-                        role_query = mappings::Role::None;
                     }
+                    role_query = used_role;
+                } else {
+                    // This should only happen in ARAM
+                    role_query = mappings::Role::None;
                 }
-                return Some(Box::new((
-                    role_query,
-                    stats_for_rank[&mappings::role_to_str(role_query)]
-                        .as_array()
-                        .unwrap()
-                        .clone(),
-                )));
-            } else {
-                return None;
             }
+            return Some(Box::new((
+                role_query,
+                champ_stats[&region_query][&rank_query][&role_query].clone(),
+            )));
         }
-        None => {
-            return None;
-        }
+        None => None,
     }
 }

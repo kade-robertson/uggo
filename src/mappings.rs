@@ -1,43 +1,94 @@
 use std::convert::TryFrom;
 
+use serde::{Deserialize, Serialize};
 use strum::IntoEnumIterator;
 use strum_macros::{Display, EnumIter, EnumString};
 
-#[derive(Copy, Clone, Display, EnumString, EnumIter, PartialEq)]
+#[derive(
+    Copy, Clone, Display, EnumString, EnumIter, PartialEq, Eq, Hash, Serialize, Deserialize,
+)]
 pub enum Rank {
+    #[serde(rename = "1")]
     Challenger = 1,
+
+    #[serde(rename = "2")]
     Master = 2,
+
+    #[serde(rename = "3")]
     Diamond = 3,
+
+    #[serde(rename = "4")]
     Platinum = 4,
+
+    #[serde(rename = "5")]
     Gold = 5,
+
+    #[serde(rename = "6")]
     Silver = 6,
+
+    #[serde(rename = "7")]
     Bronze = 7,
+
+    #[serde(rename = "8")]
     Overall = 8,
+
+    #[serde(rename = "10")]
     PlatinumPlus = 10,
+
+    #[serde(rename = "11")]
     DiamondPlus = 11,
+
+    #[serde(rename = "12")]
     Iron = 12,
+
+    #[serde(rename = "13")]
     Grandmaster = 13,
+
+    #[serde(rename = "14")]
     MasterPlus = 14,
+
+    #[serde(rename = "15")]
     Diamond2Plus = 15,
 }
 
-pub fn rank_to_str(rank: Rank) -> String {
-    return (rank as i32).to_string();
-}
-
-#[derive(Copy, Clone, Display, EnumString, EnumIter, PartialEq)]
+#[derive(
+    Copy, Clone, Display, EnumString, EnumIter, PartialEq, Eq, Hash, Serialize, Deserialize,
+)]
 pub enum Region {
+    #[serde(rename = "1")]
     NA1 = 1,
+
+    #[serde(rename = "2")]
     EUW1,
+
+    #[serde(rename = "3")]
     KR,
+
+    #[serde(rename = "4")]
     EUN1,
+
+    #[serde(rename = "5")]
     BR1,
+
+    #[serde(rename = "6")]
     LA1,
+
+    #[serde(rename = "7")]
     LA2,
+
+    #[serde(rename = "8")]
     OC1,
+
+    #[serde(rename = "9")]
     RU,
+
+    #[serde(rename = "10")]
     TR1,
+
+    #[serde(rename = "11")]
     JP1,
+
+    #[serde(rename = "12")]
     World,
 }
 
@@ -53,14 +104,29 @@ pub fn get_region(region: &str) -> Region {
     return Region::NA1;
 }
 
-#[derive(Copy, Clone, Display, EnumString, EnumIter, PartialEq)]
+#[derive(
+    Copy, Clone, Display, EnumString, EnumIter, PartialEq, Eq, Hash, Serialize, Deserialize,
+)]
 pub enum Role {
+    #[serde(rename = "1")]
     Jungle = 1,
+
+    #[serde(rename = "2")]
     Support,
+
+    #[serde(rename = "3")]
     ADCarry,
+
+    #[serde(rename = "4")]
     Top,
+
+    #[serde(rename = "5")]
     Mid,
+
+    #[serde(rename = "6")]
     None,
+
+    #[serde(rename = "7")]
     Automatic,
 }
 
@@ -77,10 +143,6 @@ impl TryFrom<i32> for Role {
             _ => Err(()),
         }
     }
-}
-
-pub fn role_to_str(role: Role) -> String {
-    return (role as i32).to_string();
 }
 
 pub fn get_role(role: &str) -> Role {
