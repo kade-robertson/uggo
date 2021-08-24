@@ -5,7 +5,7 @@ use strum::IntoEnumIterator;
 use strum_macros::{Display, EnumIter, EnumString};
 
 #[derive(
-    Copy, Clone, Display, EnumString, EnumIter, PartialEq, Eq, Hash, Serialize, Deserialize,
+    Copy, Clone, Display, EnumString, EnumIter, PartialEq, Eq, Hash, Serialize, Deserialize, Debug,
 )]
 pub enum Rank {
     #[serde(rename = "1")]
@@ -52,7 +52,7 @@ pub enum Rank {
 }
 
 #[derive(
-    Copy, Clone, Display, EnumString, EnumIter, PartialEq, Eq, Hash, Serialize, Deserialize,
+    Copy, Clone, Display, EnumString, EnumIter, PartialEq, Eq, Hash, Serialize, Deserialize, Debug,
 )]
 pub enum Region {
     #[serde(rename = "1")]
@@ -105,7 +105,7 @@ pub fn get_region(region: &str) -> Region {
 }
 
 #[derive(
-    Copy, Clone, Display, EnumString, EnumIter, PartialEq, Eq, Hash, Serialize, Deserialize,
+    Copy, Clone, Display, EnumString, EnumIter, PartialEq, Eq, Hash, Serialize, Deserialize, Debug,
 )]
 pub enum Role {
     #[serde(rename = "1")]

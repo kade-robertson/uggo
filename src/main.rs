@@ -58,6 +58,11 @@ fn main() {
     })
     .expect("Couldn't handle Ctrl+C");
 
+    match api::get_stats_test() {
+        Some(data) => println!("{:#?}", data),
+        None => (),
+    }
+
     let version = match api::get_current_version() {
         Some(data) => data,
         None => {

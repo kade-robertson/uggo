@@ -1,7 +1,7 @@
 use crate::mappings;
 use crate::types::champion::{ChampionDatum, Champions};
 use crate::types::item::{ItemDatum, Items};
-use crate::types::overview::ChampOverview;
+use crate::types::overview::{ChampOverview, ChampOverviewNew};
 use crate::types::rune::{RuneExtended, RunePaths};
 use crate::types::summonerspell::SummonerSpells;
 use lazy_static::lazy_static;
@@ -160,5 +160,18 @@ pub fn get_stats(
             )));
         }
         None => None,
+    }
+}
+
+pub fn get_stats_test() -> Option<Box<ChampOverviewNew>> {
+    let overview_data = get_data::<ChampOverviewNew>(
+        "https://stats2.u.gg/lol/1.1/overview/11_16/ranked_solo_5x5/99/1.4.0.json".to_string(),
+    );
+    match overview_data {
+        Some(data) => Some(Box::new(data)),
+        None => {
+            println!("Fail!");
+            None
+        }
     }
 }
