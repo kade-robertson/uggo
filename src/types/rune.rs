@@ -32,6 +32,7 @@ pub struct Rune {
 pub struct RuneExtended {
     pub slot: i64,
     pub index: i64,
+    pub siblings: i64,
     pub parent: String,
     pub rune: Rune,
 }

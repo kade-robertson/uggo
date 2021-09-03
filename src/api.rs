@@ -77,6 +77,7 @@ pub fn get_runes(version: &String) -> Option<Box<HashMap<i64, RuneExtended>>> {
                             rune: (*rune).clone(),
                             slot: slot_index as i64,
                             index: index as i64,
+                            siblings: slot.runes.len() as i64,
                             parent: class.name.clone(),
                         };
                         processed_data.insert(rune.id, extended_rune);

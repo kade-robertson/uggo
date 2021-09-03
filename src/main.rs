@@ -212,24 +212,36 @@ fn main() {
         rune_table.set_format(*format::consts::FORMAT_CLEAN);
         rune_table.add_row(row![
             styling::format_rune_group(&champ_runes[0].0.as_str()),
-            styling::format_rune_group(&champ_runes[1].0.as_str())
+            "",
+            styling::format_rune_group(&champ_runes[1].0.as_str()),
+            ""
         ]);
         rune_table.add_row(row![
             &champ_runes[0].1[0].rune.name,
+            styling::format_rune_position(&champ_runes[0].1[0]),
             format!(
                 "{} (Slot {})",
                 &champ_runes[1].1[0].rune.name, &champ_runes[1].1[0].slot
-            )
+            ),
+            styling::format_rune_position(&champ_runes[1].1[0])
         ]);
         rune_table.add_row(row![
             &champ_runes[0].1[1].rune.name,
+            styling::format_rune_position(&champ_runes[0].1[1]),
             format!(
                 "{} (Slot {})",
                 &champ_runes[1].1[1].rune.name, &champ_runes[1].1[1].slot
-            )
+            ),
+            styling::format_rune_position(&champ_runes[1].1[1])
         ]);
-        rune_table.add_row(row![&champ_runes[0].1[2].rune.name]);
-        rune_table.add_row(row![&champ_runes[0].1[3].rune.name]);
+        rune_table.add_row(row![
+            &champ_runes[0].1[2].rune.name,
+            styling::format_rune_position(&champ_runes[0].1[2])
+        ]);
+        rune_table.add_row(row![
+            &champ_runes[0].1[3].rune.name,
+            styling::format_rune_position(&champ_runes[0].1[3])
+        ]);
         rune_table.printstd();
 
         println!();
