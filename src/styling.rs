@@ -28,12 +28,12 @@ pub fn format_rune_position(rune: &RuneExtended) -> String {
     while index < rune.siblings {
         if index == rune.index {
             position_message.push_str(
-                format_rune_text(rune.parent.as_str(), Some("·"))
+                format_rune_text(rune.parent.as_str(), Some("●"))
                     .to_string()
                     .as_str(),
             );
         } else {
-            position_message.push('·');
+            position_message.push_str("·".black().bold().to_string().as_str());
         }
         index += 1;
     }
