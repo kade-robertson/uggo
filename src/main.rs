@@ -220,7 +220,7 @@ fn main() {
             &champ_runes[0].1[0].rune.name,
             styling::format_rune_position(&champ_runes[0].1[0]),
             format!(
-                "{} (Slot {})",
+                "{} (Row {})",
                 &champ_runes[1].1[0].rune.name, &champ_runes[1].1[0].slot
             ),
             styling::format_rune_position(&champ_runes[1].1[0])
@@ -229,7 +229,7 @@ fn main() {
             &champ_runes[0].1[1].rune.name,
             styling::format_rune_position(&champ_runes[0].1[1]),
             format!(
-                "{} (Slot {})",
+                "{} (Row {})",
                 &champ_runes[1].1[1].rune.name, &champ_runes[1].1[1].slot
             ),
             styling::format_rune_position(&champ_runes[1].1[1])
