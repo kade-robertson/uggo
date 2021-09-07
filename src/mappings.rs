@@ -163,11 +163,7 @@ pub enum Mode {
     #[strum(serialize = "normal_aram", serialize = "aram")]
     ARAM,
 
-    #[strum(
-        serialize = "one_for_all",
-        serialize = "oneforall",
-        serialize = "one for all"
-    )]
+    #[strum(serialize = "one_for_all", serialize = "oneforall")]
     OneForAll,
 }
 
@@ -180,7 +176,6 @@ pub fn get_mode(mode: &str) -> Mode {
         },
     }
 }
-
 
 #[cfg(test)]
 mod tests {
