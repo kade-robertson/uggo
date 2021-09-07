@@ -17,6 +17,7 @@ mod util;
 mod types {
     pub mod champion;
     pub mod item;
+    pub mod matchups;
     pub mod overview;
     pub mod rune;
     pub mod summonerspell;
@@ -109,13 +110,30 @@ fn main() {
     patch_version_split.remove(patch_version_split.len() - 1);
     let patch_version = patch_version_split.join("_");
 
+    match api::get_matchups(
+        &patch_version.as_str(),
+        util::find_champ("Aatrox", &champ_data),
+        DEFAULT_ROLE,
+        DEFAULT_REGION,
+        mappings::Mode::Normal,
+    ) {
+        Some(x) => {
+            println!("{:#?}", x.1);
+        }
+        None => {}
+    }
+
     let mut mode = mappings::Mode::Normal;
 
     loop {
         print!("query> ");
         io::stdout().flush().unwrap();
         let user_input: String = read!("{}\n");
-        let user_input_split = user_input.trim().split(',').map(|s: &str| s.trim()).collect::<Vec<&str>>();
+        let user_input_split = user_input
+            .trim()
+            .split(',')
+            .map(|s: &str| s.trim())
+            .collect::<Vec<&str>>();
 
         if user_input == "modes" {
             util::log_info("Available modes:");
