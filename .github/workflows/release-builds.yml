@@ -1,14 +1,14 @@
 on:
-  push:
-    branches:
-      - master
+  release:
+    types: [published]
 
 jobs:
-  nightly_builds:
+  release_builds:
     name: uggo
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
+    if: "!github.event.release.prerelease"
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
@@ -23,7 +23,6 @@ jobs:
       - name: Set outputs
         id: vars
         run: |
-          echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
           echo "::set-output name=version::$(cargo pkgid | cut -d# -f2 | cut -d: -f2)"
       - name: Build
         run: |
@@ -46,5 +45,5 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: artifacts/*
-          tag_name: "v${{ steps.vars.outputs.version }}-${{ steps.vars.outputs.sha_short }}"
+          tag_name: "v${{ steps.vars.outputs.version }}"
           prerelease: true
