@@ -320,36 +320,34 @@ fn main() {
         item_table.printstd();
 
         if invalid_matchup_data == false && matchups.total_matches > 0 {
-            println!(
-                " Best Matchups: {}",
+            let mut matchup_table = Table::new();
+            matchup_table.set_format(*format::consts::FORMAT_CLEAN);
+            matchup_table.add_row(row![
+                r->"Best Matchups:".cyan().bold(),
                 matchups
                     .best_matchups
                     .into_iter()
-                    .map(|m| champ_data
-                        .iter()
-                        .find(|c| c.1.key == m.champion_id.to_string())
+                    .map(|m| util::find_champ_by_key(m.champion_id, &champ_data)
                         .unwrap()
-                        .1
                         .name
                         .as_str())
                     .collect::<Vec<&str>>()
                     .join(", ")
-            );
-            println!(
-                " Worst Matchups: {}",
+            ]);
+            matchup_table.add_row(row![
+                r->"Worst Matchups:".red().bold(),
                 matchups
                     .worst_matchups
                     .into_iter()
-                    .map(|m| champ_data
-                        .iter()
-                        .find(|c| c.1.key == m.champion_id.to_string())
+                    .map(|m| util::find_champ_by_key(m.champion_id, &champ_data)
                         .unwrap()
-                        .1
                         .name
                         .as_str())
                     .collect::<Vec<&str>>()
                     .join(", ")
-            );
+            ]);
+            println!();
+            matchup_table.printstd();
         }
 
         if champ_overview.low_sample_size {
