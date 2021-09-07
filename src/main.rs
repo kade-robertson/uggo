@@ -110,19 +110,6 @@ fn main() {
     patch_version_split.remove(patch_version_split.len() - 1);
     let patch_version = patch_version_split.join("_");
 
-    match api::get_matchups(
-        &patch_version.as_str(),
-        util::find_champ("Aatrox", &champ_data),
-        DEFAULT_ROLE,
-        DEFAULT_REGION,
-        mappings::Mode::Normal,
-    ) {
-        Some(x) => {
-            println!("{:#?}", x.1);
-        }
-        None => {}
-    }
-
     let mut mode = mappings::Mode::Normal;
 
     loop {
@@ -207,6 +194,21 @@ fn main() {
                 util::log_error(
                     format!("Couldn't get required data for {}.", formatted_champ_name).as_str(),
                 );
+                continue;
+            }
+        };
+
+        let mut invalid_matchup_data = false;
+        let matchups = match api::get_matchups(
+            &patch_version.as_str(),
+            query_champ,
+            overview_role,
+            query_region,
+            mode,
+        ) {
+            Some(data) => *data,
+            None => {
+                invalid_matchup_data = true;
                 continue;
             }
         };
@@ -316,6 +318,39 @@ fn main() {
         ]);
         println!();
         item_table.printstd();
+
+        if invalid_matchup_data == false && matchups.total_matches > 0 {
+            println!(
+                " Best Matchups: {}",
+                matchups
+                    .best_matchups
+                    .into_iter()
+                    .map(|m| champ_data
+                        .iter()
+                        .find(|c| c.1.key == m.champion_id.to_string())
+                        .unwrap()
+                        .1
+                        .name
+                        .as_str())
+                    .collect::<Vec<&str>>()
+                    .join(", ")
+            );
+            println!(
+                " Worst Matchups: {}",
+                matchups
+                    .worst_matchups
+                    .into_iter()
+                    .map(|m| champ_data
+                        .iter()
+                        .find(|c| c.1.key == m.champion_id.to_string())
+                        .unwrap()
+                        .1
+                        .name
+                        .as_str())
+                    .collect::<Vec<&str>>()
+                    .join(", ")
+            );
+        }
 
         if champ_overview.low_sample_size {
             println!();

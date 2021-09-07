@@ -108,10 +108,10 @@ impl<'de> Deserialize<'de> for MatchupData {
                     }
                 }
 
-                // Only consider matchups that represent at least a 1% possibility of showing up
+                // Only consider matchups that represent at least a 0.5% possibility of showing up
                 all_matchups = all_matchups
                     .into_iter()
-                    .filter(|a| a.matches as f64 >= (total_matches as f64 / 100.0))
+                    .filter(|a| a.matches as f64 >= (total_matches as f64 / 200.0))
                     .collect::<Vec<Matchup>>();
                 all_matchups.sort_by(|a, b| b.winrate.partial_cmp(&a.winrate).unwrap());
 

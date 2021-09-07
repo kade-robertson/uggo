@@ -174,7 +174,7 @@ pub fn get_matchups(
     role: mappings::Role,
     region: mappings::Region,
     mode: mappings::Mode,
-) -> Option<Box<(mappings::Role, MatchupData)>> {
+) -> Option<Box<MatchupData>> {
     let stats_data = get_data::<Matchups>(format!(
         "https://stats2.u.gg/lol/1.1/matchups/{}/{}/{}/1.4.0.json",
         patch,
@@ -182,44 +182,25 @@ pub fn get_matchups(
         champ.key.as_str()
     ));
     match stats_data {
-        Some(champ_stats) => {
-            let region_query = if champ_stats.contains_key(&region) {
+        Some(champ_matchups) => {
+            let region_query = if champ_matchups.contains_key(&region) {
                 region
             } else {
                 mappings::Region::World
             };
 
             let rank_query =
-                if champ_stats[&region_query].contains_key(&mappings::Rank::PlatinumPlus) {
+                if champ_matchups[&region_query].contains_key(&mappings::Rank::PlatinumPlus) {
                     mappings::Rank::PlatinumPlus
                 } else {
                     mappings::Rank::Overall
                 };
 
-            let mut role_query = role;
-            if !champ_stats[&region_query][&rank_query].contains_key(&role_query) {
-                if role_query == mappings::Role::Automatic {
-                    // Go through each role and pick the one with most matches played
-                    //let mut most_games = 0;
-                    //let mut used_role = role;
-                    /*for (role_key, role_stats) in &champ_stats[&region_query][&rank_query] {
-                        if role_stats.data.total_matches > most_games {
-                            most_games = role_stats.data.total_matches;
-                            used_role = role_key.clone();
-                        }
-                    }*/
-                    role_query = mappings::Role::Top;
-                } else {
-                    // This should only happen in ARAM
-                    role_query = mappings::Role::None;
-                }
-            }
-            return Some(Box::new((
-                role_query,
-                champ_stats[&region_query][&rank_query][&role_query]
+            return Some(Box::new(
+                champ_matchups[&region_query][&rank_query][&role]
                     .data
                     .clone(),
-            )));
+            ));
         }
         None => None,
     }
