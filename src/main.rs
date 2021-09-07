@@ -17,6 +17,7 @@ mod util;
 mod types {
     pub mod champion;
     pub mod item;
+    pub mod matchups;
     pub mod overview;
     pub mod rune;
     pub mod summonerspell;
@@ -115,16 +116,20 @@ fn main() {
         print!("query> ");
         io::stdout().flush().unwrap();
         let user_input: String = read!("{}\n");
-        let user_input_split = user_input.trim().split(',').map(|s: &str| s.trim()).collect::<Vec<&str>>();
+        let clean_user_input = user_input.trim();
+        let user_input_split = clean_user_input
+            .split(',')
+            .map(|s: &str| s.trim())
+            .collect::<Vec<&str>>();
 
-        if user_input == "modes" {
+        if clean_user_input == "modes" {
             util::log_info("Available modes:");
             mappings::Mode::iter().for_each(|m| util::log_info(format!("- {:?}", m).as_str()));
             continue;
         }
 
-        if user_input.starts_with("mode") {
-            let mode_to_set = user_input.trim().split(' ').collect::<Vec<&str>>();
+        if clean_user_input.starts_with("mode") {
+            let mode_to_set = clean_user_input.split(' ').collect::<Vec<&str>>();
             if mode_to_set.len() > 1 {
                 mode = mappings::get_mode(mode_to_set[1]);
                 util::log_info(format!("Switching mode to {:?}...", mode).as_str());
@@ -192,6 +197,14 @@ fn main() {
                 continue;
             }
         };
+
+        let matchups = api::get_matchups(
+            &patch_version.as_str(),
+            query_champ,
+            overview_role,
+            query_region,
+            mode,
+        );
 
         let mut stats_message = vec![format!("Build for {}", formatted_champ_name)];
         let mut true_length = 10 /* "Build for " */ + query_champ.name.len();
@@ -298,6 +311,38 @@ fn main() {
         ]);
         println!();
         item_table.printstd();
+
+        if !matchups.is_none() {
+            let safe_matchups = *matchups.clone().unwrap();
+            let mut matchup_table = Table::new();
+            matchup_table.set_format(*format::consts::FORMAT_CLEAN);
+            matchup_table.add_row(row![
+                r->"Best Matchups:".cyan().bold(),
+                safe_matchups
+                    .best_matchups
+                    .into_iter()
+                    .map(|m| util::find_champ_by_key(m.champion_id, &champ_data)
+                        .unwrap()
+                        .name
+                        .as_str())
+                    .collect::<Vec<&str>>()
+                    .join(", ")
+            ]);
+            matchup_table.add_row(row![
+                r->"Worst Matchups:".red().bold(),
+                safe_matchups
+                    .worst_matchups
+                    .into_iter()
+                    .map(|m| util::find_champ_by_key(m.champion_id, &champ_data)
+                        .unwrap()
+                        .name
+                        .as_str())
+                    .collect::<Vec<&str>>()
+                    .join(", ")
+            ]);
+            println!();
+            matchup_table.printstd();
+        }
 
         if champ_overview.low_sample_size {
             println!();

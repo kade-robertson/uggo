@@ -1,6 +1,7 @@
 use crate::mappings;
 use crate::types::champion::{ChampionDatum, Champions};
 use crate::types::item::{ItemDatum, Items};
+use crate::types::matchups::{MatchupData, Matchups};
 use crate::types::overview::{ChampOverview, OverviewData};
 use crate::types::rune::{RuneExtended, RunePaths};
 use crate::types::summonerspell::SummonerSpells;
@@ -162,6 +163,44 @@ pub fn get_stats(
                     .data
                     .clone(),
             )));
+        }
+        None => None,
+    }
+}
+
+pub fn get_matchups(
+    patch: &str,
+    champ: &ChampionDatum,
+    role: mappings::Role,
+    region: mappings::Region,
+    mode: mappings::Mode,
+) -> Option<Box<MatchupData>> {
+    let stats_data = get_data::<Matchups>(format!(
+        "https://stats2.u.gg/lol/1.1/matchups/{}/{}/{}/1.4.0.json",
+        patch,
+        mode.to_string(),
+        champ.key.as_str()
+    ));
+    match stats_data {
+        Some(champ_matchups) => {
+            let region_query = if champ_matchups.contains_key(&region) {
+                region
+            } else {
+                mappings::Region::World
+            };
+
+            let rank_query =
+                if champ_matchups[&region_query].contains_key(&mappings::Rank::PlatinumPlus) {
+                    mappings::Rank::PlatinumPlus
+                } else {
+                    mappings::Rank::Overall
+                };
+
+            return Some(Box::new(
+                champ_matchups[&region_query][&rank_query][&role]
+                    .data
+                    .clone(),
+            ));
         }
         None => None,
     }

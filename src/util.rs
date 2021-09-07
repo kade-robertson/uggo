@@ -50,6 +50,19 @@ pub fn find_champ<'a>(
     }
 }
 
+pub fn find_champ_by_key<'a>(
+    key: i64,
+    champ_data: &'a HashMap<String, ChampionDatum>,
+) -> Option<&'a ChampionDatum> {
+    match champ_data
+        .iter()
+        .find(|champ| champ.1.key == key.to_string())
+    {
+        Some(data) => Some(data.1),
+        None => None,
+    }
+}
+
 pub fn group_runes<'a>(
     rune_ids: &Vec<i64>,
     rune_data: &'a HashMap<i64, RuneExtended>,
