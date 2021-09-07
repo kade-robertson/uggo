@@ -180,3 +180,19 @@ pub fn get_mode(mode: &str) -> Mode {
         },
     }
 }
+
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+
+    #[test]
+    fn test_get_role() {
+        assert_eq!(get_role("top"), Role::Top);
+        assert_eq!(get_role("mid"), Role::Mid);
+        assert_eq!(get_role("sup"), Role::Support);
+        assert_eq!(get_role("Adc"), Role::ADCarry);
+        assert_eq!(get_role("jungle"), Role::Jungle);
+    }
+}

@@ -115,7 +115,7 @@ fn main() {
         print!("query> ");
         io::stdout().flush().unwrap();
         let user_input: String = read!("{}\n");
-        let user_input_split = user_input.trim().split(',').collect::<Vec<&str>>();
+        let user_input_split = user_input.trim().split(',').map(|s: &str| s.trim()).collect::<Vec<&str>>();
 
         if user_input == "modes" {
             util::log_info("Available modes:");
