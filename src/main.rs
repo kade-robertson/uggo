@@ -11,6 +11,7 @@ use strum::IntoEnumIterator;
 use text_io::read;
 
 mod api;
+mod config;
 mod mappings;
 mod styling;
 mod util;
@@ -41,6 +42,8 @@ fn main() {
         exit(ExitReasons::Neutral as i32);
     })
     .expect("Couldn't handle Ctrl+C");
+
+    println!("{}", config::Config::new().cache());
 
     let version = match api::get_current_version() {
         Some(data) => data,
