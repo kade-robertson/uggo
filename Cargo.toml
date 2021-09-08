@@ -18,6 +18,8 @@ strum = "0.21"
 strum_macros = "0.21"
 levenshtein = "1.0.5"
 prettytable-rs = "0.8.0"
+sha2 = "0.9.7"
+hex = "0.4.3"
 
 [profile.release]
 opt-level = "z"

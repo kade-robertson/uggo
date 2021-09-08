@@ -1,3 +1,4 @@
+use crate::config::Config;
 use crate::mappings;
 use crate::types::champion::{ChampionDatum, Champions};
 use crate::types::item::{ItemDatum, Items};
@@ -5,13 +6,16 @@ use crate::types::matchups::{MatchupData, Matchups};
 use crate::types::overview::{ChampOverview, OverviewData};
 use crate::types::rune::{RuneExtended, RunePaths};
 use crate::types::summonerspell::SummonerSpells;
+use crate::util::{read_from_cache, write_to_cache};
 use lazy_static::lazy_static;
 use reqwest::blocking::Client;
 use serde::de::DeserializeOwned;
+use serde::Serialize;
 use std::collections::HashMap;
 
 lazy_static! {
     static ref CLIENT: Client = Client::new();
+    static ref CONFIG: Config = Config::new();
 }
 
 fn get_data<T: DeserializeOwned>(url: String) -> Option<T> {
@@ -31,6 +35,21 @@ fn get_data<T: DeserializeOwned>(url: String) -> Option<T> {
     }
 }
 
+fn get_cached_data<T: DeserializeOwned + Serialize>(url: String) -> Option<T> {
+    if let Some(data) = read_from_cache::<T>(CONFIG.cache(), &url) {
+        println!("cache hit");
+        return Some(data);
+    }
+    println!("cache miss");
+    match get_data::<T>(url.clone()) {
+        Some(data) => {
+            write_to_cache::<T>(CONFIG.cache(), &url, &data);
+            return Some(data);
+        }
+        None => None,
+    }
+}
+
 pub fn get_current_version() -> Option<String> {
     let versions = get_data::<Vec<String>>(
         "https://ddragon.leagueoflegends.com/api/versions.json".to_string(),
@@ -42,7 +61,7 @@ pub fn get_current_version() -> Option<String> {
 }
 
 pub fn get_champ_data(version: &String) -> Option<Box<HashMap<String, ChampionDatum>>> {
-    let champ_data = get_data::<Champions>(format!(
+    let champ_data = get_cached_data::<Champions>(format!(
         "http://ddragon.leagueoflegends.com/cdn/{}/data/en_US/champion.json",
         version
     ));
@@ -53,7 +72,7 @@ pub fn get_champ_data(version: &String) -> Option<Box<HashMap<String, ChampionDa
 }
 
 pub fn get_items(version: &String) -> Option<Box<HashMap<String, ItemDatum>>> {
-    let champ_data = get_data::<Items>(format!(
+    let champ_data = get_cached_data::<Items>(format!(
         "http://ddragon.leagueoflegends.com/cdn/{}/data/en_US/item.json",
         version
     ));
@@ -64,7 +83,7 @@ pub fn get_items(version: &String) -> Option<Box<HashMap<String, ItemDatum>>> {
 }
 
 pub fn get_runes(version: &String) -> Option<Box<HashMap<i64, RuneExtended>>> {
-    let rune_data = get_data::<RunePaths>(format!(
+    let rune_data = get_cached_data::<RunePaths>(format!(
         "http://ddragon.leagueoflegends.com/cdn/{}/data/en_US/runesReforged.json",
         version
     ));
@@ -92,7 +111,7 @@ pub fn get_runes(version: &String) -> Option<Box<HashMap<i64, RuneExtended>>> {
 }
 
 pub fn get_summoner_spells(version: &String) -> Option<Box<HashMap<i64, String>>> {
-    let summoner_data = get_data::<SummonerSpells>(format!(
+    let summoner_data = get_cached_data::<SummonerSpells>(format!(
         "http://ddragon.leagueoflegends.com/cdn/{}/data/en_US/summoner.json",
         version
     ));
