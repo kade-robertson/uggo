@@ -46,4 +46,3 @@ jobs:
         with:
           files: artifacts/*
           tag_name: "v${{ steps.vars.outputs.version }}"
-          prerelease: true
