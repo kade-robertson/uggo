@@ -52,7 +52,7 @@ fn get_cached_data<T: DeserializeOwned + Serialize>(url: String) -> Option<T> {
 
 pub fn get_current_version() -> Option<String> {
     let versions = get_data::<Vec<String>>(
-        "https://ddragon.leagueoflegends.com/api/versions.json".to_string(),
+        "https://static.u.gg/assets/lol/riot_patch_update/prod/versions.json".to_string(),
     );
     match versions {
         Some(vers) => Some(vers[0].as_str().to_string()),
