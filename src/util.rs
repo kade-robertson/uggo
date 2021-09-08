@@ -2,7 +2,11 @@
 use chrono;
 use colored::*;
 use levenshtein::levenshtein;
-use std::collections::HashMap;
+use serde::de::DeserializeOwned;
+use serde::Serialize;
+use sha2::{Digest, Sha256};
+use std::path::Path;
+use std::{collections::HashMap, fs};
 
 use crate::types::{champion::ChampionDatum, item::ItemDatum, rune::RuneExtended};
 
@@ -115,4 +119,29 @@ pub fn process_shards(shards: &Vec<i64>) -> Vec<String> {
     shard_text.push(format!("- Flex: {}", get_shard(&shards[1])));
     shard_text.push(format!("- Defense: {}", get_shard(&shards[2])));
     return shard_text;
+}
+
+pub fn read_from_cache<T: DeserializeOwned>(cache_dir: &str, filename: &String) -> Option<T> {
+    let file_path = Path::new(cache_dir).join(format!(
+        "{}.json",
+        hex::encode(Sha256::digest(filename.as_bytes()))
+    ));
+    if file_path.exists() {
+        match serde_json::from_str::<T>(&fs::read_to_string(file_path).unwrap_or_default()) {
+            Ok(data) => Some(data),
+            Err(_) => None,
+        }
+    } else {
+        return None;
+    }
+}
+
+pub fn write_to_cache<T: Serialize>(cache_dir: &str, filename: &String, data: &T) {
+    let file_path = Path::new(cache_dir).join(format!(
+        "{}.json",
+        hex::encode(Sha256::digest(filename.as_bytes()))
+    ));
+    if let Ok(data) = serde_json::to_string::<T>(data) {
+        fs::write(file_path, data).ok();
+    }
 }

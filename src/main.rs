@@ -11,6 +11,7 @@ use strum::IntoEnumIterator;
 use text_io::read;
 
 mod api;
+mod config;
 mod mappings;
 mod styling;
 mod util;
