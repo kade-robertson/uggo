@@ -33,7 +33,7 @@ fn get_data<T: DeserializeOwned>(url: String) -> Option<T> {
 
 pub fn get_current_version() -> Option<String> {
     let versions = get_data::<Vec<String>>(
-        "https://static.u.gg/assets/lol/riot_patch_update/prod/versions.json".to_string(),
+        "https://ddragon.leagueoflegends.com/api/versions.json".to_string(),
     );
     match versions {
         Some(vers) => Some(vers[0].as_str().to_string()),
@@ -43,7 +43,7 @@ pub fn get_current_version() -> Option<String> {
 
 pub fn get_champ_data(version: &String) -> Option<Box<HashMap<String, ChampionDatum>>> {
     let champ_data = get_data::<Champions>(format!(
-        "https://static.u.gg/assets/lol/riot_static/{}/data/en_US/champion.json",
+        "http://ddragon.leagueoflegends.com/cdn/{}/data/en_US/champion.json",
         version
     ));
     match champ_data {
@@ -54,7 +54,7 @@ pub fn get_champ_data(version: &String) -> Option<Box<HashMap<String, ChampionDa
 
 pub fn get_items(version: &String) -> Option<Box<HashMap<String, ItemDatum>>> {
     let champ_data = get_data::<Items>(format!(
-        "https://static.u.gg/assets/lol/riot_static/{}/data/en_US/item.json",
+        "http://ddragon.leagueoflegends.com/cdn/{}/data/en_US/item.json",
         version
     ));
     match champ_data {
@@ -65,7 +65,7 @@ pub fn get_items(version: &String) -> Option<Box<HashMap<String, ItemDatum>>> {
 
 pub fn get_runes(version: &String) -> Option<Box<HashMap<i64, RuneExtended>>> {
     let rune_data = get_data::<RunePaths>(format!(
-        "https://static.u.gg/assets/lol/riot_static/{}/data/en_US/runesReforged.json",
+        "http://ddragon.leagueoflegends.com/cdn/{}/data/en_US/runesReforged.json",
         version
     ));
     match rune_data {
@@ -93,7 +93,7 @@ pub fn get_runes(version: &String) -> Option<Box<HashMap<i64, RuneExtended>>> {
 
 pub fn get_summoner_spells(version: &String) -> Option<Box<HashMap<i64, String>>> {
     let summoner_data = get_data::<SummonerSpells>(format!(
-        "https://static.u.gg/assets/lol/riot_static/{}/data/en_US/summoner.json",
+        "http://ddragon.leagueoflegends.com/cdn/{}/data/en_US/summoner.json",
         version
     ));
     match summoner_data {
