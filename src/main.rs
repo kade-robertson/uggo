@@ -43,8 +43,6 @@ fn main() {
     })
     .expect("Couldn't handle Ctrl+C");
 
-    println!("{}", config::Config::new().cache());
-
     let version = match api::get_current_version() {
         Some(data) => data,
         None => {

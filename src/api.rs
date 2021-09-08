@@ -37,10 +37,8 @@ fn get_data<T: DeserializeOwned>(url: String) -> Option<T> {
 
 fn get_cached_data<T: DeserializeOwned + Serialize>(url: String) -> Option<T> {
     if let Some(data) = read_from_cache::<T>(CONFIG.cache(), &url) {
-        println!("cache hit");
         return Some(data);
     }
-    println!("cache miss");
     match get_data::<T>(url.clone()) {
         Some(data) => {
             write_to_cache::<T>(CONFIG.cache(), &url, &data);
