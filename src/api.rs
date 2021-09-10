@@ -6,7 +6,7 @@ use crate::types::matchups::{MatchupData, Matchups};
 use crate::types::overview::{ChampOverview, OverviewData};
 use crate::types::rune::{RuneExtended, RunePaths};
 use crate::types::summonerspell::SummonerSpells;
-use crate::util::{read_from_cache, write_to_cache};
+use crate::util::{clear_cache, read_from_cache, write_to_cache};
 use lazy_static::lazy_static;
 use reqwest::blocking::Client;
 use serde::de::DeserializeOwned;
@@ -18,7 +18,7 @@ lazy_static! {
     static ref CONFIG: Config = Config::new();
 }
 
-fn get_data<T: DeserializeOwned>(url: String) -> Option<T> {
+fn get_data<T: DeserializeOwned>(url: &String) -> Option<T> {
     match CLIENT.get(url).send() {
         Ok(response) => {
             if response.status().is_success() {
@@ -35,11 +35,11 @@ fn get_data<T: DeserializeOwned>(url: String) -> Option<T> {
     }
 }
 
-fn get_cached_data<T: DeserializeOwned + Serialize>(url: String) -> Option<T> {
+fn get_cached_data<T: DeserializeOwned + Serialize>(url: &String) -> Option<T> {
     if let Some(data) = read_from_cache::<T>(CONFIG.cache(), &url) {
         return Some(data);
     }
-    match get_data::<T>(url.clone()) {
+    match get_data::<T>(&url) {
         Some(data) => {
             write_to_cache::<T>(CONFIG.cache(), &url, &data);
             return Some(data);
@@ -50,7 +50,7 @@ fn get_cached_data<T: DeserializeOwned + Serialize>(url: String) -> Option<T> {
 
 pub fn get_current_version() -> Option<String> {
     let versions = get_data::<Vec<String>>(
-        "https://static.u.gg/assets/lol/riot_patch_update/prod/versions.json".to_string(),
+        &"https://static.u.gg/assets/lol/riot_patch_update/prod/versions.json".to_string(),
     );
     match versions {
         Some(vers) => Some(vers[0].as_str().to_string()),
@@ -59,7 +59,7 @@ pub fn get_current_version() -> Option<String> {
 }
 
 pub fn get_champ_data(version: &String) -> Option<Box<HashMap<String, ChampionDatum>>> {
-    let champ_data = get_cached_data::<Champions>(format!(
+    let champ_data = get_cached_data::<Champions>(&format!(
         "http://ddragon.leagueoflegends.com/cdn/{}/data/en_US/champion.json",
         version
     ));
@@ -70,7 +70,7 @@ pub fn get_champ_data(version: &String) -> Option<Box<HashMap<String, ChampionDa
 }
 
 pub fn get_items(version: &String) -> Option<Box<HashMap<String, ItemDatum>>> {
-    let champ_data = get_cached_data::<Items>(format!(
+    let champ_data = get_cached_data::<Items>(&format!(
         "http://ddragon.leagueoflegends.com/cdn/{}/data/en_US/item.json",
         version
     ));
@@ -81,7 +81,7 @@ pub fn get_items(version: &String) -> Option<Box<HashMap<String, ItemDatum>>> {
 }
 
 pub fn get_runes(version: &String) -> Option<Box<HashMap<i64, RuneExtended>>> {
-    let rune_data = get_cached_data::<RunePaths>(format!(
+    let rune_data = get_cached_data::<RunePaths>(&format!(
         "http://ddragon.leagueoflegends.com/cdn/{}/data/en_US/runesReforged.json",
         version
     ));
@@ -109,7 +109,7 @@ pub fn get_runes(version: &String) -> Option<Box<HashMap<i64, RuneExtended>>> {
 }
 
 pub fn get_summoner_spells(version: &String) -> Option<Box<HashMap<i64, String>>> {
-    let summoner_data = get_cached_data::<SummonerSpells>(format!(
+    let summoner_data = get_cached_data::<SummonerSpells>(&format!(
         "http://ddragon.leagueoflegends.com/cdn/{}/data/en_US/summoner.json",
         version
     ));
@@ -128,13 +128,26 @@ pub fn get_summoner_spells(version: &String) -> Option<Box<HashMap<i64, String>>
     }
 }
 
-pub fn get_ugg_api_versions() -> Option<Box<HashMap<String, HashMap<String, String>>>> {
-    let ugg_api_data = get_cached_data::<HashMap<String, HashMap<String, String>>>(
+type UggAPIVersions = HashMap<String, HashMap<String, String>>;
+
+pub fn get_ugg_api_versions(version: &String) -> Option<Box<UggAPIVersions>> {
+    let ugg_api_version_endpoint =
         "https://static.u.gg/assets/lol/riot_patch_update/prod/ugg/ugg-api-versions.json"
-            .to_string(),
-    );
+            .to_string();
+    let mut ugg_api_data = get_cached_data::<UggAPIVersions>(&ugg_api_version_endpoint);
     match ugg_api_data {
-        Some(ugg_api) => Some(Box::new(ugg_api)),
+        Some(ugg_api) => {
+            if !ugg_api.contains_key(version) {
+                clear_cache(CONFIG.cache(), &ugg_api_version_endpoint);
+                ugg_api_data = get_cached_data::<UggAPIVersions>(&ugg_api_version_endpoint);
+                match ugg_api_data {
+                    Some(ugg_api_retry) => Some(Box::new(ugg_api_retry)),
+                    None => None,
+                }
+            } else {
+                Some(Box::new(ugg_api))
+            }
+        }
         None => None,
     }
 }
@@ -151,7 +164,7 @@ pub fn get_stats(
     if api_versions.contains_key(patch) && api_versions[patch].contains_key("overview") {
         api_version = api_versions[patch]["overview"].as_str();
     }
-    let stats_data = get_data::<ChampOverview>(format!(
+    let stats_data = get_data::<ChampOverview>(&format!(
         "https://stats2.u.gg/lol/1.1/overview/{}/{}/{}/{}.json",
         patch,
         mode.to_string(),
@@ -214,7 +227,7 @@ pub fn get_matchups(
     if api_versions.contains_key(patch) && api_versions[patch].contains_key("matchups") {
         api_version = api_versions[patch]["matchups"].as_str();
     }
-    let stats_data = get_data::<Matchups>(format!(
+    let stats_data = get_data::<Matchups>(&format!(
         "https://stats2.u.gg/lol/1.1/matchups/{}/{}/{}/{}.json",
         patch,
         mode.to_string(),

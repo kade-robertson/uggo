@@ -108,7 +108,11 @@ fn main() {
         spell_data.keys().len().to_string().green().bold()
     ));
 
-    let ugg_api_versions = match api::get_ugg_api_versions() {
+    let mut patch_version_split = version.split(".").collect::<Vec<&str>>();
+    patch_version_split.remove(patch_version_split.len() - 1);
+    let patch_version = patch_version_split.join("_");
+
+    let ugg_api_versions = match api::get_ugg_api_versions(&patch_version) {
         Some(data) => data,
         None => {
             util::log_error("Could not download u.gg api version data, exiting...");
@@ -120,10 +124,6 @@ fn main() {
         "- Got u.gg API versions for {} patch(es).",
         spell_data.keys().len().to_string().green().bold()
     ));
-
-    let mut patch_version_split = version.split(".").collect::<Vec<&str>>();
-    patch_version_split.remove(patch_version_split.len() - 1);
-    let patch_version = patch_version_split.join("_");
 
     let mut mode = mappings::Mode::Normal;
 
