@@ -31,6 +31,7 @@ enum ExitReasons {
     CouldNotGetItemData,
     CouldNotGetRuneData,
     CouldNotGetSpellData,
+    CouldNotGetUggAPIVersions,
 }
 
 static DEFAULT_ROLE: mappings::Role = mappings::Role::Automatic;
@@ -104,6 +105,19 @@ fn main() {
     #[cfg(debug_assertions)]
     util::log_info(&format!(
         "- Got data for {} summoner spell(s).",
+        spell_data.keys().len().to_string().green().bold()
+    ));
+
+    let ugg_api_versions = match api::get_ugg_api_versions() {
+        Some(data) => data,
+        None => {
+            util::log_error("Could not download u.gg api version data, exiting...");
+            exit(ExitReasons::CouldNotGetUggAPIVersions as i32);
+        }
+    };
+    #[cfg(debug_assertions)]
+    util::log_info(&format!(
+        "- Got u.gg API versions for {} patch(es).",
         spell_data.keys().len().to_string().green().bold()
     ));
 
@@ -189,6 +203,7 @@ fn main() {
             query_role,
             query_region,
             mode,
+            &ugg_api_versions,
         ) {
             Some(data) => *data,
             None => {
@@ -205,6 +220,7 @@ fn main() {
             overview_role,
             query_region,
             mode,
+            &ugg_api_versions,
         );
 
         let mut stats_message = vec![format!("Build for {}", formatted_champ_name)];

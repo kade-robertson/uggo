@@ -128,18 +128,35 @@ pub fn get_summoner_spells(version: &String) -> Option<Box<HashMap<i64, String>>
     }
 }
 
+pub fn get_ugg_api_versions() -> Option<Box<HashMap<String, HashMap<String, String>>>> {
+    let ugg_api_data = get_cached_data::<HashMap<String, HashMap<String, String>>>(
+        "https://static.u.gg/assets/lol/riot_patch_update/prod/ugg/ugg-api-versions.json"
+            .to_string(),
+    );
+    match ugg_api_data {
+        Some(ugg_api) => Some(Box::new(ugg_api)),
+        None => None,
+    }
+}
+
 pub fn get_stats(
     patch: &str,
     champ: &ChampionDatum,
     role: mappings::Role,
     region: mappings::Region,
     mode: mappings::Mode,
+    api_versions: &HashMap<String, HashMap<String, String>>,
 ) -> Option<Box<(mappings::Role, OverviewData)>> {
+    let mut api_version = "1.4.0";
+    if api_versions.contains_key(patch) && api_versions[patch].contains_key("overview") {
+        api_version = api_versions[patch]["overview"].as_str();
+    }
     let stats_data = get_data::<ChampOverview>(format!(
-        "https://stats2.u.gg/lol/1.1/overview/{}/{}/{}/1.4.0.json",
+        "https://stats2.u.gg/lol/1.1/overview/{}/{}/{}/{}.json",
         patch,
         mode.to_string(),
-        champ.key.as_str()
+        champ.key.as_str(),
+        api_version
     ));
     match stats_data {
         Some(champ_stats) => {
@@ -191,12 +208,18 @@ pub fn get_matchups(
     role: mappings::Role,
     region: mappings::Region,
     mode: mappings::Mode,
+    api_versions: &HashMap<String, HashMap<String, String>>,
 ) -> Option<Box<MatchupData>> {
+    let mut api_version = "1.4.0";
+    if api_versions.contains_key(patch) && api_versions[patch].contains_key("matchups") {
+        api_version = api_versions[patch]["matchups"].as_str();
+    }
     let stats_data = get_data::<Matchups>(format!(
-        "https://stats2.u.gg/lol/1.1/matchups/{}/{}/{}/1.4.0.json",
+        "https://stats2.u.gg/lol/1.1/matchups/{}/{}/{}/{}.json",
         patch,
         mode.to_string(),
-        champ.key.as_str()
+        champ.key.as_str(),
+        api_version
     ));
     match stats_data {
         Some(champ_matchups) => {
