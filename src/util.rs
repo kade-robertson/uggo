@@ -145,3 +145,13 @@ pub fn write_to_cache<T: Serialize>(cache_dir: &str, filename: &String, data: &T
         fs::write(file_path, data).ok();
     }
 }
+
+pub fn clear_cache(cache_dir: &str, filename: &String) {
+    let file_path = Path::new(cache_dir).join(format!(
+        "{}.json",
+        hex::encode(Sha256::digest(filename.as_bytes()))
+    ));
+    if file_path.exists() {
+        fs::remove_file(file_path).ok();
+    }
+}
