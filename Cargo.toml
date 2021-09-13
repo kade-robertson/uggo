@@ -19,6 +19,7 @@ ctrlc = "3.2.0"
 hex = "0.4.3"
 lazy_static = "1.4.0"
 levenshtein = "1.0.5"
+lru = "0.6.6"
 prettytable-rs = "0.8.0"
 reqwest = { version = "0.11.4", features = ["blocking", "json"] }
 serde = { version = "1.0.127", features = ["derive"] }
