@@ -2,24 +2,31 @@
 name = "uggo"
 version = "0.5.2"
 edition = "2018"
+license = "MIT"
+description = "CLI tool to query builds from u.gg, for League of Legends."
+homepage = "https://github.com/kade-robertson/uggo"
+repository = "https://github.com/kade-robertson/uggo"
+readme = "README.md"
+keywords = ["u.gg", "league", "of", "legends"]
+categories = ["command-line-utilities", "games"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+chrono = "0.4.19"
+colored = "2.0.0"
+ctrlc = "3.2.0"
+hex = "0.4.3"
+lazy_static = "1.4.0"
+levenshtein = "1.0.5"
+prettytable-rs = "0.8.0"
 reqwest = { version = "0.11.4", features = ["blocking", "json"] }
 serde = { version = "1.0.127", features = ["derive"] }
 serde_json = "1.0.66"
-lazy_static = "1.4.0"
-colored = "2.0.0"
-chrono = "0.4.19"
-text_io = "0.1.9"
-ctrlc = "3.2.0"
+sha2 = "0.9.7"
 strum = "0.21"
 strum_macros = "0.21"
-levenshtein = "1.0.5"
-prettytable-rs = "0.8.0"
-sha2 = "0.9.7"
-hex = "0.4.3"
+text_io = "0.1.9"
 
 [profile.release]
 opt-level = "z"
