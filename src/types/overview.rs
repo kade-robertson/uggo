@@ -21,7 +21,7 @@ fn handle_unknown<T, E>(result: Result<Option<T>, E>, default: T) -> T {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct WrappedOverviewData {
     pub data: OverviewData,
 }
