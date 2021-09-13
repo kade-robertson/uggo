@@ -121,11 +121,12 @@ pub fn process_shards(shards: &Vec<i64>) -> Vec<String> {
     return shard_text;
 }
 
+pub fn sha256(value: &String) -> String {
+    hex::encode(Sha256::digest(value.as_bytes()))
+}
+
 pub fn read_from_cache<T: DeserializeOwned>(cache_dir: &str, filename: &String) -> Option<T> {
-    let file_path = Path::new(cache_dir).join(format!(
-        "{}.json",
-        hex::encode(Sha256::digest(filename.as_bytes()))
-    ));
+    let file_path = Path::new(cache_dir).join(format!("{}.json", sha256(filename)));
     if file_path.exists() {
         match serde_json::from_str::<T>(&fs::read_to_string(file_path).unwrap_or_default()) {
             Ok(data) => Some(data),
@@ -137,20 +138,14 @@ pub fn read_from_cache<T: DeserializeOwned>(cache_dir: &str, filename: &String) 
 }
 
 pub fn write_to_cache<T: Serialize>(cache_dir: &str, filename: &String, data: &T) {
-    let file_path = Path::new(cache_dir).join(format!(
-        "{}.json",
-        hex::encode(Sha256::digest(filename.as_bytes()))
-    ));
+    let file_path = Path::new(cache_dir).join(format!("{}.json", sha256(filename)));
     if let Ok(data) = serde_json::to_string::<T>(data) {
         fs::write(file_path, data).ok();
     }
 }
 
 pub fn clear_cache(cache_dir: &str, filename: &String) {
-    let file_path = Path::new(cache_dir).join(format!(
-        "{}.json",
-        hex::encode(Sha256::digest(filename.as_bytes()))
-    ));
+    let file_path = Path::new(cache_dir).join(format!("{}.json", sha256(filename)));
     if file_path.exists() {
         fs::remove_file(file_path).ok();
     }
