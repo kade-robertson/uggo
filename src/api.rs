@@ -6,16 +6,21 @@ use crate::types::matchups::{MatchupData, Matchups};
 use crate::types::overview::{ChampOverview, OverviewData};
 use crate::types::rune::{RuneExtended, RunePaths};
 use crate::types::summonerspell::SummonerSpells;
-use crate::util::{clear_cache, read_from_cache, write_to_cache};
+use crate::util::{clear_cache, read_from_cache, sha256, write_to_cache};
 use lazy_static::lazy_static;
+use lru::LruCache;
 use reqwest::blocking::Client;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 use std::collections::HashMap;
+use std::sync::Mutex;
 
 lazy_static! {
     static ref CLIENT: Client = Client::new();
     static ref CONFIG: Config = Config::new();
+    static ref OVERVIEW_LRU_CACHE: Mutex<LruCache<String, ChampOverview>> =
+        Mutex::new(LruCache::new(25));
+    static ref MATCHUP_LRU_CACHE: Mutex<LruCache<String, Matchups>> = Mutex::new(LruCache::new(25));
 }
 
 fn get_data<T: DeserializeOwned>(url: &String) -> Option<T> {
@@ -164,15 +169,30 @@ pub fn get_stats(
     if api_versions.contains_key(patch) && api_versions[patch].contains_key("overview") {
         api_version = api_versions[patch]["overview"].as_str();
     }
-    let stats_data = get_data::<ChampOverview>(&format!(
-        "https://stats2.u.gg/lol/1.1/overview/{}/{}/{}/{}.json",
+    let data_path = &format!(
+        "{}/{}/{}/{}",
         patch,
         mode.to_string(),
         champ.key.as_str(),
         api_version
-    ));
+    );
+    let stats_data;
+    match OVERVIEW_LRU_CACHE.lock().unwrap().get(&sha256(&data_path)) {
+        Some(data) => stats_data = Some(data.clone()),
+        None => {
+            stats_data = get_data::<ChampOverview>(&format!(
+                "https://stats2.u.gg/lol/1.1/overview/{}.json",
+                data_path
+            ));
+        }
+    }
+
     match stats_data {
         Some(champ_stats) => {
+            OVERVIEW_LRU_CACHE
+                .lock()
+                .unwrap()
+                .put(sha256(data_path), champ_stats.clone());
             let region_query = if champ_stats.contains_key(&region) {
                 region
             } else {
@@ -227,15 +247,30 @@ pub fn get_matchups(
     if api_versions.contains_key(patch) && api_versions[patch].contains_key("matchups") {
         api_version = api_versions[patch]["matchups"].as_str();
     }
-    let stats_data = get_data::<Matchups>(&format!(
-        "https://stats2.u.gg/lol/1.1/matchups/{}/{}/{}/{}.json",
+    let data_path = &format!(
+        "{}/{}/{}/{}",
         patch,
         mode.to_string(),
         champ.key.as_str(),
         api_version
-    ));
-    match stats_data {
+    );
+    let matchup_data;
+    match MATCHUP_LRU_CACHE.lock().unwrap().get(&sha256(&data_path)) {
+        Some(data) => matchup_data = Some(data.clone()),
+        None => {
+            matchup_data = get_data::<Matchups>(&format!(
+                "https://stats2.u.gg/lol/1.1/matchups/{}.json",
+                data_path
+            ));
+        }
+    }
+
+    match matchup_data {
         Some(champ_matchups) => {
+            MATCHUP_LRU_CACHE
+                .lock()
+                .unwrap()
+                .put(sha256(data_path), champ_matchups.clone());
             let region_query = if champ_matchups.contains_key(&region) {
                 region
             } else {

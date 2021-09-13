@@ -9,7 +9,7 @@ use std::fmt;
 pub type Matchups =
     HashMap<mappings::Region, HashMap<mappings::Rank, HashMap<mappings::Role, WrappedMatchupData>>>;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct WrappedMatchupData {
     pub data: MatchupData,
 }
