@@ -1262,7 +1262,7 @@ checksum = "b63708a265f51345575b27fe43f9500ad611579e764c79edbc2037b1121959ec"
 
 [[package]]
 name = "uggo"
-version = "0.5.3"
+version = "0.6.0"
 dependencies = [
  "chrono",
  "colored",
