@@ -3,7 +3,9 @@ use league_client_connector::RiotLockFile;
 use reqwest::blocking::Client;
 use reqwest::header::AUTHORIZATION;
 use serde::de::DeserializeOwned;
+use serde::Serialize;
 
+use crate::types::client_runepage::{RunePage, RunePages};
 use crate::types::client_summoner::ClientSummoner;
 
 lazy_static! {
@@ -34,6 +36,14 @@ fn get_data<T: DeserializeOwned>(url: &String, auth: &String) -> Option<T> {
     }
 }
 
+fn put_data<T: Serialize>(url: &String, auth: &String, data: &Box<T>) {
+    CLIENT
+        .put(url)
+        .header(AUTHORIZATION, format!("Basic {}", auth))
+        .json(data)
+        .send();
+}
+
 pub fn get_summoner_info(lockfile: &RiotLockFile) -> Option<Box<ClientSummoner>> {
     match get_data::<ClientSummoner>(
         &format!(
@@ -45,4 +55,32 @@ pub fn get_summoner_info(lockfile: &RiotLockFile) -> Option<Box<ClientSummoner>>
         Some(data) => Some(Box::new(data)),
         None => None,
     }
+}
+
+pub fn get_current_rune_page(lockfile: &RiotLockFile) -> Option<Box<RunePage>> {
+    match get_data::<RunePages>(
+        &format!("https://127.0.0.1:{}/lol-perks/v1/pages", lockfile.port),
+        &lockfile.b64_auth,
+    ) {
+        Some(data) => {
+            for page in data {
+                if page.current && page.is_editable {
+                    return Some(Box::new(page));
+                }
+            }
+            return None;
+        }
+        None => None,
+    }
+}
+
+pub fn update_rune_page(lockfile: &RiotLockFile, rune_page: &Box<RunePage>) {
+    put_data::<RunePage>(
+        &format!(
+            "https://127.0.0.1:{}/lol-perks/v1/pages/{}",
+            lockfile.port, rune_page.id
+        ),
+        &lockfile.b64_auth,
+        rune_page,
+    );
 }

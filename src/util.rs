@@ -8,6 +8,7 @@ use sha2::{Digest, Sha256};
 use std::path::Path;
 use std::{collections::HashMap, fs};
 
+use crate::types::client_runepage::RunePage;
 use crate::types::{champion::ChampionDatum, item::ItemDatum, rune::RuneExtended};
 
 #[cfg(debug_assertions)]
@@ -149,4 +150,15 @@ pub fn clear_cache(cache_dir: &str, filename: &String) {
     if file_path.exists() {
         fs::remove_file(file_path).ok();
     }
+}
+
+pub fn generate_perk_array(
+    runes: &Vec<(String, Vec<&RuneExtended>)>,
+    shards: &Vec<i64>,
+) -> (i64, i64, Vec<i64>) {
+    let mut perk_list: Vec<i64> = Vec::new();
+    perk_list.append(&mut runes[0].1.iter().map(|el| el.rune.id).collect::<Vec<i64>>());
+    perk_list.append(&mut runes[1].1.iter().map(|el| el.rune.id).collect::<Vec<i64>>());
+    perk_list.append(&mut shards.clone());
+    return (runes[0].1[0].parent_id, runes[1].1[0].parent_id, perk_list);
 }
