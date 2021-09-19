@@ -8,11 +8,10 @@ use prettytable::{format, Table};
 use std::io;
 use std::io::Write;
 use std::process::exit;
-use std::thread::current;
 use strum::IntoEnumIterator;
 use text_io::read;
 
-use crate::types::client_runepage::RunePage;
+use crate::types::client_runepage::NewRunePage;
 use crate::types::client_summoner::ClientSummoner;
 
 mod api;
@@ -411,16 +410,18 @@ fn main() {
         if !client_lockfile.as_ref().is_none() {
             match client_api::get_current_rune_page(&client_lockfile.clone().unwrap()) {
                 Some(data) => {
-                    println!("{:?}", data);
-                    let mut rune_page = data;
-                    rune_page.name =
-                        format!("uggo: {}, {} Lane", &query_champ.name, &overview_role);
                     let (primary_style_id, sub_style_id, selected_perk_ids) =
                         util::generate_perk_array(&champ_runes, &champ_overview.shards.shard_ids);
-                    rune_page.primary_style_id = primary_style_id;
-                    rune_page.sub_style_id = sub_style_id;
-                    rune_page.selected_perk_ids = selected_perk_ids;
-                    client_api::update_rune_page(&client_lockfile.clone().unwrap(), &rune_page);
+                    client_api::update_rune_page(
+                        &client_lockfile.clone().unwrap(),
+                        &data.id,
+                        &NewRunePage {
+                            name: format!("uggo: {}, {} Lane", &query_champ.name, &overview_role),
+                            primary_style_id,
+                            sub_style_id,
+                            selected_perk_ids,
+                        },
+                    );
                 }
                 _ => (),
             }

@@ -8,7 +8,6 @@ use sha2::{Digest, Sha256};
 use std::path::Path;
 use std::{collections::HashMap, fs};
 
-use crate::types::client_runepage::RunePage;
 use crate::types::{champion::ChampionDatum, item::ItemDatum, rune::RuneExtended};
 
 #[cfg(debug_assertions)]

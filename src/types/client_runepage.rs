@@ -20,3 +20,12 @@ pub struct RunePage {
     pub selected_perk_ids: Vec<i64>,
     pub sub_style_id: i64,
 }
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct NewRunePage {
+    pub name: String,
+    pub primary_style_id: i64,
+    pub selected_perk_ids: Vec<i64>,
+    pub sub_style_id: i64,
+}
