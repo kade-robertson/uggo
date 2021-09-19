@@ -3,6 +3,7 @@ extern crate prettytable;
 
 use colored::*;
 use ctrlc;
+use league_client_connector::LeagueClientConnector;
 use prettytable::{format, Table};
 use std::io;
 use std::io::Write;
@@ -10,13 +11,19 @@ use std::process::exit;
 use strum::IntoEnumIterator;
 use text_io::read;
 
+use crate::types::client_runepage::NewRunePage;
+use crate::types::client_summoner::ClientSummoner;
+
 mod api;
+mod client_api;
 mod config;
 mod mappings;
 mod styling;
 mod util;
 mod types {
     pub mod champion;
+    pub mod client_runepage;
+    pub mod client_summoner;
     pub mod item;
     pub mod matchups;
     pub mod overview;
@@ -126,6 +133,37 @@ fn main() {
     ));
 
     let mut mode = mappings::Mode::Normal;
+
+    let client_lockfile = match LeagueClientConnector::parse_lockfile() {
+        Ok(lockfile) => Some(lockfile),
+        Err(_) => None,
+    };
+
+    #[cfg(debug_assertions)]
+    if !client_lockfile.as_ref().is_none() {
+        let lockfile = client_lockfile.clone().unwrap();
+        util::log_info(&format!(
+            "- Found client running at https://127.0.0.1:{}/",
+            lockfile.port
+        ));
+    }
+
+    let mut client_summoner: Option<Box<ClientSummoner>> = None;
+    if !client_lockfile.as_ref().is_none() {
+        client_summoner = match client_api::get_summoner_info(&client_lockfile.clone().unwrap()) {
+            Some(data) => Some(data),
+            None => None,
+        }
+    }
+
+    #[cfg(debug_assertions)]
+    if !client_summoner.as_ref().is_none() {
+        let summoner = client_summoner.unwrap();
+        util::log_info(&format!(
+            "- Found summoner {} (id: {})",
+            summoner.display_name, summoner.summoner_id
+        ));
+    }
 
     loop {
         print!("query> ");
@@ -367,6 +405,26 @@ fn main() {
                 " {} Data has a low sample size for this combination!",
                 "Warning:".yellow().bold()
             );
+        }
+
+        if !client_lockfile.as_ref().is_none() {
+            match client_api::get_current_rune_page(&client_lockfile.clone().unwrap()) {
+                Some(data) => {
+                    let (primary_style_id, sub_style_id, selected_perk_ids) =
+                        util::generate_perk_array(&champ_runes, &champ_overview.shards.shard_ids);
+                    client_api::update_rune_page(
+                        &client_lockfile.clone().unwrap(),
+                        &data.id,
+                        &NewRunePage {
+                            name: format!("uggo: {}, {} Lane", &query_champ.name, &overview_role),
+                            primary_style_id,
+                            sub_style_id,
+                            selected_perk_ids,
+                        },
+                    );
+                }
+                _ => (),
+            }
         }
 
         println!();
