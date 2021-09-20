@@ -416,7 +416,11 @@ fn main() {
                         &client_lockfile.clone().unwrap(),
                         &data.id,
                         &NewRunePage {
-                            name: format!("uggo: {}, {} Lane", &query_champ.name, &overview_role),
+                            name: if mode == mappings::Mode::ARAM {
+                                format!("uggo: {}, ARAM", &query_champ.name)
+                            } else {
+                                format!("uggo: {}, {}", &query_champ.name, &overview_role)
+                            },
                             primary_style_id,
                             sub_style_id,
                             selected_perk_ids,
