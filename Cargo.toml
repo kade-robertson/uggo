@@ -7,7 +7,7 @@ description = "CLI tool to query builds from u.gg, for League of Legends."
 homepage = "https://github.com/kade-robertson/uggo"
 repository = "https://github.com/kade-robertson/uggo"
 readme = "README.md"
-keywords = ["u.gg", "league", "of", "legends"]
+keywords = ["ugg", "league", "of", "legends"]
 categories = ["command-line-utilities", "games"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
