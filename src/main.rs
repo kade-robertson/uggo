@@ -3,7 +3,10 @@ extern crate prettytable;
 
 use colored::*;
 use ctrlc;
+
+#[cfg(any(target_os = "windows", target_os = "macos"))]
 use league_client_connector::LeagueClientConnector;
+
 use prettytable::{format, Table};
 use std::io;
 use std::io::Write;
@@ -134,12 +137,16 @@ fn main() {
 
     let mut mode = mappings::Mode::Normal;
 
+    #[cfg(any(target_os = "windows", target_os = "macos"))]
     let client_lockfile = match LeagueClientConnector::parse_lockfile() {
         Ok(lockfile) => Some(lockfile),
         Err(_) => None,
     };
 
-    #[cfg(debug_assertions)]
+    #[cfg(all(not(target_os = "windows"), not(target_os = "macos")))]
+    let client_lockfile = None;
+
+    #[cfg(all(debug_assertions, any(target_os = "windows", target_os = "macos")))]
     if !client_lockfile.as_ref().is_none() {
         let lockfile = client_lockfile.clone().unwrap();
         util::log_info(&format!(
