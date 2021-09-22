@@ -78,11 +78,14 @@ pub fn get_current_rune_page(lockfile: &RiotLockFile) -> Option<Box<RunePage>> {
         &lockfile.b64_auth,
     ) {
         Some(data) => {
-            for page in data {
-                if (page.name.starts_with("uggo:") && page.is_deletable)
-                    || (page.current && page.is_deletable)
-                {
-                    return Some(Box::new(page));
+            for page in &data {
+                if page.name.starts_with("uggo:") && page.is_deletable {
+                    return Some(Box::new(page.clone()));
+                }
+            }
+            for page in &data {
+                if page.current && page.is_deletable {
+                    return Some(Box::new(page.clone()));
                 }
             }
             return None;
