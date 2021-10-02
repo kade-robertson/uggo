@@ -4,7 +4,6 @@ extern crate prettytable;
 use colored::*;
 use ctrlc;
 
-#[cfg(any(target_os = "windows", target_os = "macos"))]
 use league_client_connector::LeagueClientConnector;
 
 use prettytable::{format, Table};
@@ -147,7 +146,7 @@ fn main() {
     };
 
     #[cfg(all(not(target_os = "windows"), not(target_os = "macos")))]
-    let client_lockfile: Option<RiotLockFile> = None;
+    let client_lockfile: Option<league_client_connector::RiotLockFile> = None;
 
     let mut clientapi: Option<client_api::ClientAPI> = None;
 
