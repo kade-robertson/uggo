@@ -14,6 +14,7 @@ use std::process::exit;
 use strum::IntoEnumIterator;
 use text_io::read;
 
+use crate::styling::format_ability_order;
 use crate::types::client_runepage::NewRunePage;
 use crate::types::client_summoner::ClientSummoner;
 
@@ -343,17 +344,8 @@ fn main() {
         );
 
         println!();
-        println!(
-            " {} {}",
-            "Ability Order:".bright_cyan().bold(),
-            champ_overview
-                .abilities
-                .ability_max_order
-                .chars()
-                .map(|c| c.to_string())
-                .collect::<Vec<String>>()
-                .join(" -> ")
-        );
+        println!(" {}", "Ability Order:".bright_cyan().bold(),);
+        format_ability_order(&champ_overview.abilities.ability_order).printstd();
 
         let mut item_table = Table::new();
         item_table.set_format(*format::consts::FORMAT_CLEAN);

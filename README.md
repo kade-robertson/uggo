@@ -60,22 +60,26 @@ Here's an example output, which details runes, shards, spells, ability order, it
  Overgrowth            [●··]
 
  Shards:
- - Offense: +9 Adaptive Force
+ - Offense: +10% Attack Speed
  - Flex: +6 Armor
  - Defense: +6 Armor
 
  Spells: Flash, Teleport
 
- Ability Order: W -> Q -> E
+ Ability Order:
+ Q | ●             ●   ●   ● ●
+ W |   ●   ● ●   ●   ●
+ E |     ●                     ● ●   ● ●
+ R |           ●         ●         ●    
 
- Starting:  Corrupting Potion
-     Core:  Frostfire Gauntlet, Plated Steelcaps, Thornmail
-      4th:  Abyssal Mask, Anathema's Chains
-      5th:  Warmog's Armor, Abyssal Mask, Gargoyle Stoneplate
-      6th:  Frozen Heart, Gargoyle Stoneplate, Abyssal Mask
+ Starting:  Doran's Shield, Health Potion
+     Core:  Plated Steelcaps, Sunfire Aegis, Thornmail
+      4th:  Abyssal Mask, Warmog's Armor
+      5th:  Gargoyle Stoneplate, Warmog's Armor, Abyssal Mask
+      6th:  Gargoyle Stoneplate, Warmog's Armor, Anathema's Chains
 
-  Best Matchups:  Jayce, Darius, Kled, Tahm Kench, Sion
- Worst Matchups:  Cho'Gath, Illaoi, Gangplank, Irelia, Warwick
+  Best Matchups:  Quinn, Malphite, Graves, Jayce, Volibear
+ Worst Matchups:  Poppy, Warwick, Yone, Fiora, Rengar
 ```
 
 For runes, the larger dots indicate the position in the particular row that option is in.
