@@ -161,6 +161,11 @@ fn main() {
         clientapi = Some(client_api::ClientAPI::new(lockfile));
     }
 
+    #[cfg(any(target_os = "windows", target_os = "macos"))]
+    if !client_lockfile.as_ref().is_none() {
+        clientapi = Some(client_api::ClientAPI::new(client_lockfile.clone().unwrap()));
+    }
+
     let mut client_summoner: Option<Box<ClientSummoner>> = None;
     match clientapi {
         Some(ref api) => {
