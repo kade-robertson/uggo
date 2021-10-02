@@ -165,6 +165,9 @@ pub enum Mode {
 
     #[strum(serialize = "one_for_all", serialize = "oneforall")]
     OneForAll,
+
+    #[strum(serialize = "urf")]
+    URF,
 }
 
 pub fn get_mode(mode: &str) -> Mode {
