@@ -146,6 +146,8 @@ fn main() {
     #[cfg(all(not(target_os = "windows"), not(target_os = "macos")))]
     let client_lockfile = None;
 
+    let mut clientapi = None;
+
     #[cfg(all(debug_assertions, any(target_os = "windows", target_os = "macos")))]
     if !client_lockfile.as_ref().is_none() {
         let lockfile = client_lockfile.clone().unwrap();
@@ -153,14 +155,18 @@ fn main() {
             "- Found client running at https://127.0.0.1:{}/",
             lockfile.port
         ));
+        clientapi = Some(client_api::ClientAPI::new(lockfile));
     }
 
     let mut client_summoner: Option<Box<ClientSummoner>> = None;
-    if !client_lockfile.as_ref().is_none() {
-        client_summoner = match client_api::get_summoner_info(&client_lockfile.clone().unwrap()) {
-            Some(data) => Some(data),
-            None => None,
+    match clientapi {
+        Some(ref api) => {
+            client_summoner = match api.get_summoner_info() {
+                Some(data) => Some(data),
+                None => None,
+            }
         }
+        None => (),
     }
 
     #[cfg(debug_assertions)]
@@ -414,19 +420,20 @@ fn main() {
             );
         }
 
-        if !client_lockfile.as_ref().is_none() {
-            match client_api::get_current_rune_page(&client_lockfile.clone().unwrap()) {
+        match clientapi {
+            Some(ref api) => match api.get_current_rune_page() {
                 Some(data) => {
                     let (primary_style_id, sub_style_id, selected_perk_ids) =
                         util::generate_perk_array(&champ_runes, &champ_overview.shards.shard_ids);
-                    client_api::update_rune_page(
-                        &client_lockfile.clone().unwrap(),
+                    api.update_rune_page(
                         &data.id,
                         &NewRunePage {
-                            name: if mode == mappings::Mode::ARAM {
-                                format!("uggo: {}, ARAM", &query_champ.name)
-                            } else {
-                                format!("uggo: {}, {}", &query_champ.name, &overview_role)
+                            name: match mode {
+                                mappings::Mode::ARAM => {
+                                    format!("uggo: {}, ARAM", &query_champ.name)
+                                }
+                                mappings::Mode::URF => format!("uggo: {}, URF", &query_champ.name),
+                                _ => format!("uggo: {}, {}", &query_champ.name, &overview_role),
                             },
                             primary_style_id,
                             sub_style_id,
@@ -435,7 +442,8 @@ fn main() {
                     );
                 }
                 _ => (),
-            }
+            },
+            None => (),
         }
 
         println!();
