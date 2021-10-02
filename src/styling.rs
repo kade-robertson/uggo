@@ -1,4 +1,5 @@
 use colored::*;
+use prettytable::{format, Table};
 
 use crate::types::rune::RuneExtended;
 
@@ -39,4 +40,45 @@ pub fn format_rune_position(rune: &RuneExtended) -> String {
     }
     position_message.push(']');
     return position_message;
+}
+
+pub fn format_ability_level_order(ability_order: &Vec<char>, ability: char) -> String {
+    ability_order
+        .iter()
+        .copied()
+        .map(|c| {
+            if c == ability {
+                "●".to_string()
+            } else {
+                " ".to_string()
+            }
+        })
+        .collect::<Vec<String>>()
+        .join(" ")
+}
+
+pub fn format_ability_order(ability_order: &Vec<char>) -> Table {
+    let mut ability_table = Table::new();
+    ability_table.set_format(*format::consts::FORMAT_NO_BORDER_LINE_SEPARATOR);
+    ability_table.add_row(row![
+        "Q",
+        format_ability_level_order(ability_order, 'Q').cyan().bold()
+    ]);
+    ability_table.add_row(row![
+        "W",
+        format_ability_level_order(ability_order, 'W')
+            .yellow()
+            .bold()
+    ]);
+    ability_table.add_row(row![
+        "E",
+        format_ability_level_order(ability_order, 'E')
+            .green()
+            .bold()
+    ]);
+    ability_table.add_row(row![
+        "R",
+        format_ability_level_order(ability_order, 'R').red().bold()
+    ]);
+    return ability_table;
 }
