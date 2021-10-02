@@ -147,7 +147,7 @@ fn main() {
     };
 
     #[cfg(all(not(target_os = "windows"), not(target_os = "macos")))]
-    let client_lockfile = None;
+    let client_lockfile: Option<RiotLockFile> = None;
 
     let mut clientapi: Option<client_api::ClientAPI> = None;
 
