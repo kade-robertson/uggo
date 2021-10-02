@@ -428,10 +428,12 @@ fn main() {
                     api.update_rune_page(
                         &data.id,
                         &NewRunePage {
-                            name: if mode == mappings::Mode::ARAM {
-                                format!("uggo: {}, ARAM", &query_champ.name)
-                            } else {
-                                format!("uggo: {}, {}", &query_champ.name, &overview_role)
+                            name: match mode {
+                                mappings::Mode::ARAM => {
+                                    format!("uggo: {}, ARAM", &query_champ.name)
+                                }
+                                mappings::Mode::URF => format!("uggo: {}, URF", &query_champ.name),
+                                _ => format!("uggo: {}, {}", &query_champ.name, &overview_role),
                             },
                             primary_style_id,
                             sub_style_id,
