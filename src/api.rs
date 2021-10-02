@@ -167,7 +167,7 @@ impl API {
     }
 
     pub fn get_stats(
-        &self,
+        &mut self,
         patch: &str,
         champ: &ChampionDatum,
         role: mappings::Role,
@@ -244,7 +244,7 @@ impl API {
     }
 
     pub fn get_matchups(
-        &self,
+        &mut self,
         patch: &str,
         champ: &ChampionDatum,
         role: mappings::Role,

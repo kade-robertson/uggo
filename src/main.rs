@@ -55,7 +55,9 @@ fn main() {
     })
     .expect("Couldn't handle Ctrl+C");
 
-    let version = match api::get_current_version() {
+    let mut data_api = api::API::new();
+
+    let version = match data_api.get_current_version() {
         Some(data) => data,
         None => {
             util::log_error("Could not get current patch version, exiting...");
@@ -67,7 +69,7 @@ fn main() {
         version.green().bold()
     ));
 
-    let champ_data = match api::get_champ_data(&version) {
+    let champ_data = match data_api.get_champ_data(&version) {
         Some(data) => data,
         None => {
             util::log_error("Could not download champ data, exiting...");
@@ -80,7 +82,7 @@ fn main() {
         champ_data.keys().len().to_string().green().bold()
     ));
 
-    let item_data = match api::get_items(&version) {
+    let item_data = match data_api.get_items(&version) {
         Some(data) => data,
         None => {
             util::log_error("Could not download item data, exiting...");
@@ -93,7 +95,7 @@ fn main() {
         item_data.keys().len().to_string().green().bold()
     ));
 
-    let rune_data = match api::get_runes(&version) {
+    let rune_data = match data_api.get_runes(&version) {
         Some(data) => data,
         None => {
             util::log_error("Could not download rune data, exiting...");
@@ -106,7 +108,7 @@ fn main() {
         rune_data.keys().len().to_string().green().bold()
     ));
 
-    let spell_data = match api::get_summoner_spells(&version) {
+    let spell_data = match data_api.get_summoner_spells(&version) {
         Some(data) => data,
         None => {
             util::log_error("Could not download summoner spell data, exiting...");
@@ -123,7 +125,7 @@ fn main() {
     patch_version_split.remove(patch_version_split.len() - 1);
     let patch_version = patch_version_split.join("_");
 
-    let ugg_api_versions = match api::get_ugg_api_versions(&patch_version) {
+    let ugg_api_versions = match data_api.get_ugg_api_versions(&patch_version) {
         Some(data) => data,
         None => {
             util::log_error("Could not download u.gg api version data, exiting...");
@@ -249,7 +251,7 @@ fn main() {
         query_message.push("...".to_string());
         util::log_info(query_message.concat().as_str());
 
-        let (overview_role, champ_overview) = match api::get_stats(
+        let (overview_role, champ_overview) = match data_api.get_stats(
             &patch_version.as_str(),
             query_champ,
             query_role,
@@ -266,7 +268,7 @@ fn main() {
             }
         };
 
-        let matchups = api::get_matchups(
+        let matchups = data_api.get_matchups(
             &patch_version.as_str(),
             query_champ,
             overview_role,
