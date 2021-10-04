@@ -19,9 +19,6 @@ use crate::styling::format_ability_order;
 #[cfg(any(target_os = "windows", target_os = "macos"))]
 use crate::types::client_runepage::NewRunePage;
 
-#[cfg(any(target_os = "windows", target_os = "macos"))]
-use crate::types::client_summoner::ClientSummoner;
-
 mod api;
 #[cfg(any(target_os = "windows", target_os = "macos"))]
 mod client_api;
@@ -173,7 +170,7 @@ fn main() {
     #[cfg(any(target_os = "windows", target_os = "macos"))]
     match clientapi {
         Some(ref api) => match api.get_summoner_info() {
-            Some(data) => {
+            Some(summoner) => {
                 #[cfg(debug_assertions)]
                 util::log_info(&format!(
                     "- Found summoner {} (id: {})",
