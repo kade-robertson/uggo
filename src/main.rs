@@ -153,7 +153,7 @@ fn main() {
     };
 
     #[cfg(any(target_os = "windows", target_os = "macos"))]
-    let mut clientapi: Option<clientapi::ClientAPI> = None;
+    let mut clientapi: Option<client_api::ClientAPI> = None;
 
     #[cfg(all(debug_assertions, any(target_os = "windows", target_os = "macos")))]
     if !client_lockfile.as_ref().is_none() {
