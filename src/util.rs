@@ -151,6 +151,7 @@ pub fn clear_cache(cache_dir: &str, filename: &String) {
     }
 }
 
+#[cfg(any(target_os = "windows", target_os = "macos"))]
 pub fn generate_perk_array(
     runes: &Vec<(String, Vec<&RuneExtended>)>,
     shards: &Vec<i64>,

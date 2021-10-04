@@ -1,0 +1,25 @@
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test_verify:
+    name: test-and-verify-builds
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v1.3.0
+      - name: Test
+        run: cargo test
+      - name: Build
+        run: |
+          cargo install --force cargo-strip
+          cargo build --release
+          cargo strip

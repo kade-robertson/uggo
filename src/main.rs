@@ -4,6 +4,7 @@ extern crate prettytable;
 use colored::*;
 use ctrlc;
 
+#[cfg(any(target_os = "windows", target_os = "macos"))]
 use league_client_connector::LeagueClientConnector;
 
 use prettytable::{format, Table};
@@ -14,11 +15,14 @@ use strum::IntoEnumIterator;
 use text_io::read;
 
 use crate::styling::format_ability_order;
+
+#[cfg(any(target_os = "windows", target_os = "macos"))]
 use crate::types::client_runepage::NewRunePage;
-use crate::types::client_summoner::ClientSummoner;
 
 mod api;
+#[cfg(any(target_os = "windows", target_os = "macos"))]
 mod client_api;
+
 mod config;
 mod mappings;
 mod styling;
@@ -145,9 +149,7 @@ fn main() {
         Err(_) => None,
     };
 
-    #[cfg(all(not(target_os = "windows"), not(target_os = "macos")))]
-    let client_lockfile: Option<league_client_connector::RiotLockFile> = None;
-
+    #[cfg(any(target_os = "windows", target_os = "macos"))]
     let mut clientapi: Option<client_api::ClientAPI> = None;
 
     #[cfg(all(debug_assertions, any(target_os = "windows", target_os = "macos")))]
@@ -165,24 +167,19 @@ fn main() {
         clientapi = Some(client_api::ClientAPI::new(client_lockfile.clone().unwrap()));
     }
 
-    let mut client_summoner: Option<Box<ClientSummoner>> = None;
+    #[cfg(any(target_os = "windows", target_os = "macos"))]
     match clientapi {
-        Some(ref api) => {
-            client_summoner = match api.get_summoner_info() {
-                Some(data) => Some(data),
-                None => None,
+        Some(ref api) => match api.get_summoner_info() {
+            Some(summoner) => {
+                #[cfg(debug_assertions)]
+                util::log_info(&format!(
+                    "- Found summoner {} (id: {})",
+                    summoner.display_name, summoner.summoner_id
+                ));
             }
-        }
+            None => (),
+        },
         None => (),
-    }
-
-    #[cfg(debug_assertions)]
-    if !client_summoner.as_ref().is_none() {
-        let summoner = client_summoner.unwrap();
-        util::log_info(&format!(
-            "- Found summoner {} (id: {})",
-            summoner.display_name, summoner.summoner_id
-        ));
     }
 
     loop {
@@ -418,6 +415,7 @@ fn main() {
             );
         }
 
+        #[cfg(any(target_os = "windows", target_os = "macos"))]
         match clientapi {
             Some(ref api) => match api.get_current_rune_page() {
                 Some(data) => {
