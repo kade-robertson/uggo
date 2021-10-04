@@ -171,26 +171,18 @@ fn main() {
     }
 
     #[cfg(any(target_os = "windows", target_os = "macos"))]
-    let mut client_summoner: Option<Box<ClientSummoner>> = None;
-
-    #[cfg(any(target_os = "windows", target_os = "macos"))]
     match clientapi {
-        Some(ref api) => {
-            client_summoner = match api.get_summoner_info() {
-                Some(data) => Some(data),
-                None => None,
+        Some(ref api) => match api.get_summoner_info() {
+            Some(data) => {
+                #[cfg(debug_assertions)]
+                util::log_info(&format!(
+                    "- Found summoner {} (id: {})",
+                    summoner.display_name, summoner.summoner_id
+                ));
             }
-        }
+            None => None,
+        },
         None => (),
-    }
-
-    #[cfg(all(debug_assertions, any(target_os = "windows", target_os = "macos")))]
-    if !client_summoner.as_ref().is_none() {
-        let summoner = client_summoner.unwrap();
-        util::log_info(&format!(
-            "- Found summoner {} (id: {})",
-            summoner.display_name, summoner.summoner_id
-        ));
     }
 
     loop {
