@@ -177,7 +177,7 @@ fn main() {
                     summoner.display_name, summoner.summoner_id
                 ));
             }
-            None => None,
+            None => (),
         },
         None => (),
     }
