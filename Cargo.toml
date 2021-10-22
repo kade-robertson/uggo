@@ -1,7 +1,7 @@
 [package]
 name = "uggo"
 version = "0.7.4"
-edition = "2018"
+edition = "2021"
 license = "MIT"
 description = "CLI tool to query builds from u.gg, for League of Legends."
 homepage = "https://github.com/kade-robertson/uggo"
