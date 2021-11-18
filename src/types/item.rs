@@ -164,4 +164,6 @@ pub enum Sprite {
     Item0Png,
     #[serde(rename = "item1.png")]
     Item1Png,
+    #[serde(rename = "item2.png")]
+    Item2Png,
 }
