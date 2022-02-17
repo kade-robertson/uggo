@@ -43,20 +43,32 @@ pub fn find_champ<'a>(
     } else {
         let mut lowest_distance: i32 = i32::MAX;
         let mut closest_champ: &ChampionDatum = &champ_data["Annie"];
+
+        let mut substring_lowest_dist = i32::MAX;
+        let mut substring_closest_champ: Option<&ChampionDatum> = None;
+
         for (_key, value) in champ_data {
             let query_compare = name.to_ascii_lowercase();
             let champ_compare = value.name.to_ascii_lowercase();
             // Prefer matches where search query is an exact starting substring
-            if champ_compare.starts_with(&query_compare) {
-                return value;
-            }
             let distance = levenshtein(query_compare.as_str(), champ_compare.as_str()) as i32;
-            if distance <= lowest_distance {
-                lowest_distance = distance;
-                closest_champ = value;
+            if champ_compare.starts_with(&query_compare) {
+                if distance <= substring_lowest_dist {
+                    substring_lowest_dist = distance;
+                    substring_closest_champ = Some(value);
+                }
+            } else {
+                if distance <= lowest_distance {
+                    lowest_distance = distance;
+                    closest_champ = value;
+                }
             }
         }
-        return closest_champ;
+        if substring_closest_champ.is_none() {
+            return closest_champ;
+        } else {
+            return substring_closest_champ.unwrap();
+        }
     }
 }
 
