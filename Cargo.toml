@@ -2,6 +2,7 @@
 name = "uggo"
 version = "0.7.6"
 edition = "2021"
+rust-version = "1.59"
 license = "MIT"
 description = "CLI tool to query builds from u.gg, for League of Legends."
 homepage = "https://github.com/kade-robertson/uggo"
