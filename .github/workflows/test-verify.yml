@@ -19,7 +19,4 @@ jobs:
       - name: Test
         run: cargo test
       - name: Build
-        run: |
-          cargo install --force cargo-strip
-          cargo build --release
-          cargo strip
+        run: cargo build --release

@@ -25,10 +25,7 @@ jobs:
         run: |
           echo "::set-output name=version::$(cargo pkgid | cut -d# -f2 | cut -d: -f2)"
       - name: Build
-        run: |
-          cargo install --force cargo-strip
-          cargo build --release
-          cargo strip
+        run: cargo build --release
       - name: Move executable
         run: |
           npm install -g move-file-cli mkdirp
