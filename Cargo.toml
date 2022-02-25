@@ -31,3 +31,4 @@ text_io = "0.1.9"
 
 [profile.release]
 opt-level = "z"
+strip = true
