@@ -101,7 +101,7 @@ pub fn get_region(region: &str) -> Region {
             return enum_region;
         }
     }
-    return Region::NA1;
+    Region::NA1
 }
 
 #[derive(
@@ -152,7 +152,7 @@ pub fn get_role(role: &str) -> Role {
             return enum_role;
         }
     }
-    return Role::Automatic;
+    Role::Automatic
 }
 
 #[derive(Copy, Clone, Display, EnumString, EnumIter, PartialEq, Debug)]

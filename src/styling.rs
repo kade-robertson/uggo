@@ -8,18 +8,18 @@ pub fn format_rune_text(group: &str, text: Option<&str>) -> ColoredString {
         Some(val) => val,
         None => group,
     };
-    return match group {
+    match group {
         "Precision" => output_text.yellow().bold(),
         "Domination" => output_text.red().bold(),
         "Sorcery" => output_text.purple().bold(),
         "Resolve" => output_text.green().bold(),
         "Inspiration" => output_text.blue().bold(),
         _ => "".bold(),
-    };
+    }
 }
 
 pub fn format_rune_group(name: &str) -> ColoredString {
-    return format_rune_text(name, None);
+    format_rune_text(name, None)
 }
 
 pub fn format_rune_position(rune: &RuneExtended) -> String {
@@ -39,7 +39,7 @@ pub fn format_rune_position(rune: &RuneExtended) -> String {
         index += 1;
     }
     position_message.push(']');
-    return position_message;
+    position_message
 }
 
 pub fn format_ability_level_order(ability_order: &Vec<char>, ability: char) -> String {
@@ -80,5 +80,5 @@ pub fn format_ability_order(ability_order: &Vec<char>) -> Table {
         "R",
         format_ability_level_order(ability_order, 'R').red().bold()
     ]);
-    return ability_table;
+    ability_table
 }
