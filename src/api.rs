@@ -42,7 +42,7 @@ impl API {
                         Err(_) => None,
                     }
                 } else {
-                    return None;
+                    None
                 }
             }
             Err(_) => None,
@@ -56,7 +56,7 @@ impl API {
         match self.get_data::<T>(&url) {
             Some(data) => {
                 write_to_cache::<T>(self._config.cache(), &url, &data);
-                return Some(data);
+                Some(data)
             }
             None => None,
         }
@@ -117,7 +117,7 @@ impl API {
                         }
                     }
                 }
-                return Some(Box::new(processed_data));
+                Some(Box::new(processed_data))
             }
             None => None,
         }
@@ -137,7 +137,7 @@ impl API {
                         spell_info.name,
                     );
                 }
-                return Some(Box::new(reduced_data));
+                Some(Box::new(reduced_data))
             }
             None => None,
         }
@@ -232,12 +232,12 @@ impl API {
                         role_query = mappings::Role::None;
                     }
                 }
-                return Some(Box::new((
+                Some(Box::new((
                     role_query,
                     champ_stats[&region_query][&rank_query][&role_query]
                         .data
                         .clone(),
-                )));
+                )))
             }
             None => None,
         }
@@ -291,11 +291,11 @@ impl API {
                         mappings::Rank::Overall
                     };
 
-                return Some(Box::new(
+                Some(Box::new(
                     champ_matchups[&region_query][&rank_query][&role]
                         .data
                         .clone(),
-                ));
+                ))
             }
             None => None,
         }
