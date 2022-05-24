@@ -39,7 +39,7 @@ pub fn find_champ<'a>(
     champ_data: &'a HashMap<String, ChampionDatum>,
 ) -> &'a ChampionDatum {
     if champ_data.contains_key(name) {
-        return &champ_data[name];
+        &champ_data[name]
     } else {
         let mut lowest_distance: i32 = i32::MAX;
         let mut closest_champ: &ChampionDatum = &champ_data["Annie"];
@@ -57,17 +57,16 @@ pub fn find_champ<'a>(
                     substring_lowest_dist = distance;
                     substring_closest_champ = Some(value);
                 }
-            } else {
-                if distance <= lowest_distance {
-                    lowest_distance = distance;
-                    closest_champ = value;
-                }
+            } else if distance <= lowest_distance {
+                lowest_distance = distance;
+                closest_champ = value;
             }
         }
+
         if substring_closest_champ.is_none() {
-            return closest_champ;
+            closest_champ
         } else {
-            return substring_closest_champ.unwrap();
+            substring_closest_champ.unwrap()
         }
     }
 }
@@ -108,19 +107,19 @@ pub fn group_runes<'a>(
         .iter_mut()
         .for_each(|group| group.1.sort_by(|&a, &b| a.slot.cmp(&b.slot)));
 
-    return grouped_runes;
+    grouped_runes
 }
 
 pub fn process_items(champ_items: &Vec<i64>, item_data: &HashMap<String, ItemDatum>) -> String {
-    return champ_items
+    champ_items
         .iter()
         .map(|v| item_data[&v.to_string()].name.clone())
         .collect::<Vec<String>>()
-        .join(", ");
+        .join(", ")
 }
 
 fn get_shard(id: &i64) -> &str {
-    return match id {
+    match id {
         5001 => "+15-90 Health",
         5002 => "+6 Armor",
         5003 => "+8 Magic Resist",
@@ -128,7 +127,7 @@ fn get_shard(id: &i64) -> &str {
         5007 => "+8 Ability Haste",
         5008 => "+9 Adaptive Force",
         _ => "Unknown",
-    };
+    }
 }
 
 pub fn process_shards(shards: &Vec<i64>) -> Vec<String> {
@@ -136,7 +135,7 @@ pub fn process_shards(shards: &Vec<i64>) -> Vec<String> {
     shard_text.push(format!("- Offense: {}", get_shard(&shards[0])));
     shard_text.push(format!("- Flex: {}", get_shard(&shards[1])));
     shard_text.push(format!("- Defense: {}", get_shard(&shards[2])));
-    return shard_text;
+    shard_text
 }
 
 pub fn sha256(value: &String) -> String {
@@ -151,7 +150,7 @@ pub fn read_from_cache<T: DeserializeOwned>(cache_dir: &str, filename: &String) 
             Err(_) => None,
         }
     } else {
-        return None;
+        None
     }
 }
 
@@ -178,5 +177,5 @@ pub fn generate_perk_array(
     perk_list.append(&mut runes[0].1.iter().map(|el| el.rune.id).collect::<Vec<i64>>());
     perk_list.append(&mut runes[1].1.iter().map(|el| el.rune.id).collect::<Vec<i64>>());
     perk_list.append(&mut shards.clone());
-    return (runes[0].1[0].parent_id, runes[1].1[0].parent_id, perk_list);
+    (runes[0].1[0].parent_id, runes[1].1[0].parent_id, perk_list)
 }
