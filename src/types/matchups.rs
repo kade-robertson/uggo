@@ -32,8 +32,8 @@ impl<'de> Deserialize<'de> for WrappedMatchupData {
             where
                 V: SeqAccess<'de>,
             {
-                match visitor.next_element::<MatchupData>().ok() {
-                    Some(Some(data)) => {
+                match visitor.next_element::<MatchupData>() {
+                    Ok(Some(data)) => {
                         while let Some(IgnoredAny) = visitor.next_element()? {}
                         Ok(WrappedMatchupData { data })
                     }
