@@ -156,6 +156,7 @@ pub fn get_role(role: &str) -> Role {
 }
 
 #[derive(Copy, Clone, Display, EnumString, EnumIter, PartialEq, Debug)]
+#[allow(clippy::upper_case_acronyms)]
 pub enum Mode {
     #[strum(serialize = "ranked_solo_5x5", serialize = "normal")]
     Normal,
