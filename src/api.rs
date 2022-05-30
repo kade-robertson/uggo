@@ -50,12 +50,12 @@ impl API {
     }
 
     fn get_cached_data<T: DeserializeOwned + Serialize>(&self, url: &String) -> Option<T> {
-        if let Some(data) = read_from_cache::<T>(self._config.cache(), &url) {
+        if let Some(data) = read_from_cache::<T>(self._config.cache(), url) {
             return Some(data);
         }
-        match self.get_data::<T>(&url) {
+        match self.get_data::<T>(url) {
             Some(data) => {
-                write_to_cache::<T>(self._config.cache(), &url, &data);
+                write_to_cache::<T>(self._config.cache(), url, &data);
                 Some(data)
             }
             None => None,
@@ -187,7 +187,7 @@ impl API {
             api_version
         );
         let stats_data;
-        match self._overview_lru_cache.get(&sha256(&data_path)) {
+        match self._overview_lru_cache.get(&sha256(data_path)) {
             Some(data) => stats_data = Some(data.clone()),
             None => {
                 stats_data = self.get_data::<ChampOverview>(&format!(
@@ -264,7 +264,7 @@ impl API {
             api_version
         );
         let matchup_data;
-        match self._matchup_lru_cache.get(&sha256(&data_path)) {
+        match self._matchup_lru_cache.get(&sha256(data_path)) {
             Some(data) => matchup_data = Some(data.clone()),
             None => {
                 matchup_data = self.get_data::<Matchups>(&format!(
