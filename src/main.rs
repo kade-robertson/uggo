@@ -57,7 +57,7 @@ fn main() {
     })
     .expect("Couldn't handle Ctrl+C");
 
-    let mut data_api = api::API::new();
+    let mut data_api = api::DataApi::new();
 
     let version = match data_api.get_current_version() {
         Some(data) => data,

@@ -15,16 +15,16 @@ use std::collections::HashMap;
 
 type UggAPIVersions = HashMap<String, HashMap<String, String>>;
 
-pub struct API {
+pub struct DataApi {
     _client: Client,
     _config: Config,
     _overview_lru_cache: LruCache<String, ChampOverview>,
     _matchup_lru_cache: LruCache<String, Matchups>,
 }
 
-impl API {
-    pub fn new() -> API {
-        API {
+impl DataApi {
+    pub fn new() -> DataApi {
+        DataApi {
             _client: Client::new(),
             _config: Config::new(),
             _overview_lru_cache: LruCache::new(25),
@@ -66,35 +66,32 @@ impl API {
         let versions = self.get_data::<Vec<String>>(
             &"https://static.u.gg/assets/lol/riot_patch_update/prod/versions.json".to_string(),
         );
-        match versions {
-            Some(vers) => Some(vers[0].as_str().to_string()),
-            None => None,
-        }
+        versions.map(|vers| vers[0].as_str().to_string())
     }
 
-    pub fn get_champ_data(&self, version: &String) -> Option<Box<HashMap<String, ChampionDatum>>> {
+    pub fn get_champ_data(&self, version: &String) -> Option<HashMap<String, ChampionDatum>> {
         let champ_data = self.get_cached_data::<Champions>(&format!(
             "http://ddragon.leagueoflegends.com/cdn/{}/data/en_US/champion.json",
             version
         ));
         match champ_data {
-            Some(data) => Some(Box::new(data.data)),
+            Some(data) => Some(data.data),
             None => None,
         }
     }
 
-    pub fn get_items(&self, version: &String) -> Option<Box<HashMap<String, ItemDatum>>> {
+    pub fn get_items(&self, version: &String) -> Option<HashMap<String, ItemDatum>> {
         let champ_data = self.get_cached_data::<Items>(&format!(
             "http://ddragon.leagueoflegends.com/cdn/{}/data/en_US/item.json",
             version
         ));
         match champ_data {
-            Some(data) => Some(Box::new(data.data)),
+            Some(data) => Some(data.data),
             None => None,
         }
     }
 
-    pub fn get_runes(&self, version: &String) -> Option<Box<HashMap<i64, RuneExtended>>> {
+    pub fn get_runes(&self, version: &String) -> Option<HashMap<i64, RuneExtended>> {
         let rune_data = self.get_cached_data::<RunePaths>(&format!(
             "http://ddragon.leagueoflegends.com/cdn/{}/data/en_US/runesReforged.json",
             version
@@ -111,19 +108,19 @@ impl API {
                                 index: index as i64,
                                 siblings: slot.runes.len() as i64,
                                 parent: class.name.clone(),
-                                parent_id: class.id.clone(),
+                                parent_id: class.id,
                             };
                             processed_data.insert(rune.id, extended_rune);
                         }
                     }
                 }
-                Some(Box::new(processed_data))
+                Some(processed_data)
             }
             None => None,
         }
     }
 
-    pub fn get_summoner_spells(&self, version: &String) -> Option<Box<HashMap<i64, String>>> {
+    pub fn get_summoner_spells(&self, version: &String) -> Option<HashMap<i64, String>> {
         let summoner_data = self.get_cached_data::<SummonerSpells>(&format!(
             "http://ddragon.leagueoflegends.com/cdn/{}/data/en_US/summoner.json",
             version
@@ -137,7 +134,7 @@ impl API {
                         spell_info.name,
                     );
                 }
-                Some(Box::new(reduced_data))
+                Some(reduced_data)
             }
             None => None,
         }
@@ -154,10 +151,7 @@ impl API {
                     clear_cache(self._config.cache(), &ugg_api_version_endpoint);
                     ugg_api_data =
                         self.get_cached_data::<UggAPIVersions>(&ugg_api_version_endpoint);
-                    match ugg_api_data {
-                        Some(ugg_api_retry) => Some(Box::new(ugg_api_retry)),
-                        None => None,
-                    }
+                    ugg_api_data.map(Box::new)
                 } else {
                     Some(Box::new(ugg_api))
                 }
@@ -179,23 +173,14 @@ impl API {
         if api_versions.contains_key(patch) && api_versions[patch].contains_key("overview") {
             api_version = api_versions[patch]["overview"].as_str();
         }
-        let data_path = &format!(
-            "{}/{}/{}/{}",
-            patch,
-            mode.to_string(),
-            champ.key.as_str(),
-            api_version
-        );
-        let stats_data;
-        match self._overview_lru_cache.get(&sha256(data_path)) {
-            Some(data) => stats_data = Some(data.clone()),
-            None => {
-                stats_data = self.get_data::<ChampOverview>(&format!(
-                    "https://stats2.u.gg/lol/1.1/overview/{}.json",
-                    data_path
-                ));
-            }
-        }
+        let data_path = &format!("{}/{}/{}/{}", patch, mode, champ.key.as_str(), api_version);
+        let stats_data = match self._overview_lru_cache.get(&sha256(data_path)) {
+            Some(data) => Some(data.clone()),
+            None => self.get_data::<ChampOverview>(&format!(
+                "https://stats2.u.gg/lol/1.1/overview/{}.json",
+                data_path
+            )),
+        };
 
         match stats_data {
             Some(champ_stats) => {
@@ -223,7 +208,7 @@ impl API {
                         for (role_key, role_stats) in &champ_stats[&region_query][&rank_query] {
                             if role_stats.data.matches > most_games {
                                 most_games = role_stats.data.matches;
-                                used_role = role_key.clone();
+                                used_role = *role_key;
                             }
                         }
                         role_query = used_role;
@@ -256,23 +241,14 @@ impl API {
         if api_versions.contains_key(patch) && api_versions[patch].contains_key("matchups") {
             api_version = api_versions[patch]["matchups"].as_str();
         }
-        let data_path = &format!(
-            "{}/{}/{}/{}",
-            patch,
-            mode.to_string(),
-            champ.key.as_str(),
-            api_version
-        );
-        let matchup_data;
-        match self._matchup_lru_cache.get(&sha256(data_path)) {
-            Some(data) => matchup_data = Some(data.clone()),
-            None => {
-                matchup_data = self.get_data::<Matchups>(&format!(
-                    "https://stats2.u.gg/lol/1.1/matchups/{}.json",
-                    data_path
-                ));
-            }
-        }
+        let data_path = &format!("{}/{}/{}/{}", patch, mode, champ.key.as_str(), api_version);
+        let matchup_data = match self._matchup_lru_cache.get(&sha256(data_path)) {
+            Some(data) => Some(data.clone()),
+            None => self.get_data::<Matchups>(&format!(
+                "https://stats2.u.gg/lol/1.1/matchups/{}.json",
+                data_path
+            )),
+        };
 
         match matchup_data {
             Some(champ_matchups) => {
