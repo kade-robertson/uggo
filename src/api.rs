@@ -53,9 +53,9 @@ impl API {
         if let Some(data) = read_from_cache::<T>(self._config.cache(), &url) {
             return Some(data);
         }
-        match self.get_data::<T>(&url) {
+        match self.get_data::<T>(url) {
             Some(data) => {
-                write_to_cache::<T>(self._config.cache(), &url, &data);
+                write_to_cache::<T>(self._config.cache(), url, &data);
                 Some(data)
             }
             None => None,
