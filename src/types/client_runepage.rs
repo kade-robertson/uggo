@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-#[cfg(any(target_os = "windows", target_os = "macos"))]
+#[cfg(any(target_os = "windows", target_os = "macos", target_feature = "clippy"))]
 pub type RunePages = Vec<RunePage>;
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]

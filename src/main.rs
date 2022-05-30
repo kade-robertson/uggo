@@ -2,9 +2,8 @@
 extern crate prettytable;
 
 use colored::*;
-use ctrlc;
 
-#[cfg(any(target_os = "windows", target_os = "macos"))]
+#[cfg(any(target_os = "windows", target_os = "macos", target_feature = "clippy"))]
 use league_client_connector::LeagueClientConnector;
 
 use prettytable::{format, Table};
@@ -16,11 +15,11 @@ use text_io::read;
 
 use crate::styling::format_ability_order;
 
-#[cfg(any(target_os = "windows", target_os = "macos"))]
+#[cfg(any(target_os = "windows", target_os = "macos", target_feature = "clippy"))]
 use crate::types::client_runepage::NewRunePage;
 
 mod api;
-#[cfg(any(target_os = "windows", target_os = "macos"))]
+#[cfg(any(target_os = "windows", target_os = "macos", target_feature = "clippy"))]
 mod client_api;
 
 mod config;
@@ -124,7 +123,7 @@ fn main() {
         spell_data.keys().len().to_string().green().bold()
     ));
 
-    let mut patch_version_split = version.split(".").collect::<Vec<&str>>();
+    let mut patch_version_split = version.split('.').collect::<Vec<&str>>();
     patch_version_split.remove(patch_version_split.len() - 1);
     let patch_version = patch_version_split.join("_");
 
@@ -143,16 +142,19 @@ fn main() {
 
     let mut mode = mappings::Mode::Normal;
 
-    #[cfg(any(target_os = "windows", target_os = "macos"))]
+    #[cfg(any(target_os = "windows", target_os = "macos", target_feature = "clippy"))]
     let client_lockfile = match LeagueClientConnector::parse_lockfile() {
         Ok(lockfile) => Some(lockfile),
         Err(_) => None,
     };
 
-    #[cfg(any(target_os = "windows", target_os = "macos"))]
+    #[cfg(any(target_os = "windows", target_os = "macos", target_feature = "clippy"))]
     let mut clientapi: Option<client_api::ClientAPI> = None;
 
-    #[cfg(all(debug_assertions, any(target_os = "windows", target_os = "macos")))]
+    #[cfg(all(
+        debug_assertions,
+        any(target_os = "windows", target_os = "macos", target_feature = "clippy")
+    ))]
     if !client_lockfile.as_ref().is_none() {
         let lockfile = client_lockfile.clone().unwrap();
         util::log_info(&format!(
@@ -162,12 +164,12 @@ fn main() {
         clientapi = Some(client_api::ClientAPI::new(lockfile));
     }
 
-    #[cfg(any(target_os = "windows", target_os = "macos"))]
+    #[cfg(any(target_os = "windows", target_os = "macos", target_feature = "clippy"))]
     if !client_lockfile.as_ref().is_none() {
         clientapi = Some(client_api::ClientAPI::new(client_lockfile.clone().unwrap()));
     }
 
-    #[cfg(any(target_os = "windows", target_os = "macos"))]
+    #[cfg(any(target_os = "windows", target_os = "macos", target_feature = "clippy"))]
     match clientapi {
         Some(ref api) => match api.get_summoner_info() {
             Some(summoner) => {
@@ -214,12 +216,15 @@ fn main() {
         let mut query_role = DEFAULT_ROLE;
         let mut query_region = DEFAULT_REGION;
 
-        if user_input_split.len() < 1 || user_input_split.len() > 3 || user_input_split[0] == "" {
+        if user_input_split.is_empty()
+            || user_input_split.len() > 3
+            || user_input_split[0].is_empty()
+        {
             util::log_info("This doesn't look like a valid query.");
             util::log_info("Query format is <champion>[,<role>][,<region>]");
             continue;
         }
-        if user_input_split.len() >= 1 {
+        if !user_input_split.is_empty() {
             query_champ_name = user_input_split[0];
         }
         if user_input_split.len() >= 2 {
@@ -337,13 +342,10 @@ fn main() {
 
         println!();
         println!(
-            " {} {}",
+            " {} {}, {}",
             "Spells:".yellow().bold(),
-            format!(
-                "{}, {}",
-                &spell_data[&champ_overview.summoner_spells.spell_ids[0]],
-                &spell_data[&champ_overview.summoner_spells.spell_ids[1]]
-            )
+            &spell_data[&champ_overview.summoner_spells.spell_ids[0]],
+            &spell_data[&champ_overview.summoner_spells.spell_ids[1]]
         );
 
         println!();
@@ -375,7 +377,7 @@ fn main() {
         println!();
         item_table.printstd();
 
-        if !matchups.is_none() {
+        if matchups.is_some() {
             let safe_matchups = *matchups.clone().unwrap();
             let mut matchup_table = Table::new();
             matchup_table.set_format(*format::consts::FORMAT_CLEAN);
@@ -415,7 +417,7 @@ fn main() {
             );
         }
 
-        #[cfg(any(target_os = "windows", target_os = "macos"))]
+        #[cfg(any(target_os = "windows", target_os = "macos", target_feature = "clippy"))]
         match clientapi {
             Some(ref api) => match api.get_current_rune_page() {
                 Some(data) => {

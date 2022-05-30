@@ -166,7 +166,7 @@ pub fn clear_cache(cache_dir: &str, filename: &str) {
     }
 }
 
-#[cfg(any(target_os = "windows", target_os = "macos"))]
+#[cfg(any(target_os = "windows", target_os = "macos", target_feature = "clippy"))]
 pub fn generate_perk_array(
     runes: &[(String, Vec<&RuneExtended>)],
     shards: &[i64],
