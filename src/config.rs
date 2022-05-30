@@ -13,14 +13,16 @@ impl Config {
             cache_dir: match env::var("XDG_CACHE_HOME") {
                 Ok(dir) => Path::new(&dir).join("uggo"),
                 Err(_) => match env::consts::OS {
-                    "windows" => Path::new(&env::var("APPDATA").unwrap_or(".".to_string()))
-                        .join("uggo")
-                        .join("Cache"),
-                    "macos" => Path::new(&env::var("HOME").unwrap_or(".".to_string()))
+                    "windows" => {
+                        Path::new(&env::var("APPDATA").unwrap_or_else(|_| ".".to_string()))
+                            .join("uggo")
+                            .join("Cache")
+                    }
+                    "macos" => Path::new(&env::var("HOME").unwrap_or_else(|_| ".".to_string()))
                         .join("Library")
                         .join("Caches")
                         .join("uggo"),
-                    _ => Path::new(&env::var("HOME").unwrap_or(".".to_string()))
+                    _ => Path::new(&env::var("HOME").unwrap_or_else(|_| ".".to_string()))
                         .join(".cache")
                         .join("uggo"),
                 },
