@@ -223,16 +223,16 @@ fn main() {
             query_champ_name = user_input_split[0];
         }
         if user_input_split.len() >= 2 {
-            let try_role = mappings::get_role(&user_input_split[1]);
+            let try_role = mappings::get_role(user_input_split[1]);
             if try_role == query_role {
-                query_region = mappings::get_region(&user_input_split[1]);
+                query_region = mappings::get_region(user_input_split[1]);
             } else {
                 query_role = try_role;
             }
         }
         if user_input_split.len() == 3 {
-            query_role = mappings::get_role(&user_input_split[1]);
-            query_region = mappings::get_region(&user_input_split[2]);
+            query_role = mappings::get_role(user_input_split[1]);
+            query_region = mappings::get_region(user_input_split[2]);
         }
 
         let query_champ = util::find_champ(query_champ_name, &champ_data);
@@ -253,7 +253,7 @@ fn main() {
         util::log_info(query_message.concat().as_str());
 
         let (overview_role, champ_overview) = match data_api.get_stats(
-            &patch_version.as_str(),
+            patch_version.as_str(),
             query_champ,
             query_role,
             query_region,
@@ -270,7 +270,7 @@ fn main() {
         };
 
         let matchups = data_api.get_matchups(
-            &patch_version.as_str(),
+            patch_version.as_str(),
             query_champ,
             overview_role,
             query_region,
@@ -296,36 +296,36 @@ fn main() {
         let mut rune_table = Table::new();
         rune_table.set_format(*format::consts::FORMAT_CLEAN);
         rune_table.add_row(row![
-            styling::format_rune_group(&champ_runes[0].0.as_str()),
+            styling::format_rune_group(champ_runes[0].0.as_str()),
             "",
-            styling::format_rune_group(&champ_runes[1].0.as_str()),
+            styling::format_rune_group(champ_runes[1].0.as_str()),
             ""
         ]);
         rune_table.add_row(row![
             &champ_runes[0].1[0].rune.name,
-            styling::format_rune_position(&champ_runes[0].1[0]),
+            styling::format_rune_position(champ_runes[0].1[0]),
             format!(
                 "{} (Row {})",
                 &champ_runes[1].1[0].rune.name, &champ_runes[1].1[0].slot
             ),
-            styling::format_rune_position(&champ_runes[1].1[0])
+            styling::format_rune_position(champ_runes[1].1[0])
         ]);
         rune_table.add_row(row![
             &champ_runes[0].1[1].rune.name,
-            styling::format_rune_position(&champ_runes[0].1[1]),
+            styling::format_rune_position(champ_runes[0].1[1]),
             format!(
                 "{} (Row {})",
                 &champ_runes[1].1[1].rune.name, &champ_runes[1].1[1].slot
             ),
-            styling::format_rune_position(&champ_runes[1].1[1])
+            styling::format_rune_position(champ_runes[1].1[1])
         ]);
         rune_table.add_row(row![
             &champ_runes[0].1[2].rune.name,
-            styling::format_rune_position(&champ_runes[0].1[2])
+            styling::format_rune_position(champ_runes[0].1[2])
         ]);
         rune_table.add_row(row![
             &champ_runes[0].1[3].rune.name,
-            styling::format_rune_position(&champ_runes[0].1[3])
+            styling::format_rune_position(champ_runes[0].1[3])
         ]);
         rune_table.printstd();
 
