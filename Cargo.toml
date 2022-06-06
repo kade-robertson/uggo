@@ -16,19 +16,19 @@ categories = ["command-line-utilities", "games"]
 [dependencies]
 chrono = "0.4.19"
 colored = "2.0.0"
-ctrlc = "3.2.0"
+ctrlc = "3.2.2"
 hex = "0.4.3"
 league-client-connector = "0.1.2"
 levenshtein = "1.0.5"
-lru = "0.7.1"
+lru = "0.7.6"
 prettytable-rs = "0.8.0"
-reqwest = { version = "0.11.4", features = ["blocking", "json"] }
-serde = { version = "1.0.130", features = ["derive"] }
-serde_json = "1.0.68"
-sha2 = "0.9.8"
-strum = "0.21"
-strum_macros = "0.21"
-text_io = "0.1.9"
+reqwest = { version = "0.11.10", features = ["blocking", "json"] }
+serde = { version = "1.0.137", features = ["derive"] }
+serde_json = "1.0.81"
+sha2 = "0.10.2"
+strum = "0.24"
+strum_macros = "0.24"
+text_io = "0.1.10"
 
 [profile.release]
 opt-level = "z"
