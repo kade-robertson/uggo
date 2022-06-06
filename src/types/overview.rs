@@ -44,15 +44,12 @@ impl<'de> Deserialize<'de> for WrappedOverviewData {
             where
                 V: SeqAccess<'de>,
             {
-                match visitor.next_element::<OverviewData>().ok() {
-                    Some(maybe_data) => match maybe_data {
-                        Some(data) => {
-                            while let Some(IgnoredAny) = visitor.next_element()? {}
-                            Ok(WrappedOverviewData { data })
-                        }
-                        None => Err(serde::de::Error::missing_field("top-level element")),
-                    },
-                    None => Err(serde::de::Error::missing_field("top-level element")),
+                match visitor.next_element::<OverviewData>() {
+                    Ok(Some(data)) => {
+                        while let Some(IgnoredAny) = visitor.next_element()? {}
+                        Ok(WrappedOverviewData { data })
+                    }
+                    _ => Err(serde::de::Error::missing_field("top-level element")),
                 }
             }
         }
@@ -371,18 +368,12 @@ impl<'de> Deserialize<'de> for OverviewData {
                 let low_sample_size = match_info[1] < 1000;
 
                 // this is the original low sample size value, it's always false though, so ignore.
-                match visitor.next_element::<serde_json::Value>() {
-                    Ok(_) => (),
-                    Err(_) => (),
-                }
+                if visitor.next_element::<serde_json::Value>().is_ok() {}
 
                 let shards = visitor.next_element::<Shards>().ok().unwrap().unwrap();
 
                 // this array is never used?
-                match visitor.next_element::<serde_json::Value>() {
-                    Ok(_) => (),
-                    Err(_) => (),
-                }
+                if visitor.next_element::<serde_json::Value>().is_ok() {}
 
                 let overview_data = OverviewData {
                     runes,
@@ -393,8 +384,8 @@ impl<'de> Deserialize<'de> for OverviewData {
                     item_4_options: late_items[0].clone(),
                     item_5_options: late_items[1].clone(),
                     item_6_options: late_items[2].clone(),
-                    wins: match_info[0].clone(),
-                    matches: match_info[1].clone(),
+                    wins: match_info[0],
+                    matches: match_info[1],
                     low_sample_size,
                     shards,
                 };

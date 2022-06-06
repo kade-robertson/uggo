@@ -32,15 +32,12 @@ impl<'de> Deserialize<'de> for WrappedMatchupData {
             where
                 V: SeqAccess<'de>,
             {
-                match visitor.next_element::<MatchupData>().ok() {
-                    Some(maybe_data) => match maybe_data {
-                        Some(data) => {
-                            while let Some(IgnoredAny) = visitor.next_element()? {}
-                            Ok(WrappedMatchupData { data })
-                        }
-                        None => Err(serde::de::Error::missing_field("top-level element")),
-                    },
-                    None => Err(serde::de::Error::missing_field("top-level element")),
+                match visitor.next_element::<MatchupData>() {
+                    Ok(Some(data)) => {
+                        while let Some(IgnoredAny) = visitor.next_element()? {}
+                        Ok(WrappedMatchupData { data })
+                    }
+                    _ => Err(serde::de::Error::missing_field("top-level element")),
                 }
             }
         }
@@ -84,24 +81,19 @@ impl<'de> Deserialize<'de> for MatchupData {
                 let mut all_matchups: Vec<Matchup> = vec![];
                 let mut total_matches: i64 = 0;
 
-                loop {
-                    match visitor.next_element::<Vec<i64>>().ok() {
-                        Some(data_opt) => match data_opt {
-                            Some(data) => {
-                                let wins = data[2] - data[1];
-                                let winrate = wins as f64 / data[2] as f64;
-                                all_matchups.push(Matchup {
-                                    champion_id: data[0],
-                                    wins,
-                                    matches: data[2],
-                                    winrate,
-                                });
-                                total_matches += data[2];
-                            }
-                            None => {
-                                break;
-                            }
-                        },
+                while let Ok(data_opt) = visitor.next_element::<Vec<i64>>() {
+                    match data_opt {
+                        Some(data) => {
+                            let wins = data[2] - data[1];
+                            let winrate = wins as f64 / data[2] as f64;
+                            all_matchups.push(Matchup {
+                                champion_id: data[0],
+                                wins,
+                                matches: data[2],
+                                winrate,
+                            });
+                            total_matches += data[2];
+                        }
                         None => {
                             break;
                         }

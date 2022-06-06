@@ -42,7 +42,7 @@ pub fn format_rune_position(rune: &RuneExtended) -> String {
     position_message
 }
 
-pub fn format_ability_level_order(ability_order: &Vec<char>, ability: char) -> String {
+pub fn format_ability_level_order(ability_order: &[char], ability: char) -> String {
     ability_order
         .iter()
         .copied()
@@ -57,7 +57,7 @@ pub fn format_ability_level_order(ability_order: &Vec<char>, ability: char) -> S
         .join(" ")
 }
 
-pub fn format_ability_order(ability_order: &Vec<char>) -> Table {
+pub fn format_ability_order(ability_order: &[char]) -> Table {
     let mut ability_table = Table::new();
     ability_table.set_format(*format::consts::FORMAT_NO_BORDER_LINE_SEPARATOR);
     ability_table.add_row(row![

@@ -161,9 +161,9 @@ pub enum Type {
 #[derive(Debug, Serialize, Deserialize)]
 pub enum Sprite {
     #[serde(rename = "item0.png")]
-    Item0Png,
+    Item0,
     #[serde(rename = "item1.png")]
-    Item1Png,
+    Item1,
     #[serde(rename = "item2.png")]
-    Item2Png,
+    Item2,
 }

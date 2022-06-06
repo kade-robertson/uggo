@@ -1,5 +1,3 @@
-#[cfg(debug_assertions)]
-use chrono;
 use colored::*;
 use levenshtein::levenshtein;
 use serde::de::DeserializeOwned;
@@ -47,7 +45,7 @@ pub fn find_champ<'a>(
         let mut substring_lowest_dist = i32::MAX;
         let mut substring_closest_champ: Option<&ChampionDatum> = None;
 
-        for (_key, value) in champ_data {
+        for value in champ_data.values() {
             let query_compare = name.to_ascii_lowercase();
             let champ_compare = value.name.to_ascii_lowercase();
             // Prefer matches where search query is an exact starting substring
@@ -63,18 +61,18 @@ pub fn find_champ<'a>(
             }
         }
 
-        if substring_closest_champ.is_none() {
-            closest_champ
+        if let Some(substring_champ) = substring_closest_champ {
+            substring_champ
         } else {
-            substring_closest_champ.unwrap()
+            closest_champ
         }
     }
 }
 
-pub fn find_champ_by_key<'a>(
+pub fn find_champ_by_key(
     key: i64,
-    champ_data: &'a HashMap<String, ChampionDatum>,
-) -> Option<&'a ChampionDatum> {
+    champ_data: &'_ HashMap<String, ChampionDatum>,
+) -> Option<&'_ ChampionDatum> {
     match champ_data
         .iter()
         .find(|champ| champ.1.key == key.to_string())
@@ -110,7 +108,7 @@ pub fn group_runes<'a>(
     grouped_runes
 }
 
-pub fn process_items(champ_items: &Vec<i64>, item_data: &HashMap<String, ItemDatum>) -> String {
+pub fn process_items(champ_items: &[i64], item_data: &HashMap<String, ItemDatum>) -> String {
     champ_items
         .iter()
         .map(|v| item_data[&v.to_string()].name.clone())
@@ -130,7 +128,7 @@ fn get_shard(id: &i64) -> &str {
     }
 }
 
-pub fn process_shards(shards: &Vec<i64>) -> Vec<String> {
+pub fn process_shards(shards: &[i64]) -> Vec<String> {
     let mut shard_text: Vec<String> = Vec::new();
     shard_text.push(format!("- Offense: {}", get_shard(&shards[0])));
     shard_text.push(format!("- Flex: {}", get_shard(&shards[1])));
@@ -138,11 +136,11 @@ pub fn process_shards(shards: &Vec<i64>) -> Vec<String> {
     shard_text
 }
 
-pub fn sha256(value: &String) -> String {
+pub fn sha256(value: &str) -> String {
     hex::encode(Sha256::digest(value.as_bytes()))
 }
 
-pub fn read_from_cache<T: DeserializeOwned>(cache_dir: &str, filename: &String) -> Option<T> {
+pub fn read_from_cache<T: DeserializeOwned>(cache_dir: &str, filename: &str) -> Option<T> {
     let file_path = Path::new(cache_dir).join(format!("{}.json", sha256(filename)));
     if file_path.exists() {
         match serde_json::from_str::<T>(&fs::read_to_string(file_path).unwrap_or_default()) {
@@ -154,28 +152,28 @@ pub fn read_from_cache<T: DeserializeOwned>(cache_dir: &str, filename: &String) 
     }
 }
 
-pub fn write_to_cache<T: Serialize>(cache_dir: &str, filename: &String, data: &T) {
+pub fn write_to_cache<T: Serialize>(cache_dir: &str, filename: &str, data: &T) {
     let file_path = Path::new(cache_dir).join(format!("{}.json", sha256(filename)));
     if let Ok(data) = serde_json::to_string::<T>(data) {
         fs::write(file_path, data).ok();
     }
 }
 
-pub fn clear_cache(cache_dir: &str, filename: &String) {
+pub fn clear_cache(cache_dir: &str, filename: &str) {
     let file_path = Path::new(cache_dir).join(format!("{}.json", sha256(filename)));
     if file_path.exists() {
         fs::remove_file(file_path).ok();
     }
 }
 
-#[cfg(any(target_os = "windows", target_os = "macos"))]
+#[cfg(any(target_os = "windows", target_os = "macos", target_feature = "clippy"))]
 pub fn generate_perk_array(
-    runes: &Vec<(String, Vec<&RuneExtended>)>,
-    shards: &Vec<i64>,
+    runes: &[(String, Vec<&RuneExtended>)],
+    shards: &[i64],
 ) -> (i64, i64, Vec<i64>) {
     let mut perk_list: Vec<i64> = Vec::new();
     perk_list.append(&mut runes[0].1.iter().map(|el| el.rune.id).collect::<Vec<i64>>());
     perk_list.append(&mut runes[1].1.iter().map(|el| el.rune.id).collect::<Vec<i64>>());
-    perk_list.append(&mut shards.clone());
+    perk_list.append(&mut shards.to_vec());
     (runes[0].1[0].parent_id, runes[1].1[0].parent_id, perk_list)
 }

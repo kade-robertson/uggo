@@ -53,17 +53,17 @@ pub enum Type {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum Sprite {
     #[serde(rename = "champion0.png")]
-    Champion0Png,
+    Champion0,
     #[serde(rename = "champion1.png")]
-    Champion1Png,
+    Champion1,
     #[serde(rename = "champion2.png")]
-    Champion2Png,
+    Champion2,
     #[serde(rename = "champion3.png")]
-    Champion3Png,
+    Champion3,
     #[serde(rename = "champion4.png")]
-    Champion4Png,
+    Champion4,
     #[serde(rename = "champion5.png")]
-    Champion5Png,
+    Champion5,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
