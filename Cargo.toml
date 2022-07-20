@@ -14,21 +14,21 @@ categories = ["command-line-utilities", "games"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-chrono = "0.4.19"
-colored = "2.0.0"
-ctrlc = "3.2.2"
-hex = "0.4.3"
-league-client-connector = "0.1.2"
-levenshtein = "1.0.5"
-lru = "0.7.8"
-prettytable-rs = "0.8.0"
-reqwest = { version = "0.11.11", features = ["blocking", "json"] }
-serde = { version = "1.0.139", features = ["derive"] }
-serde_json = "1.0.82"
-sha2 = "0.10.2"
-strum = "0.24.1"
-strum_macros = "0.24.1"
-text_io = "0.1.10"
+chrono = "0.4"
+colored = "2"
+ctrlc = "3"
+hex = "0.4"
+league-client-connector = "0.1"
+levenshtein = "1"
+lru = "0.7"
+prettytable-rs = "0.8"
+reqwest = { version = "0.11", features = ["blocking", "json"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+strum = "0.24"
+strum_macros = "0.24"
+text_io = "0.1"
 
 [profile.release]
 opt-level = "z"
