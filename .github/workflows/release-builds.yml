@@ -2,42 +2,71 @@ on:
   release:
     types: [published]
 
+name: release
+
 jobs:
-  release_builds:
-    name: uggo-release
+  publish_to_crates_io:
+    name: publish to crates.io
+    if: "!github.event.release.prerelease"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          prefix-key: 'rust'
+          shared-key: 'cache'
+
+      - name: Publish
+        uses: katyo/publish-crates@v1
+        with:
+          registry-token: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+  build_github_artifacts:
+    name: build github artifacts
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
     if: "!github.event.release.prerelease"
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
+      - uses: actions/checkout@v3
+
+      - uses: dtolnay/rust-toolchain@stable
+
       - name: Rust Cache
-        uses: Swatinem/rust-cache@v1.3.0
-      - uses: actions/setup-node@v2
+        uses: Swatinem/rust-cache@v2
+        with:
+          prefix-key: 'rust'
+          shared-key: 'cache'
+
+      - uses: actions/setup-node@v3
         with:
           node-version: '14'
+
       - name: Set outputs
         id: vars
         run: |
           echo "::set-output name=version::$(cargo pkgid | cut -d# -f2 | cut -d: -f2)"
+          echo "::set-output name=triple::$(rustc -vV | sed -n 's|host: ||p')"
+
       - name: Build
         run: cargo build --release
+
       - name: Move executable
         run: |
           npm install -g move-file-cli mkdirp
           mkdirp artifacts
           if [ "$RUNNER_OS" == "Windows" ]; then
-            move-file target/release/uggo.exe artifacts/uggo-windows.exe
-          elif [ "$RUNNER_OS" == "Linux" ]; then
-            move-file target/release/uggo artifacts/uggo-linux
+            move-file target/release/uggo.exe artifacts/uggo-${{ steps.vars.outputs.version }}-${{ steps.vars.outputs.triple }}.exe
           else
-            move-file target/release/uggo artifacts/uggo-mac
+            move-file target/release/uggo artifacts/uggo-${{ steps.vars.outputs.version }}-${{ steps.vars.outputs.triple }}
           fi
         shell: bash
+
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
