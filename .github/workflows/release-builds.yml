@@ -11,33 +11,38 @@ jobs:
     if: "!github.event.release.prerelease"
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
+      - uses: actions/checkout@v3
+
+      - uses: dtolnay/rust-toolchain@stable
+
       - name: Rust Cache
-        uses: Swatinem/rust-cache@v1.3.0
-      - uses: actions/setup-node@v2
+        uses: Swatinem/rust-cache@v2
+
+      - uses: actions/setup-node@v3
         with:
           node-version: '14'
+
       - name: Set outputs
         id: vars
         run: |
           echo "::set-output name=version::$(cargo pkgid | cut -d# -f2 | cut -d: -f2)"
+          echo "::set-output name=triple::$(rustc -vV | sed -n 's|host: ||p')"
+
       - name: Build
         run: cargo build --release
+
       - name: Move executable
         run: |
           npm install -g move-file-cli mkdirp
           mkdirp artifacts
           if [ "$RUNNER_OS" == "Windows" ]; then
-            move-file target/release/uggo.exe artifacts/uggo-windows.exe
-          elif [ "$RUNNER_OS" == "Linux" ]; then
-            move-file target/release/uggo artifacts/uggo-linux
+            move-file target/release/uggo.exe artifacts/uggo-${{ steps.vars.outputs.version }}-${{ steps.vars.outputs.triple }}.exe
           else
-            move-file target/release/uggo artifacts/uggo-mac
+            move-file target/release/uggo artifacts/uggo-${{ steps.vars.outputs.version }}-${{ steps.vars.outputs.triple }}
           fi
+          ls -al artifacts/
         shell: bash
+
       - name: Release
         uses: softprops/action-gh-release@v1
         with:

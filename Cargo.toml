@@ -31,8 +31,12 @@ strum_macros = "0.24"
 text_io = "0.1"
 
 [profile.release]
-opt-level = "z"
+opt-level = 3
 strip = true
 
 [features]
 clippy = []
+
+[package.metadata.binstall]
+pkg-url = "{ repo }/releases/download/v{ version }/{ name }-{version}-{ target }{ archive-suffix }"
+pkg-fmt = "bin"
