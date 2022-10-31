@@ -2,9 +2,10 @@ on:
   pull_request:
     branches: [ master ]
 
+name: test
 jobs:
   test_verify:
-    name: test-and-verify-builds
+    name: test (${{ matrix.os }})
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]

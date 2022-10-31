@@ -20,7 +20,7 @@ on:
 
 jobs:
   rust-clippy-analyze:
-    name: Run rust-clippy analyzing
+    name: rust-clippy analyze
     runs-on: ubuntu-latest
     permissions:
       contents: read
