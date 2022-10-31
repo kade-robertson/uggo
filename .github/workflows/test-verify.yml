@@ -4,7 +4,7 @@ on:
 
 name: test
 jobs:
-  test_verify:
+  test:
     name: test (${{ matrix.os }})
     strategy:
       matrix:
