@@ -111,7 +111,11 @@ pub fn group_runes<'a>(
 pub fn process_items(champ_items: &[i64], item_data: &HashMap<String, ItemDatum>) -> String {
     champ_items
         .iter()
-        .map(|v| item_data[&v.to_string()].name.clone())
+        .map(|v| {
+            item_data
+                .get(&v.to_string())
+                .map_or_else(|| format!("<unknown item {}>", v), |i| i.name.clone())
+        })
         .collect::<Vec<String>>()
         .join(", ")
 }
