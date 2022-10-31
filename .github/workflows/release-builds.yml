@@ -40,7 +40,6 @@ jobs:
           else
             move-file target/release/uggo artifacts/uggo-${{ steps.vars.outputs.version }}-${{ steps.vars.outputs.triple }}
           fi
-          ls -al artifacts/
         shell: bash
 
       - name: Release
