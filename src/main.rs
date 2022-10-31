@@ -6,6 +6,7 @@ use colored::*;
 #[cfg(any(target_os = "windows", target_os = "macos", target_feature = "clippy"))]
 use league_client_connector::LeagueClientConnector;
 
+use anyhow::{Context, Result};
 use prettytable::{format, Table};
 use std::io;
 use std::io::Write;
@@ -37,86 +38,59 @@ mod types {
     pub mod summonerspell;
 }
 
-enum ExitReasons {
-    Neutral = 0,
-    CouldNotGetVersion,
-    CouldNotGetChampData,
-    CouldNotGetItemData,
-    CouldNotGetRuneData,
-    CouldNotGetSpellData,
-    CouldNotGetUggAPIVersions,
-}
-
 static DEFAULT_ROLE: mappings::Role = mappings::Role::Automatic;
 static DEFAULT_REGION: mappings::Region = mappings::Region::World;
 
-fn main() {
+fn main() -> Result<()> {
     ctrlc::set_handler(move || {
         println!("\nExiting...");
-        exit(ExitReasons::Neutral as i32);
-    })
-    .expect("Couldn't handle Ctrl+C");
+        exit(0);
+    })?;
 
     let mut data_api = api::DataApi::new();
 
-    let version = match data_api.get_current_version() {
-        Some(data) => data,
-        None => {
-            util::log_error("Could not get current patch version, exiting...");
-            exit(ExitReasons::CouldNotGetVersion as i32);
-        }
-    };
+    let version = data_api
+        .get_current_version()
+        .context("Could not get current patch version, exiting...")?;
     util::log_info(&format!(
         "Getting data for patch {}...",
         version.green().bold()
     ));
 
-    let champ_data = match data_api.get_champ_data(&version) {
-        Some(data) => data,
-        None => {
-            util::log_error("Could not download champ data, exiting...");
-            exit(ExitReasons::CouldNotGetChampData as i32);
-        }
-    };
+    let champ_data = data_api
+        .get_champ_data(&version)
+        .context("Could not download champ data, exiting...")?;
+
     #[cfg(debug_assertions)]
     util::log_info(&format!(
         "- Got data for {} champ(s).",
         champ_data.keys().len().to_string().green().bold()
     ));
 
-    let item_data = match data_api.get_items(&version) {
-        Some(data) => data,
-        None => {
-            util::log_error("Could not download item data, exiting...");
-            exit(ExitReasons::CouldNotGetItemData as i32);
-        }
-    };
+    let item_data = data_api
+        .get_items(&version)
+        .context("Could not download item data, exiting...")?;
+
     #[cfg(debug_assertions)]
     util::log_info(&format!(
         "- Got data for {} items(s).",
         item_data.keys().len().to_string().green().bold()
     ));
 
-    let rune_data = match data_api.get_runes(&version) {
-        Some(data) => data,
-        None => {
-            util::log_error("Could not download rune data, exiting...");
-            exit(ExitReasons::CouldNotGetRuneData as i32);
-        }
-    };
+    let rune_data = data_api
+        .get_runes(&version)
+        .context("Could not download rune data, exiting...")?;
+
     #[cfg(debug_assertions)]
     util::log_info(&format!(
         "- Got data for {} rune(s).",
         rune_data.keys().len().to_string().green().bold()
     ));
 
-    let spell_data = match data_api.get_summoner_spells(&version) {
-        Some(data) => data,
-        None => {
-            util::log_error("Could not download summoner spell data, exiting...");
-            exit(ExitReasons::CouldNotGetSpellData as i32);
-        }
-    };
+    let spell_data = data_api
+        .get_summoner_spells(&version)
+        .context("Could not download summoner spell data, exiting...")?;
+
     #[cfg(debug_assertions)]
     util::log_info(&format!(
         "- Got data for {} summoner spell(s).",
@@ -127,13 +101,10 @@ fn main() {
     patch_version_split.remove(patch_version_split.len() - 1);
     let patch_version = patch_version_split.join("_");
 
-    let ugg_api_versions = match data_api.get_ugg_api_versions(&patch_version) {
-        Some(data) => data,
-        None => {
-            util::log_error("Could not download u.gg api version data, exiting...");
-            exit(ExitReasons::CouldNotGetUggAPIVersions as i32);
-        }
-    };
+    let ugg_api_versions = data_api
+        .get_ugg_api_versions(&patch_version)
+        .context("Could not download u.gg api version data, exiting...")?;
+
     #[cfg(debug_assertions)]
     util::log_info(&format!(
         "- Got u.gg API versions for {} patch(es).",
@@ -143,10 +114,7 @@ fn main() {
     let mut mode = mappings::Mode::Normal;
 
     #[cfg(any(target_os = "windows", target_os = "macos", target_feature = "clippy"))]
-    let client_lockfile = match LeagueClientConnector::parse_lockfile() {
-        Ok(lockfile) => Some(lockfile),
-        Err(_) => None,
-    };
+    let client_lockfile = LeagueClientConnector::parse_lockfile().ok();
 
     #[cfg(any(target_os = "windows", target_os = "macos", target_feature = "clippy"))]
     let mut clientapi: Option<client_api::ClientAPI> = None;
@@ -265,8 +233,8 @@ fn main() {
             mode,
             &ugg_api_versions,
         ) {
-            Some(data) => *data,
-            None => {
+            Ok(data) => *data,
+            Err(_) => {
                 util::log_error(
                     format!("Couldn't get required data for {}.", formatted_champ_name).as_str(),
                 );
@@ -377,8 +345,7 @@ fn main() {
         println!();
         item_table.printstd();
 
-        if matchups.is_some() {
-            let safe_matchups = *matchups.clone().unwrap();
+        if let Ok(safe_matchups) = matchups {
             let mut matchup_table = Table::new();
             matchup_table.set_format(*format::consts::FORMAT_CLEAN);
             matchup_table.add_row(row![
