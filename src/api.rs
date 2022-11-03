@@ -167,7 +167,7 @@ impl DataApi {
         let stats_data = match self._overview_lru_cache.get(&sha256(data_path)) {
             Some(data) => Ok(data.clone()),
             None => self.get_data::<ChampOverview>(&format!(
-                "https://stats2.u.gg/lol/1.1/overview/{}.json",
+                "https://stats2.u.gg/lol/1.5/overview/{}.json",
                 data_path
             )),
         }?;
@@ -233,7 +233,7 @@ impl DataApi {
         let matchup_data = match self._matchup_lru_cache.get(&sha256(data_path)) {
             Some(data) => Ok(data.clone()),
             None => self.get_data::<Matchups>(&format!(
-                "https://stats2.u.gg/lol/1.1/matchups/{}.json",
+                "https://stats2.u.gg/lol/1.5/matchups/{}.json",
                 data_path
             )),
         }?;
