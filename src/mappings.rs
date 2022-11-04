@@ -155,29 +155,46 @@ pub fn get_role(role: &str) -> Role {
     Role::Automatic
 }
 
-#[derive(Copy, Clone, Display, EnumString, EnumIter, PartialEq, Eq, Debug)]
-#[allow(clippy::upper_case_acronyms)]
+#[derive(Clone, Copy, Debug, EnumIter)]
 pub enum Mode {
-    #[strum(serialize = "ranked_solo_5x5", serialize = "normal")]
     Normal,
-
-    #[strum(serialize = "normal_aram", serialize = "aram")]
     ARAM,
-
-    #[strum(serialize = "one_for_all", serialize = "oneforall")]
     OneForAll,
-
-    #[strum(serialize = "urf")]
     URF,
 }
 
-pub fn get_mode(mode: &str) -> Mode {
-    match Mode::from_str(mode) {
-        Ok(variant) => variant,
-        Err(_) => match Mode::from_str(&mode.to_lowercase()) {
-            Ok(variant) => variant,
-            Err(_) => Mode::Normal,
-        },
+impl Mode {
+    pub fn to_api_string(&self) -> String {
+        (match &self {
+            Mode::Normal => "ranked_solo_5x5",
+            Mode::ARAM => "normal_aram",
+            Mode::OneForAll => "one_for_all",
+            Mode::URF => "urf",
+        })
+        .to_string()
+    }
+}
+
+impl ToString for Mode {
+    fn to_string(&self) -> String {
+        (match &self {
+            Mode::Normal => "Normal",
+            Mode::ARAM => "ARAM",
+            Mode::OneForAll => "OneForAll",
+            Mode::URF => "URF",
+        })
+        .to_string()
+    }
+}
+
+impl From<&str> for Mode {
+    fn from(mode_str: &str) -> Self {
+        match mode_str.to_lowercase().as_str() {
+            "aram" | "all_random_all_mid" | "ranked_aram" => Mode::ARAM,
+            "oneforall" | "one_for_all" => Mode::OneForAll,
+            "urf" | "ultra_rapid_fire" => Mode::URF,
+            _ => Mode::Normal,
+        }
     }
 }
 

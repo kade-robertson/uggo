@@ -163,7 +163,13 @@ impl DataApi {
         if api_versions.contains_key(patch) && api_versions[patch].contains_key("overview") {
             api_version = api_versions[patch]["overview"].as_str();
         }
-        let data_path = &format!("{}/{}/{}/{}", patch, mode, champ.key.as_str(), api_version);
+        let data_path = &format!(
+            "{}/{}/{}/{}",
+            patch,
+            mode.to_api_string(),
+            champ.key.as_str(),
+            api_version
+        );
         let stats_data = match self._overview_lru_cache.get(&sha256(data_path)) {
             Some(data) => Ok(data.clone()),
             None => self.get_data::<ChampOverview>(&format!(
@@ -229,7 +235,13 @@ impl DataApi {
         if api_versions.contains_key(patch) && api_versions[patch].contains_key("matchups") {
             api_version = api_versions[patch]["matchups"].as_str();
         }
-        let data_path = &format!("{}/{}/{}/{}", patch, mode, champ.key.as_str(), api_version);
+        let data_path = &format!(
+            "{}/{}/{}/{}",
+            patch,
+            mode.to_api_string(),
+            champ.key.as_str(),
+            api_version
+        );
         let matchup_data = match self._matchup_lru_cache.get(&sha256(data_path)) {
             Some(data) => Ok(data.clone()),
             None => self.get_data::<Matchups>(&format!(

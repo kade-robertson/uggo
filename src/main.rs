@@ -7,6 +7,7 @@ use colored::*;
 use league_client_connector::LeagueClientConnector;
 
 use anyhow::{Context, Result};
+use clap::Parser;
 use prettytable::{format, Table};
 use std::io;
 use std::io::Write;
@@ -38,14 +39,31 @@ mod types {
     pub mod summonerspell;
 }
 
+static DEFAULT_MODE: mappings::Mode = mappings::Mode::Normal;
 static DEFAULT_ROLE: mappings::Role = mappings::Role::Automatic;
 static DEFAULT_REGION: mappings::Region = mappings::Region::World;
+
+#[derive(Parser, Debug)]
+struct Args {
+    champ: Option<String>,
+
+    #[arg(long, default_value_t = DEFAULT_MODE)]
+    mode: mappings::Mode,
+
+    #[arg(long, default_value_t = DEFAULT_ROLE)]
+    role: mappings::Role,
+
+    #[arg(long, default_value_t = DEFAULT_REGION)]
+    region: mappings::Region,
+}
 
 fn main() -> Result<()> {
     ctrlc::set_handler(move || {
         println!("\nExiting...");
         exit(0);
     })?;
+
+    println!("{:?}", Args::parse());
 
     let mut data_api = api::DataApi::new();
 
@@ -171,7 +189,7 @@ fn main() -> Result<()> {
         if clean_user_input.starts_with("mode") {
             let mode_to_set = clean_user_input.split(' ').collect::<Vec<&str>>();
             if mode_to_set.len() > 1 {
-                mode = mappings::get_mode(mode_to_set[1]);
+                mode = mappings::Mode::from(mode_to_set[1]);
                 util::log_info(format!("Switching mode to {:?}...", mode).as_str());
                 continue;
             } else {

@@ -16,6 +16,7 @@ categories = ["command-line-utilities", "games"]
 [dependencies]
 anyhow = "1.0"
 chrono = "0.4"
+clap = { version = "4", features = ["derive"] }
 colored = "2"
 ctrlc = "3"
 hex = "0.4"
