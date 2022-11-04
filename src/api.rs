@@ -6,9 +6,9 @@ use crate::types::matchups::{MatchupData, Matchups};
 use crate::types::overview::{ChampOverview, OverviewData};
 use crate::types::rune::{RuneExtended, RunePaths};
 use crate::types::summonerspell::SummonerSpells;
-use crate::util::{clear_cache, read_from_cache, sha256, write_to_cache};
+use crate::util::{clear_cache, read_from_cache, write_to_cache};
 use anyhow::{anyhow, Result};
-use lru::LruCache;
+use levenshtein::levenshtein;
 use reqwest::blocking::Client;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
@@ -19,8 +19,18 @@ type UggAPIVersions = HashMap<String, HashMap<String, String>>;
 pub struct DataApi {
     _client: Client,
     _config: Config,
-    _overview_lru_cache: LruCache<String, ChampOverview>,
-    _matchup_lru_cache: LruCache<String, Matchups>,
+}
+
+pub struct UggApi {
+    _api: DataApi,
+    _ugg_api_versions: UggAPIVersions,
+
+    pub current_version: String,
+    pub patch_version: String,
+    pub champ_data: HashMap<String, ChampionDatum>,
+    pub items: HashMap<String, ItemDatum>,
+    pub runes: HashMap<i64, RuneExtended>,
+    pub summoner_spells: HashMap<i64, String>,
 }
 
 impl DataApi {
@@ -28,8 +38,6 @@ impl DataApi {
         DataApi {
             _client: Client::new(),
             _config: Config::new(),
-            _overview_lru_cache: LruCache::new(25),
-            _matchup_lru_cache: LruCache::new(25),
         }
     }
 
@@ -54,7 +62,7 @@ impl DataApi {
         }
     }
 
-    pub fn get_current_version(&self) -> Result<String> {
+    pub fn get_current_version(&mut self) -> Result<String> {
         let versions = self.get_data::<Vec<String>>(
             &"https://static.u.gg/assets/lol/riot_patch_update/prod/versions.json".to_string(),
         );
@@ -129,7 +137,7 @@ impl DataApi {
         }
     }
 
-    pub fn get_ugg_api_versions(&self, version: &String) -> Result<Box<UggAPIVersions>> {
+    pub fn get_ugg_api_versions(&self, version: &String) -> Result<UggAPIVersions> {
         let ugg_api_version_endpoint =
             "https://static.u.gg/assets/lol/riot_patch_update/prod/ugg/ugg-api-versions.json"
                 .to_string();
@@ -141,9 +149,9 @@ impl DataApi {
                     clear_cache(self._config.cache(), &ugg_api_version_endpoint);
                     ugg_api_data =
                         self.get_cached_data::<UggAPIVersions>(&ugg_api_version_endpoint);
-                    ugg_api_data.map(Box::new)
+                    ugg_api_data
                 } else {
-                    Ok(Box::new(ugg_api))
+                    Ok(ugg_api)
                 }
             }
             Err(e) => Err(e),
@@ -151,7 +159,7 @@ impl DataApi {
     }
 
     pub fn get_stats(
-        &mut self,
+        &self,
         patch: &str,
         champ: &ChampionDatum,
         role: mappings::Role,
@@ -170,16 +178,11 @@ impl DataApi {
             champ.key.as_str(),
             api_version
         );
-        let stats_data = match self._overview_lru_cache.get(&sha256(data_path)) {
-            Some(data) => Ok(data.clone()),
-            None => self.get_data::<ChampOverview>(&format!(
-                "https://stats2.u.gg/lol/1.5/overview/{}.json",
-                data_path
-            )),
-        }?;
+        let stats_data = self.get_data::<ChampOverview>(&format!(
+            "https://stats2.u.gg/lol/1.5/overview/{}.json",
+            data_path
+        ))?;
 
-        self._overview_lru_cache
-            .put(sha256(data_path), stats_data.clone());
         let region_query = if stats_data.contains_key(&region) {
             region
         } else {
@@ -223,7 +226,7 @@ impl DataApi {
     }
 
     pub fn get_matchups(
-        &mut self,
+        &self,
         patch: &str,
         champ: &ChampionDatum,
         role: mappings::Role,
@@ -242,16 +245,11 @@ impl DataApi {
             champ.key.as_str(),
             api_version
         );
-        let matchup_data = match self._matchup_lru_cache.get(&sha256(data_path)) {
-            Some(data) => Ok(data.clone()),
-            None => self.get_data::<Matchups>(&format!(
-                "https://stats2.u.gg/lol/1.5/matchups/{}.json",
-                data_path
-            )),
-        }?;
+        let matchup_data = self.get_data::<Matchups>(&format!(
+            "https://stats2.u.gg/lol/1.5/matchups/{}.json",
+            data_path
+        ))?;
 
-        self._matchup_lru_cache
-            .put(sha256(data_path), matchup_data.clone());
         let region_query = if matchup_data.contains_key(&region) {
             region
         } else {
@@ -274,5 +272,102 @@ impl DataApi {
             .ok_or_else(|| anyhow!("Role missing"))?;
 
         Ok(Box::new(matchups.data.clone()))
+    }
+}
+
+impl UggApi {
+    pub fn new() -> Result<Self> {
+        let mut inner_api = DataApi::new();
+
+        let current_version = inner_api.get_current_version()?;
+        let champ_data = inner_api.get_champ_data(&current_version)?;
+        let items = inner_api.get_items(&current_version)?;
+        let runes = inner_api.get_runes(&current_version)?;
+        let summoner_spells = inner_api.get_summoner_spells(&current_version)?;
+
+        let mut patch_version_split = current_version.split('.').collect::<Vec<&str>>();
+        patch_version_split.remove(patch_version_split.len() - 1);
+        let patch_version = patch_version_split.join("_");
+
+        let _ugg_api_versions = inner_api.get_ugg_api_versions(&patch_version)?;
+
+        Ok(Self {
+            _api: inner_api,
+            _ugg_api_versions,
+            current_version,
+            patch_version,
+            champ_data,
+            items,
+            runes,
+            summoner_spells,
+        })
+    }
+
+    pub fn find_champ(&self, name: &str) -> &ChampionDatum {
+        if self.champ_data.contains_key(name) {
+            &self.champ_data[name]
+        } else {
+            let mut lowest_distance: i32 = i32::MAX;
+            let mut closest_champ: &ChampionDatum = &self.champ_data["Annie"];
+
+            let mut substring_lowest_dist = i32::MAX;
+            let mut substring_closest_champ: Option<&ChampionDatum> = None;
+
+            for value in self.champ_data.values() {
+                let query_compare = name.to_ascii_lowercase();
+                let champ_compare = value.name.to_ascii_lowercase();
+                // Prefer matches where search query is an exact starting substring
+                let distance = levenshtein(query_compare.as_str(), champ_compare.as_str()) as i32;
+                if champ_compare.starts_with(&query_compare) {
+                    if distance <= substring_lowest_dist {
+                        substring_lowest_dist = distance;
+                        substring_closest_champ = Some(value);
+                    }
+                } else if distance <= lowest_distance {
+                    lowest_distance = distance;
+                    closest_champ = value;
+                }
+            }
+
+            if let Some(substring_champ) = substring_closest_champ {
+                substring_champ
+            } else {
+                closest_champ
+            }
+        }
+    }
+
+    pub fn get_stats(
+        &self,
+        champ: &ChampionDatum,
+        role: mappings::Role,
+        region: mappings::Region,
+        mode: mappings::Mode,
+    ) -> Result<Box<(mappings::Role, OverviewData)>> {
+        self._api.get_stats(
+            &self.patch_version,
+            champ,
+            role,
+            region,
+            mode,
+            &self._ugg_api_versions,
+        )
+    }
+
+    pub fn get_matchups(
+        &self,
+        champ: &ChampionDatum,
+        role: mappings::Role,
+        region: mappings::Region,
+        mode: mappings::Mode,
+    ) -> Result<Box<MatchupData>> {
+        self._api.get_matchups(
+            &self.patch_version,
+            champ,
+            role,
+            region,
+            mode,
+            &self._ugg_api_versions,
+        )
     }
 }

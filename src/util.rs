@@ -1,5 +1,4 @@
 use colored::*;
-use levenshtein::levenshtein;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 use sha2::{Digest, Sha256};
@@ -30,43 +29,6 @@ pub fn log_info(msg: &str) {
     }
     message.push_str(msg);
     println!("{}", message);
-}
-
-pub fn find_champ<'a>(
-    name: &str,
-    champ_data: &'a HashMap<String, ChampionDatum>,
-) -> &'a ChampionDatum {
-    if champ_data.contains_key(name) {
-        &champ_data[name]
-    } else {
-        let mut lowest_distance: i32 = i32::MAX;
-        let mut closest_champ: &ChampionDatum = &champ_data["Annie"];
-
-        let mut substring_lowest_dist = i32::MAX;
-        let mut substring_closest_champ: Option<&ChampionDatum> = None;
-
-        for value in champ_data.values() {
-            let query_compare = name.to_ascii_lowercase();
-            let champ_compare = value.name.to_ascii_lowercase();
-            // Prefer matches where search query is an exact starting substring
-            let distance = levenshtein(query_compare.as_str(), champ_compare.as_str()) as i32;
-            if champ_compare.starts_with(&query_compare) {
-                if distance <= substring_lowest_dist {
-                    substring_lowest_dist = distance;
-                    substring_closest_champ = Some(value);
-                }
-            } else if distance <= lowest_distance {
-                lowest_distance = distance;
-                closest_champ = value;
-            }
-        }
-
-        if let Some(substring_champ) = substring_closest_champ {
-            substring_champ
-        } else {
-            closest_champ
-        }
-    }
 }
 
 pub fn find_champ_by_key(

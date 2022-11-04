@@ -1,4 +1,4 @@
-use std::{convert::TryFrom, str::FromStr};
+use std::convert::TryFrom;
 
 use serde::{Deserialize, Serialize};
 use strum::IntoEnumIterator;
@@ -156,6 +156,7 @@ pub fn get_role(role: &str) -> Role {
 }
 
 #[derive(Clone, Copy, Debug, EnumIter)]
+#[allow(clippy::upper_case_acronyms)]
 pub enum Mode {
     Normal,
     ARAM,
@@ -164,8 +165,8 @@ pub enum Mode {
 }
 
 impl Mode {
-    pub fn to_api_string(&self) -> String {
-        (match &self {
+    pub fn to_api_string(self) -> String {
+        (match self {
             Mode::Normal => "ranked_solo_5x5",
             Mode::ARAM => "normal_aram",
             Mode::OneForAll => "one_for_all",
