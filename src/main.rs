@@ -394,7 +394,7 @@ fn main() -> Result<()> {
         #[cfg(any(target_os = "windows", target_os = "macos", target_feature = "clippy"))]
         fetch(
             &ugg,
-            clientapi,
+            &clientapi,
             query_champ_name,
             mode,
             query_role,
