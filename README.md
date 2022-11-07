@@ -1,13 +1,21 @@
 # uggo
 
+[![version](https://img.shields.io/crates/v/uggo?style=flat-square)](https://crates.io/crates/uggo) [![downloads](https://img.shields.io/crates/d/uggo?style=flat-square)](https://crates.io/crates/uggo)
+
 CLI tool to pull builds from https://u.gg/.
 
 ## Install
 
-You can install from `crates.io`:
+You can install from [crates.io](https://crates.io/crates/uggo):
 
 ```zsh
 cargo install uggo
+```
+
+Or, directly from the GitHub releases using `cargo-binstall`:
+
+```zsh
+cargo binstall uggo
 ```
 
 Or, by installing the GitHub repo directly:
@@ -20,9 +28,9 @@ Finally, you can always find the latest release builds in the [Releases](https:/
 
 ## Usage
 
-Just run the executable. There are no command-line options.
+### Interactive
 
-Once running, you'll be presented with a prompt:
+Just run the executable. If run with no options, you'll be presented with a prompt:
 
 ```
 query>
@@ -70,7 +78,7 @@ Here's an example output, which details runes, shards, spells, ability order, it
  Q | ●             ●   ●   ● ●
  W |   ●   ● ●   ●   ●
  E |     ●                     ● ●   ● ●
- R |           ●         ●         ●    
+ R |           ●         ●         ●
 
  Starting:  Doran's Shield, Health Potion
      Core:  Plated Steelcaps, Sunfire Aegis, Thornmail
@@ -90,7 +98,7 @@ By default, when `uggo` is first run it will attempt to connect to the Game Clie
 - You have at least one editable rune page, and
 - An editable rune page must be the current page.
 
-### Roles
+#### Roles
 
 `<role>` can be 1 of 7 options:
 
@@ -104,7 +112,7 @@ By default, when `uggo` is first run it will attempt to connect to the Game Clie
 
 `None` is only used for ARAM, and is the default in this case. Otherwise, `Automatic` is the default.
 
-### Regions
+#### Regions
 
 `<region>` can be 1 of 12 options:
 
@@ -122,3 +130,39 @@ By default, when `uggo` is first run it will attempt to connect to the Game Clie
 - World
 
 `World` is the default.
+
+### CLI
+
+You can optionally run `uggo` as a CLI. You can just specify the name, or add the same query options you would have in the interactive version.
+Run with `--help` for more info:
+
+```
+CLI tool to query builds from u.gg, for League of Legends.
+
+Usage: uggo [OPTIONS] [CHAMP]
+
+Arguments:
+  [CHAMP]
+          The name of the champion you want to match. A best effort will be made to find the champ if it's only a partial query.
+
+          If left blank, will open the interactive version of uggo.
+
+Options:
+  -m, --mode <MODE>
+          [default: Normal]
+          [possible values: normal, aram, one-for-all, urf]
+
+  -r, --role <ROLE>
+          [default: Automatic]
+          [possible values: jungle, support, ad-carry, top, mid, none, automatic]
+
+  -R, --region <REGION>
+          [default: World]
+          [possible values: na1, euw1, kr, eun1, br1, la1, la2, oc1, run, tr1, jp1, world]
+
+  -h, --help
+          Print help information (use `-h` for a summary)
+
+  -V, --version
+          Print version information
+```
