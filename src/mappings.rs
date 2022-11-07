@@ -1,5 +1,6 @@
 use std::convert::TryFrom;
 
+use clap::{builder::PossibleValue, ValueEnum};
 use serde::{Deserialize, Serialize};
 use strum::IntoEnumIterator;
 use strum_macros::{Display, EnumIter, EnumString};
@@ -104,6 +105,42 @@ pub fn get_region(region: &str) -> Region {
     Region::NA1
 }
 
+impl ValueEnum for Region {
+    fn value_variants<'a>() -> &'a [Self] {
+        &[
+            Self::NA1,
+            Self::EUW1,
+            Self::KR,
+            Self::EUN1,
+            Self::BR1,
+            Self::LA1,
+            Self::LA2,
+            Self::OC1,
+            Self::RU,
+            Self::TR1,
+            Self::JP1,
+            Self::World,
+        ]
+    }
+
+    fn to_possible_value(&self) -> Option<PossibleValue> {
+        Some(match self {
+            Region::NA1 => PossibleValue::new("na1").alias("NA1"),
+            Region::EUW1 => PossibleValue::new("euw1").alias("EUW1"),
+            Region::KR => PossibleValue::new("kr").alias("KR"),
+            Region::EUN1 => PossibleValue::new("eun1").alias("EUN1"),
+            Region::BR1 => PossibleValue::new("br1").alias("BR1"),
+            Region::LA1 => PossibleValue::new("la1").alias("LA1"),
+            Region::LA2 => PossibleValue::new("la2").alias("LA2"),
+            Region::OC1 => PossibleValue::new("oc1").alias("OC1"),
+            Region::RU => PossibleValue::new("run").alias("RU"),
+            Region::TR1 => PossibleValue::new("tr1").alias("TR1"),
+            Region::JP1 => PossibleValue::new("jp1").alias("JP1"),
+            Region::World => PossibleValue::new("world").alias("World"),
+        })
+    }
+}
+
 #[derive(
     Copy, Clone, Display, EnumString, EnumIter, PartialEq, Eq, Hash, Serialize, Deserialize, Debug,
 )]
@@ -155,6 +192,34 @@ pub fn get_role(role: &str) -> Role {
     Role::Automatic
 }
 
+impl ValueEnum for Role {
+    fn value_variants<'a>() -> &'a [Self] {
+        &[
+            Self::Jungle,
+            Self::Support,
+            Self::ADCarry,
+            Self::Top,
+            Self::Mid,
+            Self::None,
+            Self::Automatic,
+        ]
+    }
+
+    fn to_possible_value(&self) -> Option<PossibleValue> {
+        Some(match self {
+            Role::Jungle => PossibleValue::new("jungle").alias("Jungle"),
+            Role::Support => PossibleValue::new("support").alias("Support"),
+            Role::ADCarry => PossibleValue::new("ad-carry")
+                .alias("adcarry")
+                .alias("ADCarry"),
+            Role::Top => PossibleValue::new("top").alias("Top"),
+            Role::Mid => PossibleValue::new("mid").alias("Mid"),
+            Role::None => PossibleValue::new("none").alias("None"),
+            Role::Automatic => PossibleValue::new("automatic").alias("Automatic"),
+        })
+    }
+}
+
 #[derive(Clone, Copy, Debug, EnumIter)]
 #[allow(clippy::upper_case_acronyms)]
 pub enum Mode {
@@ -170,7 +235,7 @@ impl Mode {
             Mode::Normal => "ranked_solo_5x5",
             Mode::ARAM => "normal_aram",
             Mode::OneForAll => "one_for_all",
-            Mode::URF => "urf",
+            Mode::URF => "pick_urf",
         })
         .to_string()
     }
@@ -196,6 +261,23 @@ impl From<&str> for Mode {
             "urf" | "ultra_rapid_fire" => Mode::URF,
             _ => Mode::Normal,
         }
+    }
+}
+
+impl ValueEnum for Mode {
+    fn value_variants<'a>() -> &'a [Self] {
+        &[Self::Normal, Self::ARAM, Self::OneForAll, Self::URF]
+    }
+
+    fn to_possible_value(&self) -> Option<clap::builder::PossibleValue> {
+        Some(match self {
+            Self::Normal => PossibleValue::new("normal").alias("Normal"),
+            Self::ARAM => PossibleValue::new("aram").alias("ARAM"),
+            Self::OneForAll => PossibleValue::new("one-for-all").alias("OneForAll"),
+            Self::URF => PossibleValue::new("urf")
+                .alias("URF")
+                .alias("ultra-rapid-fire"),
+        })
     }
 }
 
