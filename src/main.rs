@@ -46,6 +46,10 @@ static DEFAULT_REGION: mappings::Region = mappings::Region::World;
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
+    /// The name of the champion you want to match. A best effort will be made
+    /// to find the champ if it's only a partial query.
+    ///
+    /// If left blank, will open the interactive version of uggo.
     champ: Option<String>,
 
     #[arg(short, long, default_value_t = DEFAULT_MODE)]
