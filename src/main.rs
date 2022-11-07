@@ -65,7 +65,7 @@ struct Args {
 fn fetch(
     ugg: &api::UggApi,
     #[cfg(any(target_os = "windows", target_os = "macos", target_feature = "clippy"))]
-    client: Option<&client_api::ClientAPI>,
+    client: &Option<client_api::ClientAPI>,
     #[cfg(not(any(target_os = "windows", target_os = "macos", target_feature = "clippy")))] _client: Option<bool>,
     champ: &str,
     mode: mappings::Mode,
