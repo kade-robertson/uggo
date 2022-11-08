@@ -11,14 +11,10 @@ pub type ChampOverview = HashMap<
     HashMap<mappings::Rank, HashMap<mappings::Role, WrappedOverviewData>>,
 >;
 
-fn handle_unknown<T, E>(result: Result<Option<T>, E>, default: T) -> T {
-    match result {
-        Ok(some) => match some {
-            Some(val) => val,
-            None => default,
-        },
-        Err(_) => default,
-    }
+fn handle_unknown<T: Default, E>(result: Result<Option<T>, E>) -> T {
+    result
+        .unwrap_or_else(|_| Some(T::default()))
+        .unwrap_or_default()
 }
 
 #[derive(Debug, Clone)]
@@ -101,20 +97,11 @@ impl<'de> Deserialize<'de> for Runes {
                 V: SeqAccess<'de>,
             {
                 Ok(Runes {
-                    matches: handle_unknown::<i64, V::Error>(visitor.next_element::<i64>(), 0),
-                    wins: handle_unknown::<i64, V::Error>(visitor.next_element::<i64>(), 0),
-                    primary_style_id: handle_unknown::<i64, V::Error>(
-                        visitor.next_element::<i64>(),
-                        0,
-                    ),
-                    secondary_style_id: handle_unknown::<i64, V::Error>(
-                        visitor.next_element::<i64>(),
-                        0,
-                    ),
-                    rune_ids: handle_unknown::<Vec<i64>, V::Error>(
-                        visitor.next_element::<Vec<i64>>(),
-                        vec![],
-                    ),
+                    matches: handle_unknown(visitor.next_element::<i64>()),
+                    wins: handle_unknown(visitor.next_element::<i64>()),
+                    primary_style_id: handle_unknown(visitor.next_element::<i64>()),
+                    secondary_style_id: handle_unknown(visitor.next_element::<i64>()),
+                    rune_ids: handle_unknown(visitor.next_element::<Vec<i64>>()),
                 })
             }
         }
@@ -149,12 +136,9 @@ impl<'de> Deserialize<'de> for SummonerSpells {
                 V: SeqAccess<'de>,
             {
                 Ok(SummonerSpells {
-                    matches: handle_unknown::<i64, V::Error>(visitor.next_element::<i64>(), 0),
-                    wins: handle_unknown::<i64, V::Error>(visitor.next_element::<i64>(), 0),
-                    spell_ids: handle_unknown::<Vec<i64>, V::Error>(
-                        visitor.next_element::<Vec<i64>>(),
-                        vec![],
-                    ),
+                    matches: handle_unknown(visitor.next_element::<i64>()),
+                    wins: handle_unknown(visitor.next_element::<i64>()),
+                    spell_ids: handle_unknown(visitor.next_element::<Vec<i64>>()),
                 })
             }
         }
@@ -189,12 +173,9 @@ impl<'de> Deserialize<'de> for Items {
                 V: SeqAccess<'de>,
             {
                 Ok(Items {
-                    matches: handle_unknown::<i64, V::Error>(visitor.next_element::<i64>(), 0),
-                    wins: handle_unknown::<i64, V::Error>(visitor.next_element::<i64>(), 0),
-                    item_ids: handle_unknown::<Vec<i64>, V::Error>(
-                        visitor.next_element::<Vec<i64>>(),
-                        vec![],
-                    ),
+                    matches: handle_unknown(visitor.next_element::<i64>()),
+                    wins: handle_unknown(visitor.next_element::<i64>()),
+                    item_ids: handle_unknown(visitor.next_element::<Vec<i64>>()),
                 })
             }
         }
@@ -230,16 +211,10 @@ impl<'de> Deserialize<'de> for Abilities {
                 V: SeqAccess<'de>,
             {
                 Ok(Abilities {
-                    matches: handle_unknown::<i64, V::Error>(visitor.next_element::<i64>(), 0),
-                    wins: handle_unknown::<i64, V::Error>(visitor.next_element::<i64>(), 0),
-                    ability_order: handle_unknown::<Vec<char>, V::Error>(
-                        visitor.next_element::<Vec<char>>(),
-                        vec![],
-                    ),
-                    ability_max_order: handle_unknown::<String, V::Error>(
-                        visitor.next_element::<String>(),
-                        String::new(),
-                    ),
+                    matches: handle_unknown(visitor.next_element::<i64>()),
+                    wins: handle_unknown(visitor.next_element::<i64>()),
+                    ability_order: handle_unknown(visitor.next_element::<Vec<char>>()),
+                    ability_max_order: handle_unknown(visitor.next_element::<String>()),
                 })
             }
         }
@@ -274,9 +249,9 @@ impl<'de> Deserialize<'de> for LateItem {
                 V: SeqAccess<'de>,
             {
                 Ok(LateItem {
-                    id: handle_unknown::<i64, V::Error>(visitor.next_element::<i64>(), 0),
-                    wins: handle_unknown::<i64, V::Error>(visitor.next_element::<i64>(), 0),
-                    matches: handle_unknown::<i64, V::Error>(visitor.next_element::<i64>(), 0),
+                    id: handle_unknown(visitor.next_element::<i64>()),
+                    wins: handle_unknown(visitor.next_element::<i64>()),
+                    matches: handle_unknown(visitor.next_element::<i64>()),
                 })
             }
         }
@@ -311,15 +286,12 @@ impl<'de> Deserialize<'de> for Shards {
                 V: SeqAccess<'de>,
             {
                 Ok(Shards {
-                    matches: handle_unknown::<i64, V::Error>(visitor.next_element::<i64>(), 0),
-                    wins: handle_unknown::<i64, V::Error>(visitor.next_element::<i64>(), 0),
-                    shard_ids: handle_unknown::<Vec<String>, V::Error>(
-                        visitor.next_element::<Vec<String>>(),
-                        vec![],
-                    )
-                    .iter()
-                    .map(|x| x.parse::<i64>().ok().unwrap_or(0))
-                    .collect::<Vec<i64>>(),
+                    matches: handle_unknown(visitor.next_element::<i64>()),
+                    wins: handle_unknown(visitor.next_element::<i64>()),
+                    shard_ids: handle_unknown(visitor.next_element::<Vec<String>>())
+                        .iter()
+                        .map(|x| x.parse::<i64>().unwrap_or_default())
+                        .collect::<Vec<i64>>(),
                 })
             }
         }
@@ -346,25 +318,17 @@ impl<'de> Deserialize<'de> for OverviewData {
             where
                 V: SeqAccess<'de>,
             {
-                let runes = visitor.next_element::<Runes>().ok().unwrap().unwrap();
-                let summoner_spells = visitor
-                    .next_element::<SummonerSpells>()
-                    .ok()
-                    .unwrap()
-                    .unwrap();
+                let runes = visitor.next_element::<Runes>().unwrap().unwrap();
+                let summoner_spells = visitor.next_element::<SummonerSpells>().unwrap().unwrap();
 
-                let starting_items = visitor.next_element::<Items>().ok().unwrap().unwrap();
-                let core_items = visitor.next_element::<Items>().ok().unwrap().unwrap();
-                let abilities = visitor.next_element::<Abilities>().ok().unwrap().unwrap();
+                let starting_items = visitor.next_element::<Items>().unwrap().unwrap();
+                let core_items = visitor.next_element::<Items>().unwrap().unwrap();
+                let abilities = visitor.next_element::<Abilities>().unwrap().unwrap();
                 let late_items = visitor
                     .next_element::<Vec<Vec<LateItem>>>()
-                    .ok()
                     .unwrap()
                     .unwrap();
-                let match_info = handle_unknown::<Vec<i64>, V::Error>(
-                    visitor.next_element::<Vec<i64>>(),
-                    vec![],
-                );
+                let match_info = handle_unknown(visitor.next_element::<Vec<i64>>());
                 let low_sample_size = match_info[1] < 1000;
 
                 // this is the original low sample size value, it's always false though, so ignore.
