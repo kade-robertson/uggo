@@ -43,10 +43,9 @@ impl DataApi {
 
     fn get_data<T: DeserializeOwned>(&self, url: &String) -> Result<T> {
         let response = self.client.get(url).send()?;
-        match response.json::<T>() {
-            Ok(data) => Ok(data),
-            Err(_) => Err(anyhow!("Could not fetch {}", url)),
-        }
+        response
+            .json::<T>()
+            .map_or_else(|_| Err(anyhow!("Could not fetch {}", url)), |e| Ok(e))
     }
 
     fn get_cached_data<T: DeserializeOwned + Serialize>(&self, url: &String) -> Result<T> {
