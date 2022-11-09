@@ -34,8 +34,8 @@ pub struct UggApi {
 }
 
 impl DataApi {
-    pub fn new() -> DataApi {
-        DataApi {
+    pub fn new() -> Self {
+        Self {
             client: Client::new(),
             config: Config::new(),
         }
@@ -167,10 +167,12 @@ impl DataApi {
         mode: mappings::Mode,
         api_versions: &HashMap<String, HashMap<String, String>>,
     ) -> Result<Box<(mappings::Role, OverviewData)>> {
-        let mut api_version = "1.4.0";
-        if api_versions.contains_key(patch) && api_versions[patch].contains_key("overview") {
-            api_version = api_versions[patch]["overview"].as_str();
-        }
+        let api_version =
+            if api_versions.contains_key(patch) && api_versions[patch].contains_key("overview") {
+                api_versions[patch]["overview"].as_str()
+            } else {
+                "1.4.0"
+            };
         let data_path = &format!(
             "{}/{}/{}/{}",
             patch,
@@ -234,10 +236,12 @@ impl DataApi {
         mode: mappings::Mode,
         api_versions: &HashMap<String, HashMap<String, String>>,
     ) -> Result<Box<MatchupData>> {
-        let mut api_version = "1.4.0";
-        if api_versions.contains_key(patch) && api_versions[patch].contains_key("matchups") {
-            api_version = api_versions[patch]["matchups"].as_str();
-        }
+        let api_version =
+            if api_versions.contains_key(patch) && api_versions[patch].contains_key("matchups") {
+                api_versions[patch]["matchups"].as_str()
+            } else {
+                "1.4.0"
+            };
         let data_path = &format!(
             "{}/{}/{}/{}",
             patch,
@@ -329,11 +333,7 @@ impl UggApi {
                 }
             }
 
-            if let Some(substring_champ) = substring_closest_champ {
-                substring_champ
-            } else {
-                closest_champ
-            }
+            substring_closest_champ.unwrap_or(closest_champ)
         }
     }
 

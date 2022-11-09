@@ -44,7 +44,7 @@ pub struct Info {
     pub difficulty: i64,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Clone, Deserialize)]
 pub enum Type {
     #[serde(rename = "champion")]
     Champion,

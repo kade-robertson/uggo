@@ -1,7 +1,10 @@
 #![deny(clippy::pedantic)]
+#![deny(clippy::nursery)]
 #![allow(clippy::too_many_lines)]
 #![allow(clippy::module_name_repetitions)]
 #![allow(clippy::struct_excessive_bools)]
+// Disabled because this false-flags some enums with serde derives
+#![allow(clippy::use_self)]
 
 #[macro_use]
 extern crate prettytable;

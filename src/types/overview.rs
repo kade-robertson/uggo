@@ -23,7 +23,7 @@ pub struct WrappedOverviewData {
 }
 
 impl<'de> Deserialize<'de> for WrappedOverviewData {
-    fn deserialize<D>(deserializer: D) -> Result<WrappedOverviewData, D::Error>
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
     {
@@ -79,7 +79,7 @@ pub struct Runes {
 }
 
 impl<'de> Deserialize<'de> for Runes {
-    fn deserialize<D>(deserializer: D) -> Result<Runes, D::Error>
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
     {
@@ -118,7 +118,7 @@ pub struct SummonerSpells {
 }
 
 impl<'de> Deserialize<'de> for SummonerSpells {
-    fn deserialize<D>(deserializer: D) -> Result<SummonerSpells, D::Error>
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
     {
@@ -155,7 +155,7 @@ pub struct Items {
 }
 
 impl<'de> Deserialize<'de> for Items {
-    fn deserialize<D>(deserializer: D) -> Result<Items, D::Error>
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
     {
@@ -193,7 +193,7 @@ pub struct Abilities {
 }
 
 impl<'de> Deserialize<'de> for Abilities {
-    fn deserialize<D>(deserializer: D) -> Result<Abilities, D::Error>
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
     {
@@ -231,7 +231,7 @@ pub struct LateItem {
 }
 
 impl<'de> Deserialize<'de> for LateItem {
-    fn deserialize<D>(deserializer: D) -> Result<LateItem, D::Error>
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
     {
@@ -268,7 +268,7 @@ pub struct Shards {
 }
 
 impl<'de> Deserialize<'de> for Shards {
-    fn deserialize<D>(deserializer: D) -> Result<Shards, D::Error>
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
     {
@@ -301,7 +301,7 @@ impl<'de> Deserialize<'de> for Shards {
 }
 
 impl<'de> Deserialize<'de> for OverviewData {
-    fn deserialize<D>(deserializer: D) -> Result<OverviewData, D::Error>
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
     {

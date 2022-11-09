@@ -8,8 +8,8 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new() -> Config {
-        Config {
+    pub fn new() -> Self {
+        Self {
             cache_dir: match env::var("XDG_CACHE_HOME") {
                 Ok(dir) => Path::new(&dir).join("uggo"),
                 Err(_) => match env::consts::OS {
