@@ -1,3 +1,5 @@
+#![allow(clippy::cast_precision_loss)]
+
 // Credit to https://github.com/pradishb/ugg-parser for figuring out the
 // structure of the champ overview stats data.
 

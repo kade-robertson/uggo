@@ -1,4 +1,4 @@
-use colored::*;
+use colored::Colorize;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 use sha2::{Digest, Sha256};
