@@ -1,4 +1,4 @@
-use colored::*;
+use colored::Colorize;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 use sha2::{Digest, Sha256};
@@ -82,7 +82,7 @@ pub fn process_items(champ_items: &[i64], item_data: &HashMap<String, ItemDatum>
         .join(", ")
 }
 
-fn get_shard(id: &i64) -> &str {
+const fn get_shard(id: &i64) -> &str {
     match id {
         5001 => "+15-90 Health",
         5002 => "+6 Armor",

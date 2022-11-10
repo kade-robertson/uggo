@@ -17,13 +17,13 @@ use std::collections::HashMap;
 type UggAPIVersions = HashMap<String, HashMap<String, String>>;
 
 pub struct DataApi {
-    _client: Client,
-    _config: Config,
+    client: Client,
+    config: Config,
 }
 
 pub struct UggApi {
-    _api: DataApi,
-    _ugg_api_versions: UggAPIVersions,
+    api: DataApi,
+    ugg_api_versions: UggAPIVersions,
 
     pub current_version: String,
     pub patch_version: String,
@@ -34,28 +34,27 @@ pub struct UggApi {
 }
 
 impl DataApi {
-    pub fn new() -> DataApi {
-        DataApi {
-            _client: Client::new(),
-            _config: Config::new(),
+    pub fn new() -> Self {
+        Self {
+            client: Client::new(),
+            config: Config::new(),
         }
     }
 
     fn get_data<T: DeserializeOwned>(&self, url: &String) -> Result<T> {
-        let response = self._client.get(url).send()?;
-        match response.json::<T>() {
-            Ok(data) => Ok(data),
-            Err(_) => Err(anyhow!("Could not fetch {}", url)),
-        }
+        let response = self.client.get(url).send()?;
+        response
+            .json::<T>()
+            .map_or_else(|_| Err(anyhow!("Could not fetch {}", url)), |e| Ok(e))
     }
 
     fn get_cached_data<T: DeserializeOwned + Serialize>(&self, url: &String) -> Result<T> {
-        if let Some(data) = read_from_cache::<T>(self._config.cache(), url) {
+        if let Some(data) = read_from_cache::<T>(self.config.cache(), url) {
             return Ok(data);
         }
         match self.get_data::<T>(url) {
             Ok(data) => {
-                write_to_cache::<T>(self._config.cache(), url, &data);
+                write_to_cache::<T>(self.config.cache(), url, &data);
                 Ok(data)
             }
             Err(e) => Err(e),
@@ -145,13 +144,13 @@ impl DataApi {
 
         match ugg_api_data {
             Ok(ugg_api) => {
-                if !ugg_api.contains_key(version) {
-                    clear_cache(self._config.cache(), &ugg_api_version_endpoint);
+                if ugg_api.contains_key(version) {
+                    Ok(ugg_api)
+                } else {
+                    clear_cache(self.config.cache(), &ugg_api_version_endpoint);
                     ugg_api_data =
                         self.get_cached_data::<UggAPIVersions>(&ugg_api_version_endpoint);
                     ugg_api_data
-                } else {
-                    Ok(ugg_api)
                 }
             }
             Err(e) => Err(e),
@@ -167,10 +166,12 @@ impl DataApi {
         mode: mappings::Mode,
         api_versions: &HashMap<String, HashMap<String, String>>,
     ) -> Result<Box<(mappings::Role, OverviewData)>> {
-        let mut api_version = "1.4.0";
-        if api_versions.contains_key(patch) && api_versions[patch].contains_key("overview") {
-            api_version = api_versions[patch]["overview"].as_str();
-        }
+        let api_version =
+            if api_versions.contains_key(patch) && api_versions[patch].contains_key("overview") {
+                api_versions[patch]["overview"].as_str()
+            } else {
+                "1.4.0"
+            };
         let data_path = &format!(
             "{}/{}/{}/{}",
             patch,
@@ -234,10 +235,12 @@ impl DataApi {
         mode: mappings::Mode,
         api_versions: &HashMap<String, HashMap<String, String>>,
     ) -> Result<Box<MatchupData>> {
-        let mut api_version = "1.4.0";
-        if api_versions.contains_key(patch) && api_versions[patch].contains_key("matchups") {
-            api_version = api_versions[patch]["matchups"].as_str();
-        }
+        let api_version =
+            if api_versions.contains_key(patch) && api_versions[patch].contains_key("matchups") {
+                api_versions[patch]["matchups"].as_str()
+            } else {
+                "1.4.0"
+            };
         let data_path = &format!(
             "{}/{}/{}/{}",
             patch,
@@ -289,11 +292,11 @@ impl UggApi {
         patch_version_split.remove(patch_version_split.len() - 1);
         let patch_version = patch_version_split.join("_");
 
-        let _ugg_api_versions = inner_api.get_ugg_api_versions(&patch_version)?;
+        let ugg_api_versions = inner_api.get_ugg_api_versions(&patch_version)?;
 
         Ok(Self {
-            _api: inner_api,
-            _ugg_api_versions,
+            api: inner_api,
+            ugg_api_versions,
             current_version,
             patch_version,
             champ_data,
@@ -307,17 +310,17 @@ impl UggApi {
         if self.champ_data.contains_key(name) {
             &self.champ_data[name]
         } else {
-            let mut lowest_distance: i32 = i32::MAX;
+            let mut lowest_distance = usize::MAX;
             let mut closest_champ: &ChampionDatum = &self.champ_data["Annie"];
 
-            let mut substring_lowest_dist = i32::MAX;
+            let mut substring_lowest_dist = usize::MAX;
             let mut substring_closest_champ: Option<&ChampionDatum> = None;
 
             for value in self.champ_data.values() {
                 let query_compare = name.to_ascii_lowercase();
                 let champ_compare = value.name.to_ascii_lowercase();
                 // Prefer matches where search query is an exact starting substring
-                let distance = levenshtein(query_compare.as_str(), champ_compare.as_str()) as i32;
+                let distance = levenshtein(query_compare.as_str(), champ_compare.as_str());
                 if champ_compare.starts_with(&query_compare) {
                     if distance <= substring_lowest_dist {
                         substring_lowest_dist = distance;
@@ -329,11 +332,7 @@ impl UggApi {
                 }
             }
 
-            if let Some(substring_champ) = substring_closest_champ {
-                substring_champ
-            } else {
-                closest_champ
-            }
+            substring_closest_champ.unwrap_or(closest_champ)
         }
     }
 
@@ -344,13 +343,13 @@ impl UggApi {
         region: mappings::Region,
         mode: mappings::Mode,
     ) -> Result<Box<(mappings::Role, OverviewData)>> {
-        self._api.get_stats(
+        self.api.get_stats(
             &self.patch_version,
             champ,
             role,
             region,
             mode,
-            &self._ugg_api_versions,
+            &self.ugg_api_versions,
         )
     }
 
@@ -361,13 +360,13 @@ impl UggApi {
         region: mappings::Region,
         mode: mappings::Mode,
     ) -> Result<Box<MatchupData>> {
-        self._api.get_matchups(
+        self.api.get_matchups(
             &self.patch_version,
             champ,
             role,
             region,
             mode,
-            &self._ugg_api_versions,
+            &self.ugg_api_versions,
         )
     }
 }

@@ -1,7 +1,12 @@
+#![deny(clippy::pedantic)]
+#![allow(clippy::too_many_lines)]
+#![allow(clippy::module_name_repetitions)]
+#![allow(clippy::struct_excessive_bools)]
+
 #[macro_use]
 extern crate prettytable;
 
-use colored::*;
+use colored::Colorize;
 
 #[cfg(any(target_os = "windows", target_os = "macos", target_feature = "clippy"))]
 use league_client_connector::LeagueClientConnector;
@@ -86,15 +91,15 @@ fn fetch(
     query_message.push("...".to_string());
     util::log_info(query_message.concat().as_str());
 
-    let (overview_role, champ_overview) = match ugg.get_stats(query_champ, role, region, mode) {
-        Ok(data) => *data,
-        Err(_) => {
+    let (overview_role, champ_overview) =
+        if let Ok(data) = ugg.get_stats(query_champ, role, region, mode) {
+            *data
+        } else {
             util::log_error(
                 format!("Couldn't get required data for {}.", formatted_champ_name).as_str(),
             );
             return;
-        }
-    };
+        };
 
     let matchups = ugg.get_matchups(query_champ, overview_role, region, mode);
 
@@ -151,9 +156,9 @@ fn fetch(
 
     println!();
     println!(" {}", "Shards:".magenta().bold());
-    util::process_shards(&champ_overview.shards.shard_ids)
-        .iter()
-        .for_each(|shard| println!(" {}", shard));
+    for shard in &util::process_shards(&champ_overview.shards.shard_ids) {
+        println!(" {}", shard);
+    }
 
     println!();
     println!(
@@ -339,7 +344,7 @@ fn main() -> Result<()> {
         let clean_user_input = user_input.trim();
         let user_input_split = clean_user_input
             .split(',')
-            .map(|s: &str| s.trim())
+            .map(str::trim)
             .collect::<Vec<&str>>();
 
         if clean_user_input == "modes" {
@@ -354,10 +359,9 @@ fn main() -> Result<()> {
                 mode = mappings::Mode::from(mode_to_set[1]);
                 util::log_info(format!("Switching mode to {:?}...", mode).as_str());
                 continue;
-            } else {
-                util::log_info(format!("Current mode: {:?}", mode).as_str());
-                continue;
             }
+            util::log_info(format!("Current mode: {:?}", mode).as_str());
+            continue;
         }
 
         let mut query_champ_name = "";

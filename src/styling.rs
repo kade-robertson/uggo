@@ -1,4 +1,4 @@
-use colored::*;
+use colored::{ColoredString, Colorize};
 use prettytable::{format, Table};
 
 use crate::types::rune::RuneExtended;

@@ -125,18 +125,18 @@ impl ValueEnum for Region {
 
     fn to_possible_value(&self) -> Option<PossibleValue> {
         Some(match self {
-            Region::NA1 => PossibleValue::new("na1").alias("NA1"),
-            Region::EUW1 => PossibleValue::new("euw1").alias("EUW1"),
-            Region::KR => PossibleValue::new("kr").alias("KR"),
-            Region::EUN1 => PossibleValue::new("eun1").alias("EUN1"),
-            Region::BR1 => PossibleValue::new("br1").alias("BR1"),
-            Region::LA1 => PossibleValue::new("la1").alias("LA1"),
-            Region::LA2 => PossibleValue::new("la2").alias("LA2"),
-            Region::OC1 => PossibleValue::new("oc1").alias("OC1"),
-            Region::RU => PossibleValue::new("run").alias("RU"),
-            Region::TR1 => PossibleValue::new("tr1").alias("TR1"),
-            Region::JP1 => PossibleValue::new("jp1").alias("JP1"),
-            Region::World => PossibleValue::new("world").alias("World"),
+            Self::NA1 => PossibleValue::new("na1").alias("NA1"),
+            Self::EUW1 => PossibleValue::new("euw1").alias("EUW1"),
+            Self::KR => PossibleValue::new("kr").alias("KR"),
+            Self::EUN1 => PossibleValue::new("eun1").alias("EUN1"),
+            Self::BR1 => PossibleValue::new("br1").alias("BR1"),
+            Self::LA1 => PossibleValue::new("la1").alias("LA1"),
+            Self::LA2 => PossibleValue::new("la2").alias("LA2"),
+            Self::OC1 => PossibleValue::new("oc1").alias("OC1"),
+            Self::RU => PossibleValue::new("run").alias("RU"),
+            Self::TR1 => PossibleValue::new("tr1").alias("TR1"),
+            Self::JP1 => PossibleValue::new("jp1").alias("JP1"),
+            Self::World => PossibleValue::new("world").alias("World"),
         })
     }
 }
@@ -171,12 +171,12 @@ impl TryFrom<i32> for Role {
     type Error = ();
     fn try_from(v: i32) -> Result<Self, Self::Error> {
         match v {
-            1 => Ok(Role::Jungle),
-            2 => Ok(Role::Support),
-            3 => Ok(Role::ADCarry),
-            4 => Ok(Role::Top),
-            5 => Ok(Role::Mid),
-            6 => Ok(Role::None),
+            1 => Ok(Self::Jungle),
+            2 => Ok(Self::Support),
+            3 => Ok(Self::ADCarry),
+            4 => Ok(Self::Top),
+            5 => Ok(Self::Mid),
+            6 => Ok(Self::None),
             _ => Err(()),
         }
     }
@@ -207,15 +207,15 @@ impl ValueEnum for Role {
 
     fn to_possible_value(&self) -> Option<PossibleValue> {
         Some(match self {
-            Role::Jungle => PossibleValue::new("jungle").alias("Jungle"),
-            Role::Support => PossibleValue::new("support").alias("Support"),
-            Role::ADCarry => PossibleValue::new("ad-carry")
+            Self::Jungle => PossibleValue::new("jungle").alias("Jungle"),
+            Self::Support => PossibleValue::new("support").alias("Support"),
+            Self::ADCarry => PossibleValue::new("ad-carry")
                 .alias("adcarry")
                 .alias("ADCarry"),
-            Role::Top => PossibleValue::new("top").alias("Top"),
-            Role::Mid => PossibleValue::new("mid").alias("Mid"),
-            Role::None => PossibleValue::new("none").alias("None"),
-            Role::Automatic => PossibleValue::new("automatic").alias("Automatic"),
+            Self::Top => PossibleValue::new("top").alias("Top"),
+            Self::Mid => PossibleValue::new("mid").alias("Mid"),
+            Self::None => PossibleValue::new("none").alias("None"),
+            Self::Automatic => PossibleValue::new("automatic").alias("Automatic"),
         })
     }
 }
@@ -232,10 +232,10 @@ pub enum Mode {
 impl Mode {
     pub fn to_api_string(self) -> String {
         (match self {
-            Mode::Normal => "ranked_solo_5x5",
-            Mode::ARAM => "normal_aram",
-            Mode::OneForAll => "one_for_all",
-            Mode::URF => "pick_urf",
+            Self::Normal => "ranked_solo_5x5",
+            Self::ARAM => "normal_aram",
+            Self::OneForAll => "one_for_all",
+            Self::URF => "pick_urf",
         })
         .to_string()
     }
@@ -244,10 +244,10 @@ impl Mode {
 impl ToString for Mode {
     fn to_string(&self) -> String {
         (match &self {
-            Mode::Normal => "Normal",
-            Mode::ARAM => "ARAM",
-            Mode::OneForAll => "OneForAll",
-            Mode::URF => "URF",
+            Self::Normal => "Normal",
+            Self::ARAM => "ARAM",
+            Self::OneForAll => "OneForAll",
+            Self::URF => "URF",
         })
         .to_string()
     }
@@ -256,10 +256,10 @@ impl ToString for Mode {
 impl From<&str> for Mode {
     fn from(mode_str: &str) -> Self {
         match mode_str.to_lowercase().as_str() {
-            "aram" | "all_random_all_mid" | "ranked_aram" => Mode::ARAM,
-            "oneforall" | "one_for_all" => Mode::OneForAll,
-            "urf" | "ultra_rapid_fire" => Mode::URF,
-            _ => Mode::Normal,
+            "aram" | "all_random_all_mid" | "ranked_aram" => Self::ARAM,
+            "oneforall" | "one_for_all" => Self::OneForAll,
+            "urf" | "ultra_rapid_fire" => Self::URF,
+            _ => Self::Normal,
         }
     }
 }

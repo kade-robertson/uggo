@@ -1,3 +1,5 @@
+#![allow(clippy::cast_precision_loss)]
+
 // Credit to https://github.com/pradishb/ugg-parser for figuring out the
 // structure of the champ overview stats data.
 
@@ -15,7 +17,7 @@ pub struct WrappedMatchupData {
 }
 
 impl<'de> Deserialize<'de> for WrappedMatchupData {
-    fn deserialize<D>(deserializer: D) -> Result<WrappedMatchupData, D::Error>
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
     {
@@ -61,7 +63,7 @@ pub struct Matchup {
 }
 
 impl<'de> Deserialize<'de> for MatchupData {
-    fn deserialize<D>(deserializer: D) -> Result<MatchupData, D::Error>
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
     {
