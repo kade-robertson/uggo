@@ -6,19 +6,24 @@ use crate::types::matchups::{MatchupData, Matchups};
 use crate::types::overview::{ChampOverview, OverviewData};
 use crate::types::rune::{RuneExtended, RunePaths};
 use crate::types::summonerspell::SummonerSpells;
-use crate::util::{clear_cache, read_from_cache, write_to_cache};
+use crate::util::{clear_cache, read_from_cache, sha256, write_to_cache};
 use anyhow::{anyhow, Result};
 use levenshtein::levenshtein;
+use lru::LruCache;
 use reqwest::blocking::Client;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
+use std::cell::RefCell;
 use std::collections::HashMap;
+use std::num::NonZeroUsize;
 
 type UggAPIVersions = HashMap<String, HashMap<String, String>>;
 
 pub struct DataApi {
     client: Client,
     config: Config,
+    overview_cache: RefCell<LruCache<String, ChampOverview>>,
+    matchup_cache: RefCell<LruCache<String, Matchups>>,
 }
 
 pub struct UggApi {
@@ -38,6 +43,8 @@ impl DataApi {
         Self {
             client: Client::new(),
             config: Config::new(),
+            overview_cache: RefCell::new(LruCache::new(NonZeroUsize::new(25).unwrap())),
+            matchup_cache: RefCell::new(LruCache::new(NonZeroUsize::new(25).unwrap())),
         }
     }
 
@@ -179,10 +186,22 @@ impl DataApi {
             champ.key.as_str(),
             api_version
         );
-        let stats_data = self.get_data::<ChampOverview>(&format!(
-            "https://stats2.u.gg/lol/1.5/overview/{}.json",
-            data_path
-        ))?;
+
+        let stats_data = match self
+            .overview_cache
+            .try_borrow_mut()?
+            .get(&sha256(data_path))
+        {
+            Some(data) => Ok(data.clone()),
+            None => self.get_data::<ChampOverview>(&format!(
+                "https://stats2.u.gg/lol/1.5/overview/{}.json",
+                data_path
+            )),
+        }?;
+
+        self.overview_cache
+            .borrow_mut()
+            .put(sha256(data_path), stats_data.clone());
 
         let region_query = if stats_data.contains_key(&region) {
             region
@@ -248,10 +267,18 @@ impl DataApi {
             champ.key.as_str(),
             api_version
         );
-        let matchup_data = self.get_data::<Matchups>(&format!(
-            "https://stats2.u.gg/lol/1.5/matchups/{}.json",
-            data_path
-        ))?;
+
+        let matchup_data = match self.matchup_cache.try_borrow_mut()?.get(&sha256(data_path)) {
+            Some(data) => Ok(data.clone()),
+            None => self.get_data::<Matchups>(&format!(
+                "https://stats2.u.gg/lol/1.5/overview/{}.json",
+                data_path
+            )),
+        }?;
+
+        self.matchup_cache
+            .borrow_mut()
+            .put(sha256(data_path), matchup_data.clone());
 
         let region_query = if matchup_data.contains_key(&region) {
             region
