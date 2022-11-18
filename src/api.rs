@@ -199,9 +199,9 @@ impl DataApi {
             )),
         }?;
 
-        self.overview_cache
-            .borrow_mut()
-            .put(sha256(data_path), stats_data.clone());
+        if let Ok(mut c) = self.overview_cache.try_borrow_mut() {
+            c.put(sha256(data_path), stats_data.clone());
+        }
 
         let region_query = if stats_data.contains_key(&region) {
             region
@@ -276,9 +276,9 @@ impl DataApi {
             )),
         }?;
 
-        self.matchup_cache
-            .borrow_mut()
-            .put(sha256(data_path), matchup_data.clone());
+        if let Ok(mut c) = self.matchup_cache.try_borrow_mut() {
+            c.put(sha256(data_path), matchup_data.clone());
+        }
 
         let region_query = if matchup_data.contains_key(&region) {
             region
