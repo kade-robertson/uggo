@@ -70,7 +70,8 @@ impl DataApi {
 
     pub fn get_current_version(&mut self) -> Result<String> {
         let versions = self.get_data::<Vec<String>>(
-            &"https://static.u.gg/assets/lol/riot_patch_update/prod/versions.json".to_string(),
+            &"https://static.bigbrain.gg/assets/lol/riot_patch_update/prod/versions.json"
+                .to_string(),
         );
 
         versions.map(|vers| vers[0].as_str().to_string())
@@ -145,7 +146,7 @@ impl DataApi {
 
     pub fn get_ugg_api_versions(&self, version: &String) -> Result<UggAPIVersions> {
         let ugg_api_version_endpoint =
-            "https://static.u.gg/assets/lol/riot_patch_update/prod/ugg/ugg-api-versions.json"
+            "https://static.bigbrain.gg/assets/lol/riot_patch_update/prod/ugg/ugg-api-versions.json"
                 .to_string();
         let mut ugg_api_data = self.get_cached_data::<UggAPIVersions>(&ugg_api_version_endpoint);
 
