@@ -1,38 +1,46 @@
 use league_client_connector::RiotLockFile;
-use reqwest::blocking::Client;
-use reqwest::header::AUTHORIZATION;
+use native_tls::TlsConnector;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
+use std::sync::Arc;
+use ureq::{Agent, AgentBuilder};
 
 use crate::types::client_runepage::{NewRunePage, RunePage, RunePages};
 use crate::types::client_summoner::ClientSummoner;
 
 pub struct ClientAPI {
-    _client: Client,
+    _agent: Agent,
     _lockfile: RiotLockFile,
 }
 
 impl ClientAPI {
     pub fn new(lockfile: RiotLockFile) -> ClientAPI {
         ClientAPI {
-            _client: Client::builder()
-                .danger_accept_invalid_certs(true)
-                .build()
-                .unwrap(),
+            _agent: AgentBuilder::new()
+                .tls_connector(Arc::new(
+                    TlsConnector::builder()
+                        .danger_accept_invalid_certs(true)
+                        .build()
+                        .unwrap(),
+                ))
+                .build(),
             _lockfile: lockfile,
         }
     }
 
     fn get_data<T: DeserializeOwned>(&self, url: &String) -> Option<T> {
         match self
-            ._client
+            ._agent
             .get(url)
-            .header(AUTHORIZATION, format!("Basic {}", self._lockfile.b64_auth))
-            .send()
+            .set(
+                "Authorization",
+                &format!("Basic {}", self._lockfile.b64_auth),
+            )
+            .call()
         {
             Ok(response) => {
-                if response.status().is_success() {
-                    let json_data = response.json::<T>();
+                if response.status() == 200 {
+                    let json_data = response.into_json::<T>();
                     match json_data {
                         Ok(json) => Some(json),
                         Err(_) => None,
@@ -47,10 +55,13 @@ impl ClientAPI {
 
     fn delete_data(&self, url: &String) {
         match self
-            ._client
+            ._agent
             .delete(url)
-            .header(AUTHORIZATION, format!("Basic {}", self._lockfile.b64_auth))
-            .send()
+            .set(
+                "Authorization",
+                &format!("Basic {}", self._lockfile.b64_auth),
+            )
+            .call()
         {
             Ok(_) => (),
             Err(_) => (),
@@ -59,11 +70,13 @@ impl ClientAPI {
 
     fn post_data<T: Serialize>(&self, url: &String, data: &T) {
         match self
-            ._client
+            ._agent
             .post(url)
-            .header(AUTHORIZATION, format!("Basic {}", self._lockfile.b64_auth))
-            .json(data)
-            .send()
+            .set(
+                "Authorization",
+                &format!("Basic {}", self._lockfile.b64_auth),
+            )
+            .send_json(data)
         {
             Ok(_) => (),
             Err(_) => (),
