@@ -10,17 +10,17 @@ use crate::util::{clear_cache, read_from_cache, sha256, write_to_cache};
 use anyhow::{anyhow, Result};
 use levenshtein::levenshtein;
 use lru::LruCache;
-use reqwest::blocking::Client;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::num::NonZeroUsize;
+use ureq::Agent;
 
 type UggAPIVersions = HashMap<String, HashMap<String, String>>;
 
 pub struct DataApi {
-    client: Client,
+    agent: Agent,
     config: Config,
     overview_cache: RefCell<LruCache<String, ChampOverview>>,
     matchup_cache: RefCell<LruCache<String, Matchups>>,
@@ -41,7 +41,7 @@ pub struct UggApi {
 impl DataApi {
     pub fn new() -> Self {
         Self {
-            client: Client::new(),
+            agent: Agent::new(),
             config: Config::new(),
             overview_cache: RefCell::new(LruCache::new(NonZeroUsize::new(25).unwrap())),
             matchup_cache: RefCell::new(LruCache::new(NonZeroUsize::new(25).unwrap())),
@@ -49,9 +49,9 @@ impl DataApi {
     }
 
     fn get_data<T: DeserializeOwned>(&self, url: &String) -> Result<T> {
-        let response = self.client.get(url).send()?;
+        let response = self.agent.get(url).call()?;
         response
-            .json::<T>()
+            .into_json::<T>()
             .map_or_else(|_| Err(anyhow!("Could not fetch {}", url)), |e| Ok(e))
     }
 
