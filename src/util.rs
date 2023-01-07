@@ -17,7 +17,7 @@ pub fn log_error(msg: &str) {
         eprint!("{}", now.format(TIME_FORMAT).to_string().as_str());
     }
     eprint!("{} ", "Error:".red().bold());
-    eprintln!("{}", msg);
+    eprintln!("{msg}");
 }
 
 pub fn log_info(msg: &str) {
@@ -28,7 +28,7 @@ pub fn log_info(msg: &str) {
         message.push_str(now.format(TIME_FORMAT).to_string().as_str());
     }
     message.push_str(msg);
-    println!("{}", message);
+    println!("{message}");
 }
 
 pub fn find_champ_by_key(
@@ -76,7 +76,7 @@ pub fn process_items(champ_items: &[i64], item_data: &HashMap<String, ItemDatum>
         .map(|v| {
             item_data
                 .get(&v.to_string())
-                .map_or_else(|| format!("<unknown item {}>", v), |i| i.name.clone())
+                .map_or_else(|| format!("<unknown item {v}>"), |i| i.name.clone())
         })
         .collect::<Vec<String>>()
         .join(", ")

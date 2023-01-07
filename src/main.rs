@@ -81,7 +81,7 @@ fn fetch(
 
     let formatted_champ_name = query_champ.name.as_str().green().bold();
 
-    let mut query_message = vec![format!("Looking up info for {}", formatted_champ_name)];
+    let mut query_message = vec![format!("Looking up info for {formatted_champ_name}")];
     if role != DEFAULT_ROLE {
         query_message.push(format!(", playing {}", role.to_string().blue().bold()));
     }
@@ -91,19 +91,18 @@ fn fetch(
     query_message.push("...".to_string());
     util::log_info(query_message.concat().as_str());
 
-    let (overview_role, champ_overview) =
-        if let Ok(data) = ugg.get_stats(query_champ, role, region, mode) {
-            *data
-        } else {
-            util::log_error(
-                format!("Couldn't get required data for {}.", formatted_champ_name).as_str(),
-            );
-            return;
-        };
+    let (overview_role, champ_overview) = if let Ok(data) =
+        ugg.get_stats(query_champ, role, region, mode)
+    {
+        *data
+    } else {
+        util::log_error(format!("Couldn't get required data for {formatted_champ_name}.").as_str());
+        return;
+    };
 
     let matchups = ugg.get_matchups(query_champ, overview_role, region, mode);
 
-    let mut stats_message = vec![format!("Build for {}", formatted_champ_name)];
+    let mut stats_message = vec![format!("Build for {formatted_champ_name}")];
     let mut true_length = 10 /* "Build for " */ + query_champ.name.len();
     if overview_role != mappings::Role::None {
         stats_message.push(format!(
@@ -114,7 +113,7 @@ fn fetch(
     }
     let stats_message_str = stats_message.concat();
     println!(" {}", "-".repeat(true_length));
-    println!(" {}", stats_message_str);
+    println!(" {stats_message_str}");
     println!(" {}", "-".repeat(true_length));
 
     let champ_runes = util::group_runes(&champ_overview.runes.rune_ids, &ugg.runes);
@@ -157,7 +156,7 @@ fn fetch(
     println!();
     println!(" {}", "Shards:".magenta().bold());
     for shard in &util::process_shards(&champ_overview.shards.shard_ids) {
-        println!(" {}", shard);
+        println!(" {shard}");
     }
 
     println!();
@@ -349,7 +348,7 @@ fn main() -> Result<()> {
 
         if clean_user_input == "modes" {
             util::log_info("Available modes:");
-            mappings::Mode::iter().for_each(|m| util::log_info(format!("- {:?}", m).as_str()));
+            mappings::Mode::iter().for_each(|m| util::log_info(format!("- {m:?}").as_str()));
             continue;
         }
 
@@ -357,10 +356,10 @@ fn main() -> Result<()> {
             let mode_to_set = clean_user_input.split(' ').collect::<Vec<&str>>();
             if mode_to_set.len() > 1 {
                 mode = mappings::Mode::from(mode_to_set[1]);
-                util::log_info(format!("Switching mode to {:?}...", mode).as_str());
+                util::log_info(format!("Switching mode to {mode:?}...").as_str());
                 continue;
             }
-            util::log_info(format!("Current mode: {:?}", mode).as_str());
+            util::log_info(format!("Current mode: {mode:?}").as_str());
             continue;
         }
 
