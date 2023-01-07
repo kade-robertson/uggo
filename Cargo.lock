@@ -88,26 +88,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "bpaf"
-version = "0.7.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0e95b1464dea6edc21be413bf260662aef39490e150455ae3760019738600b4f"
-dependencies = [
- "bpaf_derive",
-]
-
-[[package]]
-name = "bpaf_derive"
-version = "0.3.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5ed63113bfb3a9bb25dd131acdf0044c7404000ea57dd9eec1f221e3547b4748"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
-]
-
-[[package]]
 name = "bstr"
 version = "0.2.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -731,6 +711,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "478c572c3d73181ff3c2539045f6eb99e5491218eae919370993b890cdbdd98e"
 
 [[package]]
+name = "pico-args"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5be167a7af36ee22fe3115051bc51f6e6c7054c9348e28deb4f49bd6f705a315"
+
+[[package]]
 name = "pkg-config"
 version = "0.3.26"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1124,7 +1110,6 @@ name = "uggo"
 version = "0.8.1"
 dependencies = [
  "anyhow",
- "bpaf",
  "chrono",
  "colored",
  "ctrlc",
@@ -1133,6 +1118,7 @@ dependencies = [
  "levenshtein",
  "lru",
  "native-tls",
+ "pico-args",
  "prettytable-rs",
  "serde",
  "serde_json",
