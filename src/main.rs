@@ -17,7 +17,6 @@ use std::env::args_os;
 use std::io;
 use std::io::Write;
 use std::process::exit;
-use strum::IntoEnumIterator;
 use text_io::read;
 
 use crate::styling::format_ability_order;
@@ -407,7 +406,9 @@ fn main() -> Result<()> {
 
         if clean_user_input == "modes" {
             util::log_info("Available modes:");
-            mappings::Mode::iter().for_each(|m| util::log_info(format!("- {m:?}").as_str()));
+            mappings::Mode::all()
+                .iter()
+                .for_each(|m| util::log_info(format!("- {m:?}").as_str()));
             continue;
         }
 

@@ -1,12 +1,8 @@
-use std::{convert::TryFrom, str::FromStr};
+use std::{convert::TryFrom, fmt::Display, str::FromStr};
 
 use serde::{Deserialize, Serialize};
-use strum::IntoEnumIterator;
-use strum_macros::{Display, EnumIter, EnumString};
 
-#[derive(
-    Copy, Clone, Display, EnumString, EnumIter, PartialEq, Eq, Hash, Serialize, Deserialize, Debug,
-)]
+#[derive(Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, Debug)]
 pub enum Rank {
     #[serde(rename = "1")]
     Challenger = 1,
@@ -51,7 +47,7 @@ pub enum Rank {
     Diamond2Plus = 15,
 }
 
-#[derive(Copy, Clone, Display, EnumIter, PartialEq, Eq, Hash, Serialize, Deserialize, Debug)]
+#[derive(Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, Debug)]
 pub enum Region {
     #[serde(rename = "1")]
     NA1 = 1,
@@ -90,13 +86,46 @@ pub enum Region {
     World,
 }
 
+impl Display for Region {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let region_str = match self {
+            Region::NA1 => "NA1",
+            Region::EUW1 => "EUW1",
+            Region::KR => "KR",
+            Region::EUN1 => "EUN1",
+            Region::BR1 => "BR1",
+            Region::LA1 => "LA1",
+            Region::LA2 => "LA2",
+            Region::OC1 => "OC1",
+            Region::RU => "RU",
+            Region::TR1 => "TR1",
+            Region::JP1 => "JP1",
+            Region::World => "World",
+        };
+        write!(f, "{region_str}")
+    }
+}
+
 pub fn get_region(region: &str) -> Region {
-    for enum_region in Region::iter() {
+    for enum_region in &[
+        Region::NA1,
+        Region::EUW1,
+        Region::KR,
+        Region::EUN1,
+        Region::BR1,
+        Region::LA1,
+        Region::LA2,
+        Region::OC1,
+        Region::RU,
+        Region::TR1,
+        Region::JP1,
+        Region::World,
+    ] {
         let region_str = enum_region.to_string().to_lowercase();
         if region.to_lowercase() == region_str
             || region_str.contains(&region.to_lowercase()[..region.len() - 1])
         {
-            return enum_region;
+            return *enum_region;
         }
     }
     Region::World
@@ -110,7 +139,7 @@ impl FromStr for Region {
     }
 }
 
-#[derive(Copy, Clone, Display, EnumIter, PartialEq, Eq, Hash, Serialize, Deserialize, Debug)]
+#[derive(Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, Debug)]
 pub enum Role {
     #[serde(rename = "1")]
     Jungle = 1,
@@ -134,6 +163,21 @@ pub enum Role {
     Automatic,
 }
 
+impl Display for Role {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let role_str = match self {
+            Role::Jungle => "Jungle",
+            Role::Support => "Support",
+            Role::ADCarry => "ADCarry",
+            Role::Top => "Top",
+            Role::Mid => "Mid",
+            Role::None => "None",
+            Role::Automatic => "Automatic",
+        };
+        write!(f, "{role_str}")
+    }
+}
+
 impl TryFrom<i32> for Role {
     type Error = ();
     fn try_from(v: i32) -> Result<Self, Self::Error> {
@@ -150,10 +194,18 @@ impl TryFrom<i32> for Role {
 }
 
 pub fn get_role(role: &str) -> Role {
-    for enum_role in Role::iter() {
+    for enum_role in &[
+        Role::Jungle,
+        Role::Support,
+        Role::ADCarry,
+        Role::Top,
+        Role::Mid,
+        Role::None,
+        Role::Automatic,
+    ] {
         let role_str = enum_role.to_string().to_lowercase();
         if role_str.contains(&role.to_lowercase()) {
-            return enum_role;
+            return *enum_role;
         }
     }
     Role::Automatic
@@ -167,7 +219,7 @@ impl FromStr for Role {
     }
 }
 
-#[derive(Clone, Copy, Debug, EnumIter)]
+#[derive(Clone, Copy, Debug)]
 #[allow(clippy::upper_case_acronyms)]
 pub enum Mode {
     Normal,
@@ -185,6 +237,10 @@ impl Mode {
             Self::URF => "pick_urf",
         })
         .to_string()
+    }
+
+    pub fn all() -> &'static [Mode; 4] {
+        &[Mode::Normal, Mode::ARAM, Mode::OneForAll, Mode::URF]
     }
 }
 
