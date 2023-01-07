@@ -6,13 +6,13 @@
 #[macro_use]
 extern crate prettytable;
 
+use bpaf::Bpaf;
 use colored::Colorize;
 
 #[cfg(any(target_os = "windows", target_os = "macos", target_feature = "clippy"))]
 use league_client_connector::LeagueClientConnector;
 
 use anyhow::Result;
-use clap::Parser;
 use prettytable::{format, Table};
 use std::io;
 use std::io::Write;
@@ -48,23 +48,31 @@ static DEFAULT_MODE: mappings::Mode = mappings::Mode::Normal;
 static DEFAULT_ROLE: mappings::Role = mappings::Role::Automatic;
 static DEFAULT_REGION: mappings::Region = mappings::Region::World;
 
-#[derive(Parser, Debug)]
-#[command(author, version, about, long_about = None)]
+#[derive(Bpaf, Debug)]
+#[bpaf(options, version)]
 struct Args {
+    /// The game mode to look for data from. Can be one of: Normal, ARAM, URF, OneForAll
+    #[bpaf(short, long, fallback(DEFAULT_MODE))]
+    mode: mappings::Mode,
+
+    /// Can be specified to pull build data for a specific role. By default, this will
+    /// not be necessary as the most popular role will be picked automatically. In ARAM,
+    /// this setting is ignored. Can be one of Jungle, Support, ADCarry, Mid, Top, or
+    /// Automatic.
+    #[bpaf(short, long, fallback(DEFAULT_ROLE))]
+    role: mappings::Role,
+
+    /// The region to use to filter build results. By default, this uses all regions.
+    /// Can be one of: NA1, EUW1, KR, EUN1, BR1, LA1, LA2, OC1, RU, TR1, JP1, World
+    #[bpaf(short('R'), long, fallback(DEFAULT_REGION))]
+    region: mappings::Region,
+
     /// The name of the champion you want to match. A best effort will be made
     /// to find the champ if it's only a partial query.
     ///
     /// If left blank, will open the interactive version of uggo.
+    #[bpaf(positional)]
     champ: Option<String>,
-
-    #[arg(short, long, default_value_t = DEFAULT_MODE)]
-    mode: mappings::Mode,
-
-    #[arg(short, long, default_value_t = DEFAULT_ROLE)]
-    role: mappings::Role,
-
-    #[arg(short = 'R', long, default_value_t = DEFAULT_REGION)]
-    region: mappings::Region,
 }
 
 fn fetch(
@@ -311,7 +319,7 @@ fn main() -> Result<()> {
         None => (),
     }
 
-    let parsed_args = Args::parse();
+    let parsed_args = args().run();
 
     if let Some(champ_name) = parsed_args.champ {
         #[cfg(not(any(target_os = "windows", target_os = "macos", target_feature = "clippy")))]

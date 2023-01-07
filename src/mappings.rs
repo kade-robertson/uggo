@@ -1,6 +1,5 @@
-use std::convert::TryFrom;
+use std::{convert::TryFrom, str::FromStr};
 
-use clap::{builder::PossibleValue, ValueEnum};
 use serde::{Deserialize, Serialize};
 use strum::IntoEnumIterator;
 use strum_macros::{Display, EnumIter, EnumString};
@@ -52,9 +51,7 @@ pub enum Rank {
     Diamond2Plus = 15,
 }
 
-#[derive(
-    Copy, Clone, Display, EnumString, EnumIter, PartialEq, Eq, Hash, Serialize, Deserialize, Debug,
-)]
+#[derive(Copy, Clone, Display, EnumIter, PartialEq, Eq, Hash, Serialize, Deserialize, Debug)]
 pub enum Region {
     #[serde(rename = "1")]
     NA1 = 1,
@@ -102,48 +99,18 @@ pub fn get_region(region: &str) -> Region {
             return enum_region;
         }
     }
-    Region::NA1
+    Region::World
 }
 
-impl ValueEnum for Region {
-    fn value_variants<'a>() -> &'a [Self] {
-        &[
-            Self::NA1,
-            Self::EUW1,
-            Self::KR,
-            Self::EUN1,
-            Self::BR1,
-            Self::LA1,
-            Self::LA2,
-            Self::OC1,
-            Self::RU,
-            Self::TR1,
-            Self::JP1,
-            Self::World,
-        ]
-    }
+impl FromStr for Region {
+    type Err = String;
 
-    fn to_possible_value(&self) -> Option<PossibleValue> {
-        Some(match self {
-            Self::NA1 => PossibleValue::new("na1").alias("NA1"),
-            Self::EUW1 => PossibleValue::new("euw1").alias("EUW1"),
-            Self::KR => PossibleValue::new("kr").alias("KR"),
-            Self::EUN1 => PossibleValue::new("eun1").alias("EUN1"),
-            Self::BR1 => PossibleValue::new("br1").alias("BR1"),
-            Self::LA1 => PossibleValue::new("la1").alias("LA1"),
-            Self::LA2 => PossibleValue::new("la2").alias("LA2"),
-            Self::OC1 => PossibleValue::new("oc1").alias("OC1"),
-            Self::RU => PossibleValue::new("run").alias("RU"),
-            Self::TR1 => PossibleValue::new("tr1").alias("TR1"),
-            Self::JP1 => PossibleValue::new("jp1").alias("JP1"),
-            Self::World => PossibleValue::new("world").alias("World"),
-        })
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(get_region(s))
     }
 }
 
-#[derive(
-    Copy, Clone, Display, EnumString, EnumIter, PartialEq, Eq, Hash, Serialize, Deserialize, Debug,
-)]
+#[derive(Copy, Clone, Display, EnumIter, PartialEq, Eq, Hash, Serialize, Deserialize, Debug)]
 pub enum Role {
     #[serde(rename = "1")]
     Jungle = 1,
@@ -192,31 +159,11 @@ pub fn get_role(role: &str) -> Role {
     Role::Automatic
 }
 
-impl ValueEnum for Role {
-    fn value_variants<'a>() -> &'a [Self] {
-        &[
-            Self::Jungle,
-            Self::Support,
-            Self::ADCarry,
-            Self::Top,
-            Self::Mid,
-            Self::None,
-            Self::Automatic,
-        ]
-    }
+impl FromStr for Role {
+    type Err = String;
 
-    fn to_possible_value(&self) -> Option<PossibleValue> {
-        Some(match self {
-            Self::Jungle => PossibleValue::new("jungle").alias("Jungle"),
-            Self::Support => PossibleValue::new("support").alias("Support"),
-            Self::ADCarry => PossibleValue::new("ad-carry")
-                .alias("adcarry")
-                .alias("ADCarry"),
-            Self::Top => PossibleValue::new("top").alias("Top"),
-            Self::Mid => PossibleValue::new("mid").alias("Mid"),
-            Self::None => PossibleValue::new("none").alias("None"),
-            Self::Automatic => PossibleValue::new("automatic").alias("Automatic"),
-        })
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(get_role(s))
     }
 }
 
@@ -264,20 +211,16 @@ impl From<&str> for Mode {
     }
 }
 
-impl ValueEnum for Mode {
-    fn value_variants<'a>() -> &'a [Self] {
-        &[Self::Normal, Self::ARAM, Self::OneForAll, Self::URF]
-    }
+impl FromStr for Mode {
+    type Err = String;
 
-    fn to_possible_value(&self) -> Option<clap::builder::PossibleValue> {
-        Some(match self {
-            Self::Normal => PossibleValue::new("normal").alias("Normal"),
-            Self::ARAM => PossibleValue::new("aram").alias("ARAM"),
-            Self::OneForAll => PossibleValue::new("one-for-all").alias("OneForAll"),
-            Self::URF => PossibleValue::new("urf")
-                .alias("URF")
-                .alias("ultra-rapid-fire"),
-        })
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "aram" | "all_random_all_mid" | "ranked_aram" => Ok(Self::ARAM),
+            "oneforall" | "one_for_all" => Ok(Self::OneForAll),
+            "urf" | "ultra_rapid_fire" => Ok(Self::URF),
+            _ => Ok(Self::Normal),
+        }
     }
 }
 

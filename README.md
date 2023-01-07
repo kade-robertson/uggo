@@ -158,7 +158,7 @@ Options:
 
   -R, --region <REGION>
           [default: World]
-          [possible values: na1, euw1, kr, eun1, br1, la1, la2, oc1, run, tr1, jp1, world]
+          [possible values: na1, euw1, kr, eun1, br1, la1, la2, oc1, ru, tr1, jp1, world]
 
   -h, --help
           Print help information (use `-h` for a summary)
