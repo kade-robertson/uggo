@@ -49,6 +49,7 @@ impl<'de> Deserialize<'de> for WrappedMatchupData {
     }
 }
 
+#[cfg_attr(feature = "client", derive(serde::Deserialize))]
 #[derive(Debug, Clone, Serialize)]
 pub struct MatchupData {
     pub best_matchups: Vec<Matchup>,
@@ -56,6 +57,7 @@ pub struct MatchupData {
     pub total_matches: i64,
 }
 
+#[cfg_attr(feature = "client", derive(serde::Deserialize))]
 #[derive(Debug, Clone, Serialize)]
 pub struct Matchup {
     pub champion_id: i64,
@@ -64,6 +66,7 @@ pub struct Matchup {
     pub winrate: f64,
 }
 
+#[cfg(not(feature = "client"))]
 impl<'de> Deserialize<'de> for MatchupData {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where

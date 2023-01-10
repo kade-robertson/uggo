@@ -108,6 +108,26 @@ pub enum Region {
     World,
 }
 
+impl Region {
+    pub fn to_api_string(self) -> String {
+        (match self {
+            Region::NA1 => 1,
+            Region::EUW1 => 2,
+            Region::KR => 3,
+            Region::EUN1 => 4,
+            Region::BR1 => 5,
+            Region::LA1 => 6,
+            Region::LA2 => 7,
+            Region::OC1 => 8,
+            Region::RU => 9,
+            Region::TR1 => 10,
+            Region::JP1 => 11,
+            Region::World => 12,
+        })
+        .to_string()
+    }
+}
+
 impl Default for Region {
     fn default() -> Self {
         Self::World

@@ -114,27 +114,18 @@ fn fetch(
     query_message.push("...".to_string());
     util::log_info(query_message.concat().as_str());
 
-    let (overview_role, champ_overview) = if let Ok(data) =
-        ugg.get_stats(query_champ, role, region, mode)
-    {
+    let champ_overview = if let Ok(data) = ugg.get_stats(query_champ, role, region, mode) {
         *data
     } else {
         util::log_error(format!("Couldn't get required data for {formatted_champ_name}.").as_str());
         return;
     };
 
-    let matchups = ugg.get_matchups(query_champ, overview_role, region, mode);
+    let matchups = ugg.get_matchups(query_champ, role, region, mode);
     println!("hello!");
 
-    let mut stats_message = vec![format!("Build for {formatted_champ_name}")];
-    let mut true_length = 10 /* "Build for " */ + query_champ.name.len();
-    if overview_role != mappings::Role::None {
-        stats_message.push(format!(
-            ", playing {} lane",
-            overview_role.to_string().blue().bold()
-        ));
-        true_length += 15 /* ", playing  lane" */ + overview_role.to_string().len();
-    }
+    let stats_message = vec![format!("Build for {formatted_champ_name}")];
+    let true_length = 10 /* "Build for " */ + query_champ.name.len();
     let stats_message_str = stats_message.concat();
     println!(" {}", "-".repeat(true_length));
     println!(" {stats_message_str}");
