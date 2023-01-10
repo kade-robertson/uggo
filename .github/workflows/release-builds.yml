@@ -23,6 +23,7 @@ jobs:
       - name: Publish
         uses: katyo/publish-crates@v1
         with:
+          path: './uggo'
           registry-token: ${{ secrets.CARGO_REGISTRY_TOKEN }}
 
   build_github_artifacts:
@@ -54,7 +55,7 @@ jobs:
           echo "::set-output name=triple::$(rustc -vV | sed -n 's|host: ||p')"
 
       - name: Build
-        run: cargo build --release
+        run: cargo build --package uggo --release
 
       - name: Move executable
         run: |

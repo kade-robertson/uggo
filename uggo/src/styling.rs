@@ -1,7 +1,7 @@
 use colored::{ColoredString, Colorize};
 use prettytable::{format, Table};
 
-use crate::types::rune::RuneExtended;
+use ugg_types::rune::RuneExtended;
 
 pub fn format_rune_text(group: &str, text: Option<&str>) -> ColoredString {
     let output_text = match text {

@@ -1,11 +1,4 @@
 use crate::config::Config;
-use crate::mappings;
-use crate::types::champion::{ChampionDatum, Champions};
-use crate::types::item::{ItemDatum, Items};
-use crate::types::matchups::{MatchupData, Matchups};
-use crate::types::overview::{ChampOverview, OverviewData};
-use crate::types::rune::{RuneExtended, RunePaths};
-use crate::types::summonerspell::SummonerSpells;
 use crate::util::{clear_cache, read_from_cache, sha256, write_to_cache};
 use anyhow::{anyhow, Result};
 use levenshtein::levenshtein;
@@ -15,6 +8,13 @@ use serde::Serialize;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::num::NonZeroUsize;
+use ugg_types::champion::{ChampionDatum, Champions};
+use ugg_types::item::{ItemDatum, Items};
+use ugg_types::mappings;
+use ugg_types::matchups::{MatchupData, Matchups};
+use ugg_types::overview::{ChampOverview, OverviewData};
+use ugg_types::rune::{RuneExtended, RunePaths};
+use ugg_types::summonerspell::SummonerSpells;
 use ureq::Agent;
 
 type UggAPIVersions = HashMap<String, HashMap<String, String>>;
@@ -272,7 +272,7 @@ impl DataApi {
         let matchup_data = match self.matchup_cache.try_borrow_mut()?.get(&sha256(data_path)) {
             Some(data) => Ok(data.clone()),
             None => self.get_data::<Matchups>(&format!(
-                "https://stats2.u.gg/lol/1.5/overview/{}.json",
+                "https://stats2.u.gg/lol/1.5/matchups/{}.json",
                 data_path
             )),
         }?;
@@ -294,12 +294,31 @@ impl DataApi {
             mappings::Rank::Overall
         };
 
+        let mut role_query = role;
+        if !matchup_data[&region_query][&rank_query].contains_key(&role_query) {
+            if role_query == mappings::Role::Automatic {
+                // Go through each role and pick the one with most matches played
+                let mut most_games = 0;
+                let mut used_role = role;
+                for (role_key, role_stats) in &matchup_data[&region_query][&rank_query] {
+                    if role_stats.data.total_matches > most_games {
+                        most_games = role_stats.data.total_matches;
+                        used_role = *role_key;
+                    }
+                }
+                role_query = used_role;
+            } else {
+                // This should only happen in ARAM
+                role_query = mappings::Role::None;
+            }
+        }
+
         let matchups = matchup_data
             .get(&region_query)
             .ok_or_else(|| anyhow!("Region missing"))?
             .get(&rank_query)
             .ok_or_else(|| anyhow!("Rank missing"))?
-            .get(&role)
+            .get(&role_query)
             .ok_or_else(|| anyhow!("Role missing"))?;
 
         Ok(Box::new(matchups.data.clone()))

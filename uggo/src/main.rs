@@ -18,6 +18,7 @@ use std::io;
 use std::io::Write;
 use std::process::exit;
 use text_io::read;
+use ugg_types::mappings;
 
 use crate::styling::format_ability_order;
 
@@ -29,19 +30,8 @@ mod api;
 mod client_api;
 
 mod config;
-mod mappings;
 mod styling;
 mod util;
-mod types {
-    pub mod champion;
-    pub mod client_runepage;
-    pub mod client_summoner;
-    pub mod item;
-    pub mod matchups;
-    pub mod overview;
-    pub mod rune;
-    pub mod summonerspell;
-}
 
 static DEFAULT_MODE: mappings::Mode = mappings::Mode::Normal;
 static DEFAULT_ROLE: mappings::Role = mappings::Role::Automatic;
@@ -134,6 +124,7 @@ fn fetch(
     };
 
     let matchups = ugg.get_matchups(query_champ, overview_role, region, mode);
+    println!("hello!");
 
     let mut stats_message = vec![format!("Build for {formatted_champ_name}")];
     let mut true_length = 10 /* "Build for " */ + query_champ.name.len();

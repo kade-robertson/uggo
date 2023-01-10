@@ -5,6 +5,7 @@
 
 use crate::mappings;
 use serde::de::{Deserialize, Deserializer, IgnoredAny, SeqAccess, Visitor};
+use serde::Serialize;
 use std::collections::HashMap;
 use std::fmt;
 
@@ -47,14 +48,15 @@ impl<'de> Deserialize<'de> for WrappedMatchupData {
         deserializer.deserialize_seq(WrappedMatchupDataVisitor)
     }
 }
-#[derive(Debug, Clone)]
+
+#[derive(Debug, Clone, Serialize)]
 pub struct MatchupData {
     pub best_matchups: Vec<Matchup>,
     pub worst_matchups: Vec<Matchup>,
     pub total_matches: i64,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Matchup {
     pub champion_id: i64,
     pub wins: i64,

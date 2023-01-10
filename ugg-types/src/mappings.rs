@@ -47,6 +47,28 @@ pub enum Rank {
     Diamond2Plus = 15,
 }
 
+impl Display for Rank {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let rank_str = match self {
+            Rank::Challenger => "Challenger",
+            Rank::Master => "Master",
+            Rank::Diamond => "Diamond",
+            Rank::Platinum => "Platinum",
+            Rank::Gold => "Gold",
+            Rank::Silver => "Silver",
+            Rank::Bronze => "Bronze",
+            Rank::Overall => "Overall",
+            Rank::PlatinumPlus => "PlatinumPlus",
+            Rank::DiamondPlus => "DiamondPlus",
+            Rank::Iron => "Iron",
+            Rank::Grandmaster => "Grandmaster",
+            Rank::MasterPlus => "MasterPlus",
+            Rank::Diamond2Plus => "Diamond2Plus",
+        };
+        write!(f, "{rank_str}")
+    }
+}
+
 #[derive(Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, Debug)]
 pub enum Region {
     #[serde(rename = "1")]
@@ -84,6 +106,12 @@ pub enum Region {
 
     #[serde(rename = "12")]
     World,
+}
+
+impl Default for Region {
+    fn default() -> Self {
+        Self::World
+    }
 }
 
 impl Display for Region {
@@ -161,6 +189,12 @@ pub enum Role {
 
     #[serde(rename = "7")]
     Automatic,
+}
+
+impl Default for Role {
+    fn default() -> Self {
+        Self::Automatic
+    }
 }
 
 impl Display for Role {
