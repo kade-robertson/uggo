@@ -4,17 +4,25 @@ use serde::Serialize;
 use sha2::{Digest, Sha256};
 use std::path::Path;
 use std::{collections::HashMap, fs};
+use time::{macros::format_description, OffsetDateTime};
 
 use crate::types::{champion::ChampionDatum, item::ItemDatum, rune::RuneExtended};
 
 #[cfg(debug_assertions)]
-static TIME_FORMAT: &str = "[%Y-%m-%d %H:%M:%S%.3f] ";
+static TIME_FORMAT: &[time::format_description::FormatItem<'_>] =
+    format_description!("[year]-[month]-[day] [hour]:[minute]:[second].[subsecond digits:3]");
+
+fn now_fmt() -> String {
+    OffsetDateTime::now_local()
+        .map_or_else(|_| OffsetDateTime::now_utc(), |t| t)
+        .format(TIME_FORMAT)
+        .unwrap()
+}
 
 pub fn log_error(msg: &str) {
     #[cfg(debug_assertions)]
     {
-        let now = chrono::Local::now();
-        eprint!("{}", now.format(TIME_FORMAT).to_string().as_str());
+        eprint!("[{}] ", now_fmt().as_str());
     }
     eprint!("{} ", "Error:".red().bold());
     eprintln!("{msg}");
@@ -24,8 +32,7 @@ pub fn log_info(msg: &str) {
     let mut message = String::new();
     #[cfg(debug_assertions)]
     {
-        let now = chrono::Local::now();
-        message.push_str(now.format(TIME_FORMAT).to_string().as_str());
+        message.push_str(format!("[{}] ", now_fmt()).as_str());
     }
     message.push_str(msg);
     println!("{message}");
