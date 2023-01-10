@@ -27,6 +27,5 @@ jobs:
         run: |
           cargo check --quiet
           cargo test --quiet
-          cargo build --quiet
           cargo check --quiet --release
           cargo build --quiet --release

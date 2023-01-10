@@ -4,6 +4,8 @@ use serde::Serialize;
 use sha2::{Digest, Sha256};
 use std::path::Path;
 use std::{collections::HashMap, fs};
+
+#[cfg(debug_assertions)]
 use time::{macros::format_description, OffsetDateTime};
 
 use crate::types::{champion::ChampionDatum, item::ItemDatum, rune::RuneExtended};
@@ -12,6 +14,7 @@ use crate::types::{champion::ChampionDatum, item::ItemDatum, rune::RuneExtended}
 static TIME_FORMAT: &[time::format_description::FormatItem<'_>] =
     format_description!("[year]-[month]-[day] [hour]:[minute]:[second].[subsecond digits:3]");
 
+#[cfg(debug_assertions)]
 fn now_fmt() -> String {
     OffsetDateTime::now_local()
         .map_or_else(|_| OffsetDateTime::now_utc(), |t| t)
