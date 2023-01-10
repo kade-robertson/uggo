@@ -1,6 +1,8 @@
 on:
   pull_request:
     branches: [ master ]
+  pull_request_target:
+    branches: [ master ]
 
 name: test
 jobs:
@@ -10,6 +12,9 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
+    if: |
+      (github.event_name == 'pull_request_target' && github.actor == 'dependabot[bot]') ||
+      (github.event_name != 'pull_request_target' && github.actor != 'dependabot[bot]')
     steps:
       - uses: actions/checkout@v3
 
@@ -28,4 +33,4 @@ jobs:
         run: cargo test
 
       - name: Build
-        run: cargo build --release
+        run: cargo build
