@@ -297,11 +297,6 @@ fn fetch(
 }
 
 fn main() -> Result<()> {
-    ctrlc::set_handler(move || {
-        println!("\nExiting...");
-        exit(0);
-    })?;
-
     let ugg = api::UggApi::new()?;
     let mut mode = mappings::Mode::Normal;
 
