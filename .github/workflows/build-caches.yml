@@ -23,5 +23,10 @@ jobs:
           prefix-key: 'rust'
           shared-key: 'cache'
 
-      - name: Test (to build cache)
-        run: cargo test
+      - name: Build cache
+        run: |
+          cargo check --quiet
+          cargo test --quiet
+          cargo build --quiet
+          cargo check --quiet --release
+          cargo build --quiet --release
