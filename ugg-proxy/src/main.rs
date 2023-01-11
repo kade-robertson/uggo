@@ -6,7 +6,7 @@ use axum::{
     Router, Server,
 };
 use config::get_config;
-use http_cache_reqwest::{CACacheManager, Cache, CacheMode, HttpCache};
+use http_cache_reqwest::{Cache, CacheMode, HttpCache, MokaManager};
 use reqwest_middleware::{ClientBuilder, ClientWithMiddleware};
 use serde::Deserialize;
 use std::{net::SocketAddr, sync::Arc};
@@ -39,7 +39,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             ClientBuilder::new(reqwest::Client::new())
                 .with(Cache(HttpCache {
                     mode: CacheMode::Default,
-                    manager: CACacheManager::default(),
+                    manager: MokaManager::default(),
                     options: None,
                 }))
                 .build(),
