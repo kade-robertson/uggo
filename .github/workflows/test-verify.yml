@@ -29,8 +29,20 @@ jobs:
           prefix-key: 'rust'
           shared-key: 'cache'
 
-      - name: Test
-        run: cargo test
+      - name: Test uggo
+        run: cargo test --package uggo
 
-      - name: Build
-        run: cargo build --release
+      - name: Build uggo
+        run: cargo build --package uggo --release
+
+      - name: Test ugg-types and ugg-proxy
+        if: runner.os == 'Linux'
+        run: |
+          cargo test --package ugg-types
+          cargo test --package ugg-proxy
+
+      - name: Build ugg-types and ugg-proxy
+        if: runner.os == 'Linux'
+        run: |
+          cargo build --package ugg-types --release
+          cargo build --package ugg-proxy --release
