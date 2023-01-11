@@ -23,7 +23,6 @@ jobs:
       - name: Publish
         uses: katyo/publish-crates@v1
         with:
-          path: './uggo'
           registry-token: ${{ secrets.CARGO_REGISTRY_TOKEN }}
 
   build_github_artifacts:
