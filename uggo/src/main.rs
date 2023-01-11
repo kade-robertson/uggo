@@ -11,14 +11,14 @@ use colored::Colorize;
 #[cfg(any(target_os = "windows", target_os = "macos", target_feature = "clippy"))]
 use league_client_connector::LeagueClientConnector;
 
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use prettytable::{format, Table};
 use std::env::args_os;
 use std::io;
 use std::io::Write;
 use std::process::exit;
 use text_io::read;
-use ugg_types::mappings;
+use ugg_types::mappings::{self, Mode};
 
 use crate::styling::format_ability_order;
 
@@ -121,8 +121,11 @@ fn fetch(
         return;
     };
 
-    let matchups = ugg.get_matchups(query_champ, role, region, mode);
-    println!("hello!");
+    let matchups = if mode == Mode::ARAM {
+        Err(anyhow!("ARAM does not have matchup data."))
+    } else {
+        ugg.get_matchups(query_champ, role, region, mode)
+    };
 
     let stats_message = vec![format!("Build for {formatted_champ_name}")];
     let true_length = 10 /* "Build for " */ + query_champ.name.len();
