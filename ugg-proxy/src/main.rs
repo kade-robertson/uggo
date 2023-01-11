@@ -5,6 +5,7 @@ use axum::{
     routing::get,
     Router, Server,
 };
+use config::get_config;
 use serde::Deserialize;
 use std::net::SocketAddr;
 use tower_http::{
@@ -15,10 +16,14 @@ use tracing::Level;
 use tracing_subscriber::{prelude::__tracing_subscriber_SubscriberExt, util::SubscriberInitExt};
 use ugg_types::{mappings, matchups::Matchups, overview::ChampOverview};
 
+mod config;
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let config = get_config();
+
     let logger = tracing_subscriber::registry()
-        .with(tracing_subscriber::EnvFilter::new("info"))
+        .with(tracing_subscriber::EnvFilter::new(config.log_level))
         .with(tracing_subscriber::fmt::layer());
     logger.init();
 
@@ -47,10 +52,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .allow_origin(Any),
         );
 
-    // run it with hyper on localhost:3000
-    Server::bind(&"0.0.0.0:3000".parse::<SocketAddr>()?)
-        .serve(app.into_make_service())
-        .await?;
+    let socket = SocketAddr::new(config.bind_address.parse()?, config.bind_port);
+
+    tracing::info!("Starting server on {socket}");
+    Server::bind(&socket).serve(app.into_make_service()).await?;
 
     Ok(())
 }
