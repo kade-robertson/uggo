@@ -1,12 +1,13 @@
 use axum::{
     extract::{Path, Query, State},
-    http::{Method, StatusCode},
-    response::{IntoResponse, Json},
+    http::{HeaderMap, HeaderValue, Method, StatusCode},
+    response::{AppendHeaders, IntoResponse, Json},
     routing::get,
     Router, Server,
 };
 use config::get_config;
 use http_cache_reqwest::{Cache, CacheMode, HttpCache, MokaManager};
+use reqwest::header::{HeaderName, CACHE_CONTROL, ETAG, LAST_MODIFIED};
 use reqwest_middleware::{ClientBuilder, ClientWithMiddleware};
 use serde::Deserialize;
 use std::{net::SocketAddr, sync::Arc};
@@ -97,6 +98,17 @@ struct UggOptions {
     role: mappings::Role,
 }
 
+fn get_cache_headers(headers: &HeaderMap) -> Vec<(HeaderName, HeaderValue)> {
+    vec![CACHE_CONTROL, ETAG, LAST_MODIFIED]
+        .iter()
+        .filter_map(|header| {
+            headers
+                .get(header)
+                .map(|value| (header.clone(), value.clone()))
+        })
+        .collect()
+}
+
 async fn overview(
     Path(UggParams {
         patch,
@@ -109,7 +121,7 @@ async fn overview(
 ) -> Result<impl IntoResponse, (StatusCode, String)> {
     let actual_mode: mappings::Mode = mode.as_str().into();
 
-    let overview_data = state
+    let overview_data_response = state
         .client
         .get(format!(
             "https://stats2.u.gg/lol/1.5/overview/{}/{}/{}/{}.json",
@@ -126,7 +138,11 @@ async fn overview(
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "Could not fetch overview data.".to_owned(),
             )
-        })?
+        })?;
+
+    let response_headers = get_cache_headers(overview_data_response.headers());
+
+    let overview_data = overview_data_response
         .json::<ChampOverview>()
         .await
         .map_err(|e| {
@@ -191,7 +207,7 @@ async fn overview(
             )
         })?;
 
-    Ok(Json(overview.data.clone()))
+    Ok((AppendHeaders(response_headers), Json(overview.data.clone())))
 }
 
 async fn matchups(
@@ -206,7 +222,7 @@ async fn matchups(
 ) -> Result<impl IntoResponse, (StatusCode, String)> {
     let actual_mode: mappings::Mode = mode.as_str().into();
 
-    let matchup_data = state
+    let matchup_data_response = state
         .client
         .get(format!(
             "https://stats2.u.gg/lol/1.5/matchups/{}/{}/{}/{}.json",
@@ -223,7 +239,11 @@ async fn matchups(
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "Could not fetch matchup data.".to_owned(),
             )
-        })?
+        })?;
+
+    let response_headers = get_cache_headers(matchup_data_response.headers());
+
+    let matchup_data = matchup_data_response
         .json::<Matchups>()
         .await
         .map_err(|e| {
@@ -288,5 +308,5 @@ async fn matchups(
             )
         })?;
 
-    Ok(Json(matchup.data.clone()))
+    Ok((AppendHeaders(response_headers), Json(matchup.data.clone())))
 }
