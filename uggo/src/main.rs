@@ -23,7 +23,7 @@ use ugg_types::mappings;
 use crate::styling::format_ability_order;
 
 #[cfg(any(target_os = "windows", target_os = "macos", target_feature = "clippy"))]
-use crate::types::client_runepage::NewRunePage;
+use ugg_types::client_runepage::NewRunePage;
 
 mod api;
 #[cfg(any(target_os = "windows", target_os = "macos", target_feature = "clippy"))]
