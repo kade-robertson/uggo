@@ -169,15 +169,10 @@ async fn overview(
     if !overview_data[&region_query][&rank_query].contains_key(&role_query) {
         if role_query == mappings::Role::Automatic {
             // Go through each role and pick the one with most matches played
-            let mut most_games = 0;
-            let mut used_role = role;
-            for (role_key, role_stats) in &overview_data[&region_query][&rank_query] {
-                if role_stats.data.matches > most_games {
-                    most_games = role_stats.data.matches;
-                    used_role = *role_key;
-                }
-            }
-            role_query = used_role;
+            role_query = overview_data[&region_query][&rank_query]
+                .iter()
+                .max_by(|a, b| a.1.cmp(b.1))
+                .map_or(role, |(r, _)| *r);
         } else {
             // This should only happen in ARAM
             role_query = mappings::Role::None;
@@ -270,15 +265,10 @@ async fn matchups(
     if !matchup_data[&region_query][&rank_query].contains_key(&role_query) {
         if role_query == mappings::Role::Automatic {
             // Go through each role and pick the one with most matches played
-            let mut most_games = 0;
-            let mut used_role = role;
-            for (role_key, role_stats) in &matchup_data[&region_query][&rank_query] {
-                if role_stats.data.total_matches > most_games {
-                    most_games = role_stats.data.total_matches;
-                    used_role = *role_key;
-                }
-            }
-            role_query = used_role;
+            role_query = matchup_data[&region_query][&rank_query]
+                .iter()
+                .max_by(|a, b| a.1.cmp(b.1))
+                .map_or(role, |(r, _)| *r);
         } else {
             // This should only happen in ARAM
             role_query = mappings::Role::None;

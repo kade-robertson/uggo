@@ -19,9 +19,21 @@ fn handle_unknown<T: Default, E>(result: Result<Option<T>, E>) -> T {
         .unwrap_or_default()
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct WrappedOverviewData {
     pub data: OverviewData,
+}
+
+impl PartialOrd for WrappedOverviewData {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        self.data.matches.partial_cmp(&other.data.matches)
+    }
+}
+
+impl Ord for WrappedOverviewData {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.data.matches.cmp(&other.data.matches)
+    }
 }
 
 impl<'de> Deserialize<'de> for WrappedOverviewData {
@@ -57,7 +69,7 @@ impl<'de> Deserialize<'de> for WrappedOverviewData {
 }
 
 #[cfg_attr(feature = "client", derive(serde::Deserialize))]
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, PartialEq, Eq)]
 pub struct OverviewData {
     pub runes: Runes,
     pub summoner_spells: SummonerSpells,
@@ -74,7 +86,7 @@ pub struct OverviewData {
 }
 
 #[cfg_attr(feature = "client", derive(serde::Deserialize))]
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, PartialEq, Eq)]
 pub struct Runes {
     pub matches: i64,
     pub wins: i64,
@@ -117,7 +129,7 @@ impl<'de> Deserialize<'de> for Runes {
 }
 
 #[cfg_attr(feature = "client", derive(serde::Deserialize))]
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, PartialEq, Eq)]
 pub struct SummonerSpells {
     pub matches: i64,
     pub wins: i64,
@@ -156,7 +168,7 @@ impl<'de> Deserialize<'de> for SummonerSpells {
 }
 
 #[cfg_attr(feature = "client", derive(serde::Deserialize))]
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, PartialEq, Eq)]
 pub struct Items {
     pub matches: i64,
     pub wins: i64,
@@ -195,7 +207,7 @@ impl<'de> Deserialize<'de> for Items {
 }
 
 #[cfg_attr(feature = "client", derive(serde::Deserialize))]
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, PartialEq, Eq)]
 pub struct Abilities {
     pub matches: i64,
     pub wins: i64,
@@ -236,7 +248,7 @@ impl<'de> Deserialize<'de> for Abilities {
 }
 
 #[cfg_attr(feature = "client", derive(serde::Deserialize))]
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, PartialEq, Eq)]
 pub struct LateItem {
     pub matches: i64,
     pub wins: i64,
@@ -275,7 +287,7 @@ impl<'de> Deserialize<'de> for LateItem {
 }
 
 #[cfg_attr(feature = "client", derive(serde::Deserialize))]
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, PartialEq, Eq)]
 pub struct Shards {
     pub matches: i64,
     pub wins: i64,

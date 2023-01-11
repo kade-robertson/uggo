@@ -12,9 +12,23 @@ use std::fmt;
 pub type Matchups =
     HashMap<mappings::Region, HashMap<mappings::Rank, HashMap<mappings::Role, WrappedMatchupData>>>;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct WrappedMatchupData {
     pub data: MatchupData,
+}
+
+impl PartialOrd for WrappedMatchupData {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        self.data
+            .total_matches
+            .partial_cmp(&other.data.total_matches)
+    }
+}
+
+impl Ord for WrappedMatchupData {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.data.total_matches.cmp(&other.data.total_matches)
+    }
 }
 
 impl<'de> Deserialize<'de> for WrappedMatchupData {
@@ -50,7 +64,7 @@ impl<'de> Deserialize<'de> for WrappedMatchupData {
 }
 
 #[cfg_attr(feature = "client", derive(serde::Deserialize))]
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, PartialEq, Eq)]
 pub struct MatchupData {
     pub best_matchups: Vec<Matchup>,
     pub worst_matchups: Vec<Matchup>,
@@ -58,13 +72,15 @@ pub struct MatchupData {
 }
 
 #[cfg_attr(feature = "client", derive(serde::Deserialize))]
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, PartialEq)]
 pub struct Matchup {
     pub champion_id: i64,
     pub wins: i64,
     pub matches: i64,
     pub winrate: f64,
 }
+
+impl Eq for Matchup {}
 
 #[cfg(not(feature = "client"))]
 impl<'de> Deserialize<'de> for MatchupData {
