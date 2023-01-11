@@ -5,8 +5,8 @@ use serde::Serialize;
 use std::sync::Arc;
 use ureq::{Agent, AgentBuilder};
 
-use crate::types::client_runepage::{NewRunePage, RunePage, RunePages};
-use crate::types::client_summoner::ClientSummoner;
+use ugg_types::client_runepage::{NewRunePage, RunePage, RunePages};
+use ugg_types::client_summoner::ClientSummoner;
 
 pub struct ClientAPI {
     _agent: Agent,

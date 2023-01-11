@@ -18,30 +18,20 @@ use std::io;
 use std::io::Write;
 use std::process::exit;
 use text_io::read;
+use ugg_types::mappings;
 
 use crate::styling::format_ability_order;
 
 #[cfg(any(target_os = "windows", target_os = "macos", target_feature = "clippy"))]
-use crate::types::client_runepage::NewRunePage;
+use ugg_types::client_runepage::NewRunePage;
 
 mod api;
 #[cfg(any(target_os = "windows", target_os = "macos", target_feature = "clippy"))]
 mod client_api;
 
 mod config;
-mod mappings;
 mod styling;
 mod util;
-mod types {
-    pub mod champion;
-    pub mod client_runepage;
-    pub mod client_summoner;
-    pub mod item;
-    pub mod matchups;
-    pub mod overview;
-    pub mod rune;
-    pub mod summonerspell;
-}
 
 static DEFAULT_MODE: mappings::Mode = mappings::Mode::Normal;
 static DEFAULT_ROLE: mappings::Role = mappings::Role::Automatic;
@@ -124,26 +114,18 @@ fn fetch(
     query_message.push("...".to_string());
     util::log_info(query_message.concat().as_str());
 
-    let (overview_role, champ_overview) = if let Ok(data) =
-        ugg.get_stats(query_champ, role, region, mode)
-    {
+    let champ_overview = if let Ok(data) = ugg.get_stats(query_champ, role, region, mode) {
         *data
     } else {
         util::log_error(format!("Couldn't get required data for {formatted_champ_name}.").as_str());
         return;
     };
 
-    let matchups = ugg.get_matchups(query_champ, overview_role, region, mode);
+    let matchups = ugg.get_matchups(query_champ, role, region, mode);
+    println!("hello!");
 
-    let mut stats_message = vec![format!("Build for {formatted_champ_name}")];
-    let mut true_length = 10 /* "Build for " */ + query_champ.name.len();
-    if overview_role != mappings::Role::None {
-        stats_message.push(format!(
-            ", playing {} lane",
-            overview_role.to_string().blue().bold()
-        ));
-        true_length += 15 /* ", playing  lane" */ + overview_role.to_string().len();
-    }
+    let stats_message = vec![format!("Build for {formatted_champ_name}")];
+    let true_length = 10 /* "Build for " */ + query_champ.name.len();
     let stats_message_str = stats_message.concat();
     println!(" {}", "-".repeat(true_length));
     println!(" {stats_message_str}");
@@ -282,7 +264,7 @@ fn fetch(
                                 format!("uggo: {}, ARAM", &query_champ.name)
                             }
                             mappings::Mode::URF => format!("uggo: {}, URF", &query_champ.name),
-                            _ => format!("uggo: {}, {}", &query_champ.name, &overview_role),
+                            _ => format!("uggo: {}, Normal", &query_champ.name),
                         },
                         primary_style_id,
                         sub_style_id,

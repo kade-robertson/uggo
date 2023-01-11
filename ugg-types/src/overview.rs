@@ -3,6 +3,7 @@
 
 use crate::mappings;
 use serde::de::{Deserialize, Deserializer, IgnoredAny, SeqAccess, Visitor};
+use serde::Serialize;
 use std::collections::HashMap;
 use std::fmt;
 
@@ -11,6 +12,7 @@ pub type ChampOverview = HashMap<
     HashMap<mappings::Rank, HashMap<mappings::Role, WrappedOverviewData>>,
 >;
 
+#[cfg(not(feature = "client"))]
 fn handle_unknown<T: Default, E>(result: Result<Option<T>, E>) -> T {
     result
         .unwrap_or_else(|_| Some(T::default()))
@@ -53,7 +55,9 @@ impl<'de> Deserialize<'de> for WrappedOverviewData {
         deserializer.deserialize_seq(WrappedOverviewDataVisitor)
     }
 }
-#[derive(Debug, Clone)]
+
+#[cfg_attr(feature = "client", derive(serde::Deserialize))]
+#[derive(Debug, Clone, Serialize)]
 pub struct OverviewData {
     pub runes: Runes,
     pub summoner_spells: SummonerSpells,
@@ -69,7 +73,8 @@ pub struct OverviewData {
     pub shards: Shards,
 }
 
-#[derive(Debug, Clone)]
+#[cfg_attr(feature = "client", derive(serde::Deserialize))]
+#[derive(Debug, Clone, Serialize)]
 pub struct Runes {
     pub matches: i64,
     pub wins: i64,
@@ -78,6 +83,7 @@ pub struct Runes {
     pub rune_ids: Vec<i64>,
 }
 
+#[cfg(not(feature = "client"))]
 impl<'de> Deserialize<'de> for Runes {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
@@ -110,13 +116,15 @@ impl<'de> Deserialize<'de> for Runes {
     }
 }
 
-#[derive(Debug, Clone)]
+#[cfg_attr(feature = "client", derive(serde::Deserialize))]
+#[derive(Debug, Clone, Serialize)]
 pub struct SummonerSpells {
     pub matches: i64,
     pub wins: i64,
     pub spell_ids: Vec<i64>,
 }
 
+#[cfg(not(feature = "client"))]
 impl<'de> Deserialize<'de> for SummonerSpells {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
@@ -147,13 +155,15 @@ impl<'de> Deserialize<'de> for SummonerSpells {
     }
 }
 
-#[derive(Debug, Clone)]
+#[cfg_attr(feature = "client", derive(serde::Deserialize))]
+#[derive(Debug, Clone, Serialize)]
 pub struct Items {
     pub matches: i64,
     pub wins: i64,
     pub item_ids: Vec<i64>,
 }
 
+#[cfg(not(feature = "client"))]
 impl<'de> Deserialize<'de> for Items {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
@@ -184,7 +194,8 @@ impl<'de> Deserialize<'de> for Items {
     }
 }
 
-#[derive(Debug, Clone)]
+#[cfg_attr(feature = "client", derive(serde::Deserialize))]
+#[derive(Debug, Clone, Serialize)]
 pub struct Abilities {
     pub matches: i64,
     pub wins: i64,
@@ -192,6 +203,7 @@ pub struct Abilities {
     pub ability_max_order: String,
 }
 
+#[cfg(not(feature = "client"))]
 impl<'de> Deserialize<'de> for Abilities {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
@@ -223,13 +235,15 @@ impl<'de> Deserialize<'de> for Abilities {
     }
 }
 
-#[derive(Debug, Clone)]
+#[cfg_attr(feature = "client", derive(serde::Deserialize))]
+#[derive(Debug, Clone, Serialize)]
 pub struct LateItem {
     pub matches: i64,
     pub wins: i64,
     pub id: i64,
 }
 
+#[cfg(not(feature = "client"))]
 impl<'de> Deserialize<'de> for LateItem {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
@@ -260,13 +274,15 @@ impl<'de> Deserialize<'de> for LateItem {
     }
 }
 
-#[derive(Debug, Clone)]
+#[cfg_attr(feature = "client", derive(serde::Deserialize))]
+#[derive(Debug, Clone, Serialize)]
 pub struct Shards {
     pub matches: i64,
     pub wins: i64,
     pub shard_ids: Vec<i64>,
 }
 
+#[cfg(not(feature = "client"))]
 impl<'de> Deserialize<'de> for Shards {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
@@ -300,6 +316,7 @@ impl<'de> Deserialize<'de> for Shards {
     }
 }
 
+#[cfg(not(feature = "client"))]
 impl<'de> Deserialize<'de> for OverviewData {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where

@@ -47,6 +47,28 @@ pub enum Rank {
     Diamond2Plus = 15,
 }
 
+impl Display for Rank {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let rank_str = match self {
+            Rank::Challenger => "Challenger",
+            Rank::Master => "Master",
+            Rank::Diamond => "Diamond",
+            Rank::Platinum => "Platinum",
+            Rank::Gold => "Gold",
+            Rank::Silver => "Silver",
+            Rank::Bronze => "Bronze",
+            Rank::Overall => "Overall",
+            Rank::PlatinumPlus => "PlatinumPlus",
+            Rank::DiamondPlus => "DiamondPlus",
+            Rank::Iron => "Iron",
+            Rank::Grandmaster => "Grandmaster",
+            Rank::MasterPlus => "MasterPlus",
+            Rank::Diamond2Plus => "Diamond2Plus",
+        };
+        write!(f, "{rank_str}")
+    }
+}
+
 #[derive(Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, Debug)]
 pub enum Region {
     #[serde(rename = "1")]
@@ -84,6 +106,32 @@ pub enum Region {
 
     #[serde(rename = "12")]
     World,
+}
+
+impl Region {
+    pub fn to_api_string(self) -> String {
+        (match self {
+            Region::NA1 => 1,
+            Region::EUW1 => 2,
+            Region::KR => 3,
+            Region::EUN1 => 4,
+            Region::BR1 => 5,
+            Region::LA1 => 6,
+            Region::LA2 => 7,
+            Region::OC1 => 8,
+            Region::RU => 9,
+            Region::TR1 => 10,
+            Region::JP1 => 11,
+            Region::World => 12,
+        })
+        .to_string()
+    }
+}
+
+impl Default for Region {
+    fn default() -> Self {
+        Self::World
+    }
 }
 
 impl Display for Region {
@@ -161,6 +209,12 @@ pub enum Role {
 
     #[serde(rename = "7")]
     Automatic,
+}
+
+impl Default for Role {
+    fn default() -> Self {
+        Self::Automatic
+    }
 }
 
 impl Display for Role {
@@ -259,7 +313,7 @@ impl ToString for Mode {
 impl From<&str> for Mode {
     fn from(mode_str: &str) -> Self {
         match mode_str.to_lowercase().as_str() {
-            "aram" | "all_random_all_mid" | "ranked_aram" => Self::ARAM,
+            "aram" | "all_random_all_mid" | "normal_aram" => Self::ARAM,
             "oneforall" | "one_for_all" => Self::OneForAll,
             "urf" | "ultra_rapid_fire" => Self::URF,
             _ => Self::Normal,
@@ -272,7 +326,7 @@ impl FromStr for Mode {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
-            "aram" | "all_random_all_mid" | "ranked_aram" => Ok(Self::ARAM),
+            "aram" | "all_random_all_mid" | "normal_aram" => Ok(Self::ARAM),
             "oneforall" | "one_for_all" => Ok(Self::OneForAll),
             "urf" | "ultra_rapid_fire" => Ok(Self::URF),
             _ => Ok(Self::Normal),
