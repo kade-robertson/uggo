@@ -1,13 +1,15 @@
 use axum::{
-    extract::{Path, Query},
+    extract::{Path, Query, State},
     http::{Method, StatusCode},
     response::{IntoResponse, Json},
     routing::get,
     Router, Server,
 };
 use config::get_config;
+use http_cache_reqwest::{CACacheManager, Cache, CacheMode, HttpCache};
+use reqwest_middleware::{ClientBuilder, ClientWithMiddleware};
 use serde::Deserialize;
-use std::net::SocketAddr;
+use std::{net::SocketAddr, sync::Arc};
 use tower_http::{
     cors::{Any, CorsLayer},
     trace::{DefaultMakeSpan, DefaultOnResponse, TraceLayer},
@@ -18,6 +20,11 @@ use ugg_types::{mappings, matchups::Matchups, overview::ChampOverview};
 
 mod config;
 
+#[derive(Clone)]
+struct AppState {
+    client: Arc<ClientWithMiddleware>,
+}
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config = get_config();
@@ -26,6 +33,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .with(tracing_subscriber::EnvFilter::new(config.log_level))
         .with(tracing_subscriber::fmt::layer());
     logger.init();
+
+    let state = AppState {
+        client: Arc::new(
+            ClientBuilder::new(reqwest::Client::new())
+                .with(Cache(HttpCache {
+                    mode: CacheMode::Default,
+                    manager: CACacheManager::default(),
+                    options: None,
+                }))
+                .build(),
+        ),
+    };
 
     let app = Router::new()
         .route(
@@ -36,6 +55,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             "/:patch/:mode/:champ/:api_version/matchups.json",
             get(matchups),
         )
+        .with_state(state)
         .layer(
             TraceLayer::new_for_http()
                 .make_span_with(
@@ -85,33 +105,37 @@ async fn overview(
         api_version,
     }): Path<UggParams>,
     Query(UggOptions { region, role }): Query<UggOptions>,
+    State(state): State<AppState>,
 ) -> Result<impl IntoResponse, (StatusCode, String)> {
     let actual_mode: mappings::Mode = mode.as_str().into();
 
-    let overview_data = reqwest::get(format!(
-        "https://stats2.u.gg/lol/1.5/overview/{}/{}/{}/{}.json",
-        patch,
-        actual_mode.to_api_string(),
-        champ,
-        api_version
-    ))
-    .await
-    .map_err(|e| {
-        tracing::error!("Could not fetch overview data: {}", e);
-        (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            "Could not fetch overview data.".to_owned(),
-        )
-    })?
-    .json::<ChampOverview>()
-    .await
-    .map_err(|e| {
-        tracing::error!("Could not parse overview data: {}", e);
-        (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            "Could not parse overview data.".to_owned(),
-        )
-    })?;
+    let overview_data = state
+        .client
+        .get(format!(
+            "https://stats2.u.gg/lol/1.5/overview/{}/{}/{}/{}.json",
+            patch,
+            actual_mode.to_api_string(),
+            champ,
+            api_version
+        ))
+        .send()
+        .await
+        .map_err(|e| {
+            tracing::error!("Could not fetch overview data: {}", e);
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "Could not fetch overview data.".to_owned(),
+            )
+        })?
+        .json::<ChampOverview>()
+        .await
+        .map_err(|e| {
+            tracing::error!("Could not parse overview data: {}", e);
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "Could not parse overview data.".to_owned(),
+            )
+        })?;
 
     let region_query = if overview_data.contains_key(&region) {
         region
@@ -178,33 +202,37 @@ async fn matchups(
         api_version,
     }): Path<UggParams>,
     Query(UggOptions { region, role }): Query<UggOptions>,
+    State(state): State<AppState>,
 ) -> Result<impl IntoResponse, (StatusCode, String)> {
     let actual_mode: mappings::Mode = mode.as_str().into();
 
-    let matchup_data = reqwest::get(format!(
-        "https://stats2.u.gg/lol/1.5/matchups/{}/{}/{}/{}.json",
-        patch,
-        actual_mode.to_api_string(),
-        champ,
-        api_version
-    ))
-    .await
-    .map_err(|e| {
-        tracing::error!("Could not fetch matchup data: {}", e);
-        (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            "Could not fetch matchup data.".to_owned(),
-        )
-    })?
-    .json::<Matchups>()
-    .await
-    .map_err(|e| {
-        tracing::error!("Could not parse matchup data: {}", e);
-        (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            "Could not parse matchup data.".to_owned(),
-        )
-    })?;
+    let matchup_data = state
+        .client
+        .get(format!(
+            "https://stats2.u.gg/lol/1.5/matchups/{}/{}/{}/{}.json",
+            patch,
+            actual_mode.to_api_string(),
+            champ,
+            api_version
+        ))
+        .send()
+        .await
+        .map_err(|e| {
+            tracing::error!("Could not fetch matchup data: {}", e);
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "Could not fetch matchup data.".to_owned(),
+            )
+        })?
+        .json::<Matchups>()
+        .await
+        .map_err(|e| {
+            tracing::error!("Could not parse matchup data: {}", e);
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "Could not parse matchup data.".to_owned(),
+            )
+        })?;
 
     let region_query = if matchup_data.contains_key(&region) {
         region
