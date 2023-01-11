@@ -50,7 +50,7 @@ jobs:
       - name: Set outputs
         id: vars
         run: |
-          echo "::set-output name=version::$(cargo pkgid | cut -d# -f2 | cut -d: -f2)"
+          echo "::set-output name=version::$(cargo pkgid --package uggo | cut -d# -f2 | cut -d: -f2)"
           echo "::set-output name=triple::$(rustc -vV | sed -n 's|host: ||p')"
 
       - name: Build
