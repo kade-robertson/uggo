@@ -9,7 +9,7 @@ use config::get_config;
 use http_cache_reqwest::{Cache, CacheMode, HttpCache, MokaCache, MokaManager};
 use reqwest::header::{HeaderName, CACHE_CONTROL, ETAG, LAST_MODIFIED};
 use reqwest_middleware::{ClientBuilder, ClientWithMiddleware};
-use serde::Deserialize;
+use serde::{de::DeserializeOwned, Deserialize};
 use std::{net::SocketAddr, sync::Arc};
 use tower_http::{
     cors::{Any, CorsLayer},
@@ -17,7 +17,12 @@ use tower_http::{
 };
 use tracing::Level;
 use tracing_subscriber::{prelude::__tracing_subscriber_SubscriberExt, util::SubscriberInitExt};
-use ugg_types::{mappings, matchups::Matchups, overview::ChampOverview};
+use ugg_types::{
+    mappings,
+    matchups::{Matchups, WrappedMatchupData},
+    nested_data::NestedData,
+    overview::{ChampOverview, WrappedOverviewData},
+};
 
 mod config;
 
@@ -109,6 +114,74 @@ fn get_cache_headers(headers: &HeaderMap) -> Vec<(HeaderName, HeaderValue)> {
         .collect()
 }
 
+async fn retrieve_from_ugg<V, T: DeserializeOwned + NestedData<V>>(
+    State(state): State<AppState>,
+    kind: &str,
+    data_path: &str,
+    region: mappings::Region,
+    role: mappings::Role,
+) -> Result<(Vec<(HeaderName, HeaderValue)>, V), (StatusCode, String)> {
+    let ugg_response = state
+        .client
+        .get(format!(
+            "https://stats2.u.gg/lol/1.5/{}/{}.json",
+            kind, data_path
+        ))
+        .send()
+        .await
+        .map_err(|e| {
+            tracing::error!("Could not fetch {} data: {}", kind, e);
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Could not fetch {} data.", kind),
+            )
+        })?;
+
+    let response_headers = get_cache_headers(ugg_response.headers());
+
+    let json_data = ugg_response.json::<T>().await.map_err(|e| {
+        tracing::error!("Could not parse {} data: {}", kind, e);
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Could not parse {} data.", kind),
+        )
+    })?;
+
+    let region_query = if json_data.is_region_valid(&region) {
+        region
+    } else {
+        mappings::Region::World
+    };
+
+    let rank_query = if json_data.is_rank_valid(&region_query, &mappings::Rank::PlatinumPlus) {
+        mappings::Rank::PlatinumPlus
+    } else {
+        mappings::Rank::Overall
+    };
+
+    let mut role_query = role;
+    if !json_data.is_role_valid(&region_query, &rank_query, &role_query) {
+        if role_query == mappings::Role::Automatic {
+            // Go through each role and pick the one with most matches played
+            role_query = json_data
+                .get_most_popular_role(&region_query, &rank_query)
+                .unwrap_or(role_query)
+        } else {
+            // This should only happen in ARAM
+            role_query = mappings::Role::None;
+        }
+    }
+
+    if let Some(wrapped) = json_data.get_wrapped_data(&region_query, &rank_query, &role_query) {
+        Ok((response_headers, wrapped))
+    } else {
+        Err((
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Could not find {} data for your query.", kind),
+        ))
+    }
+}
+
 async fn overview(
     Path(UggParams {
         patch,
@@ -120,89 +193,24 @@ async fn overview(
     State(state): State<AppState>,
 ) -> Result<impl IntoResponse, (StatusCode, String)> {
     let actual_mode: mappings::Mode = mode.as_str().into();
+    let data_path = format!(
+        "{}/{}/{}/{}",
+        patch,
+        actual_mode.to_api_string(),
+        champ,
+        api_version
+    );
 
-    let overview_data_response = state
-        .client
-        .get(format!(
-            "https://stats2.u.gg/lol/1.5/overview/{}/{}/{}/{}.json",
-            patch,
-            actual_mode.to_api_string(),
-            champ,
-            api_version
-        ))
-        .send()
-        .await
-        .map_err(|e| {
-            tracing::error!("Could not fetch overview data: {}", e);
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                "Could not fetch overview data.".to_owned(),
-            )
-        })?;
+    let (headers, data) = retrieve_from_ugg::<WrappedOverviewData, ChampOverview>(
+        State(state),
+        "overview",
+        &data_path,
+        region,
+        role,
+    )
+    .await?;
 
-    let response_headers = get_cache_headers(overview_data_response.headers());
-
-    let overview_data = overview_data_response
-        .json::<ChampOverview>()
-        .await
-        .map_err(|e| {
-            tracing::error!("Could not parse overview data: {}", e);
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                "Could not parse overview data.".to_owned(),
-            )
-        })?;
-
-    let region_query = if overview_data.contains_key(&region) {
-        region
-    } else {
-        mappings::Region::World
-    };
-
-    let rank_query = if overview_data[&region_query].contains_key(&mappings::Rank::PlatinumPlus) {
-        mappings::Rank::PlatinumPlus
-    } else {
-        mappings::Rank::Overall
-    };
-
-    let mut role_query = role;
-    if !overview_data[&region_query][&rank_query].contains_key(&role_query) {
-        if role_query == mappings::Role::Automatic {
-            // Go through each role and pick the one with most matches played
-            role_query = overview_data[&region_query][&rank_query]
-                .iter()
-                .max_by(|a, b| a.1.cmp(b.1))
-                .map_or(role, |(r, _)| *r);
-        } else {
-            // This should only happen in ARAM
-            role_query = mappings::Role::None;
-        }
-    }
-
-    let overview = overview_data
-        .get(&region_query)
-        .ok_or_else(|| {
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Could not find data for region {:}.", region_query),
-            )
-        })?
-        .get(&rank_query)
-        .ok_or_else(|| {
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Could not find data for rank {:}.", rank_query),
-            )
-        })?
-        .get(&role_query)
-        .ok_or_else(|| {
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Could not find data for role {:}.", role),
-            )
-        })?;
-
-    Ok((AppendHeaders(response_headers), Json(overview.data.clone())))
+    Ok((AppendHeaders(headers), Json(data)))
 }
 
 async fn matchups(
@@ -216,87 +224,22 @@ async fn matchups(
     State(state): State<AppState>,
 ) -> Result<impl IntoResponse, (StatusCode, String)> {
     let actual_mode: mappings::Mode = mode.as_str().into();
+    let data_path = format!(
+        "{}/{}/{}/{}",
+        patch,
+        actual_mode.to_api_string(),
+        champ,
+        api_version
+    );
 
-    let matchup_data_response = state
-        .client
-        .get(format!(
-            "https://stats2.u.gg/lol/1.5/matchups/{}/{}/{}/{}.json",
-            patch,
-            actual_mode.to_api_string(),
-            champ,
-            api_version
-        ))
-        .send()
-        .await
-        .map_err(|e| {
-            tracing::error!("Could not fetch matchup data: {}", e);
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                "Could not fetch matchup data.".to_owned(),
-            )
-        })?;
+    let (headers, data) = retrieve_from_ugg::<WrappedMatchupData, Matchups>(
+        State(state),
+        "matchups",
+        &data_path,
+        region,
+        role,
+    )
+    .await?;
 
-    let response_headers = get_cache_headers(matchup_data_response.headers());
-
-    let matchup_data = matchup_data_response
-        .json::<Matchups>()
-        .await
-        .map_err(|e| {
-            tracing::error!("Could not parse matchup data: {}", e);
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                "Could not parse matchup data.".to_owned(),
-            )
-        })?;
-
-    let region_query = if matchup_data.contains_key(&region) {
-        region
-    } else {
-        mappings::Region::World
-    };
-
-    let rank_query = if matchup_data[&region_query].contains_key(&mappings::Rank::PlatinumPlus) {
-        mappings::Rank::PlatinumPlus
-    } else {
-        mappings::Rank::Overall
-    };
-
-    let mut role_query = role;
-    if !matchup_data[&region_query][&rank_query].contains_key(&role_query) {
-        if role_query == mappings::Role::Automatic {
-            // Go through each role and pick the one with most matches played
-            role_query = matchup_data[&region_query][&rank_query]
-                .iter()
-                .max_by(|a, b| a.1.cmp(b.1))
-                .map_or(role, |(r, _)| *r);
-        } else {
-            // This should only happen in ARAM
-            role_query = mappings::Role::None;
-        }
-    }
-
-    let matchup = matchup_data
-        .get(&region_query)
-        .ok_or_else(|| {
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Could not find data for region {:}.", region_query),
-            )
-        })?
-        .get(&rank_query)
-        .ok_or_else(|| {
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Could not find data for rank {:}.", rank_query),
-            )
-        })?
-        .get(&role_query)
-        .ok_or_else(|| {
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Could not find data for role {:}.", role),
-            )
-        })?;
-
-    Ok((AppendHeaders(response_headers), Json(matchup.data.clone())))
+    Ok((AppendHeaders(headers), Json(data)))
 }
