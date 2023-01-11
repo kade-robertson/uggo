@@ -195,7 +195,7 @@ impl DataApi {
         {
             Some(data) => Ok(data.clone()),
             None => self.get_data::<OverviewData>(&format!(
-                "https://ugg-proxy.fly.dev/{}/overview.json?region={}&role={}",
+                "https://ugg-proxy.kaderobertson.dev/{}/overview.json?region={}&role={}",
                 data_path, region as i32, role as i32
             )),
         }?;
@@ -233,7 +233,7 @@ impl DataApi {
         let matchup_data = match self.matchup_cache.try_borrow_mut()?.get(&sha256(data_path)) {
             Some(data) => Ok(data.clone()),
             None => self.get_data::<MatchupData>(&format!(
-                "https://ugg-proxy.fly.dev/{}/matchups.json?region={}&role={}",
+                "https://ugg-proxy.kaderobertson.dev/{}/matchups.json?region={}&role={}",
                 data_path, region as i32, role as i32
             )),
         }?;

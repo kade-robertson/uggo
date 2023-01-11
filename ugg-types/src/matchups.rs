@@ -4,6 +4,7 @@
 // structure of the champ overview stats data.
 
 use crate::mappings;
+use crate::nested_data::NestedData;
 use serde::de::{Deserialize, Deserializer, IgnoredAny, SeqAccess, Visitor};
 use serde::Serialize;
 use std::collections::HashMap;
@@ -12,9 +13,65 @@ use std::fmt;
 pub type Matchups =
     HashMap<mappings::Region, HashMap<mappings::Rank, HashMap<mappings::Role, WrappedMatchupData>>>;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct WrappedMatchupData {
     pub data: MatchupData,
+}
+
+impl PartialOrd for WrappedMatchupData {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        self.data
+            .total_matches
+            .partial_cmp(&other.data.total_matches)
+    }
+}
+
+impl Ord for WrappedMatchupData {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.data.total_matches.cmp(&other.data.total_matches)
+    }
+}
+
+impl NestedData<WrappedMatchupData> for Matchups {
+    fn is_region_valid(&self, region: &mappings::Region) -> bool {
+        self.contains_key(region)
+    }
+
+    fn is_rank_valid(&self, region: &mappings::Region, rank: &mappings::Rank) -> bool {
+        self.get(region).map_or(false, |rd| rd.contains_key(rank))
+    }
+
+    fn is_role_valid(
+        &self,
+        region: &mappings::Region,
+        rank: &mappings::Rank,
+        role: &mappings::Role,
+    ) -> bool {
+        self.get(region).map_or(false, |rd| {
+            rd.get(rank).map_or(false, |rk| rk.contains_key(role))
+        })
+    }
+
+    fn get_most_popular_role(
+        &self,
+        region: &mappings::Region,
+        rank: &mappings::Rank,
+    ) -> Option<mappings::Role> {
+        self[region][rank]
+            .iter()
+            .max_by(|a, b| a.1.cmp(b.1))
+            .map(|(r, _)| *r)
+    }
+
+    fn get_wrapped_data(
+        &self,
+        region: &mappings::Region,
+        rank: &mappings::Rank,
+        role: &mappings::Role,
+    ) -> Option<WrappedMatchupData> {
+        self.get(region)
+            .and_then(|rg| rg.get(rank).and_then(|rk| rk.get(role).cloned()))
+    }
 }
 
 impl<'de> Deserialize<'de> for WrappedMatchupData {
@@ -50,7 +107,7 @@ impl<'de> Deserialize<'de> for WrappedMatchupData {
 }
 
 #[cfg_attr(feature = "client", derive(serde::Deserialize))]
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, PartialEq, Eq)]
 pub struct MatchupData {
     pub best_matchups: Vec<Matchup>,
     pub worst_matchups: Vec<Matchup>,
@@ -58,13 +115,15 @@ pub struct MatchupData {
 }
 
 #[cfg_attr(feature = "client", derive(serde::Deserialize))]
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, PartialEq)]
 pub struct Matchup {
     pub champion_id: i64,
     pub wins: i64,
     pub matches: i64,
     pub winrate: f64,
 }
+
+impl Eq for Matchup {}
 
 #[cfg(not(feature = "client"))]
 impl<'de> Deserialize<'de> for MatchupData {
