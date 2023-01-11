@@ -313,7 +313,7 @@ impl ToString for Mode {
 impl From<&str> for Mode {
     fn from(mode_str: &str) -> Self {
         match mode_str.to_lowercase().as_str() {
-            "aram" | "all_random_all_mid" | "ranked_aram" => Self::ARAM,
+            "aram" | "all_random_all_mid" | "normal_aram" => Self::ARAM,
             "oneforall" | "one_for_all" => Self::OneForAll,
             "urf" | "ultra_rapid_fire" => Self::URF,
             _ => Self::Normal,
@@ -326,7 +326,7 @@ impl FromStr for Mode {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
-            "aram" | "all_random_all_mid" | "ranked_aram" => Ok(Self::ARAM),
+            "aram" | "all_random_all_mid" | "normal_aram" => Ok(Self::ARAM),
             "oneforall" | "one_for_all" => Ok(Self::OneForAll),
             "urf" | "ultra_rapid_fire" => Ok(Self::URF),
             _ => Ok(Self::Normal),
