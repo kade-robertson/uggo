@@ -7,7 +7,7 @@ license = "MIT"
 description = "CLI tool to query builds from u.gg, for League of Legends."
 homepage = "https://github.com/kade-robertson/uggo"
 repository = "https://github.com/kade-robertson/uggo"
-readme = "README.md"
+readme = "../README.md"
 keywords = ["ugg", "league", "of", "legends"]
 categories = ["command-line-utilities", "games"]
 
