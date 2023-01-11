@@ -2,6 +2,12 @@
 name = "ugg-types"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
+description = "Types for the uggo CLI tool and ugg-proxy server."
+homepage = "https://github.com/kade-robertson/uggo"
+repository = "https://github.com/kade-robertson/uggo"
+readme = "README.md"
+keywords = ["ugg", "league", "of", "legends"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [features]
