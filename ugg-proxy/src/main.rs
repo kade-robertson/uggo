@@ -7,7 +7,7 @@ use axum::{
 };
 use config::get_config;
 use http_cache_reqwest::{Cache, CacheMode, HttpCache, MokaCache, MokaManager};
-use reqwest::header::{HeaderName, CACHE_CONTROL, ETAG, LAST_MODIFIED};
+use reqwest::header::{HeaderName, AGE, CACHE_CONTROL, ETAG, LAST_MODIFIED};
 use reqwest_middleware::{ClientBuilder, ClientWithMiddleware};
 use serde::{de::DeserializeOwned, Deserialize};
 use std::{net::SocketAddr, sync::Arc};
@@ -104,7 +104,7 @@ struct UggOptions {
 }
 
 fn get_cache_headers(headers: &HeaderMap) -> Vec<(HeaderName, HeaderValue)> {
-    vec![CACHE_CONTROL, ETAG, LAST_MODIFIED]
+    vec![CACHE_CONTROL, ETAG, LAST_MODIFIED, AGE]
         .iter()
         .filter_map(|header| {
             headers
