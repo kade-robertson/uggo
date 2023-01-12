@@ -21,7 +21,9 @@ impl GroupedData<WrappedMatchupData> for GroupedMatchupData {
     }
 
     fn get_most_popular_role(&self) -> Option<mappings::Role> {
-        self.iter().max_by(|a, b| a.1.cmp(b.1)).map(|(r, _)| *r)
+        self.iter()
+            .max_by(|a, b| a.1.data.total_matches.cmp(&b.1.data.total_matches))
+            .map(|(r, _)| *r)
     }
 
     fn get_wrapped_data(&self, role: &mappings::Role) -> Option<WrappedMatchupData> {
@@ -29,23 +31,9 @@ impl GroupedData<WrappedMatchupData> for GroupedMatchupData {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct WrappedMatchupData {
     pub data: MatchupData,
-}
-
-impl PartialOrd for WrappedMatchupData {
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        self.data
-            .total_matches
-            .partial_cmp(&other.data.total_matches)
-    }
-}
-
-impl Ord for WrappedMatchupData {
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        self.data.total_matches.cmp(&other.data.total_matches)
-    }
 }
 
 impl<'de> Deserialize<'de> for WrappedMatchupData {
@@ -81,7 +69,7 @@ impl<'de> Deserialize<'de> for WrappedMatchupData {
 }
 
 #[cfg_attr(feature = "client", derive(serde::Deserialize))]
-#[derive(Debug, Clone, Serialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Serialize)]
 pub struct MatchupData {
     pub best_matchups: Vec<Matchup>,
     pub worst_matchups: Vec<Matchup>,
@@ -89,15 +77,13 @@ pub struct MatchupData {
 }
 
 #[cfg_attr(feature = "client", derive(serde::Deserialize))]
-#[derive(Debug, Clone, Serialize, PartialEq)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Matchup {
     pub champion_id: i64,
     pub wins: i64,
     pub matches: i64,
     pub winrate: f64,
 }
-
-impl Eq for Matchup {}
 
 #[cfg(not(feature = "client"))]
 impl<'de> Deserialize<'de> for MatchupData {
