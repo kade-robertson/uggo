@@ -201,7 +201,7 @@ async fn overview(
         api_version
     );
 
-    let (headers, data) = retrieve_from_ugg::<WrappedOverviewData, ChampOverview>(
+    let (headers, wrapped) = retrieve_from_ugg::<WrappedOverviewData, ChampOverview>(
         State(state),
         "overview",
         &data_path,
@@ -210,7 +210,7 @@ async fn overview(
     )
     .await?;
 
-    Ok((AppendHeaders(headers), Json(data)))
+    Ok((AppendHeaders(headers), Json(wrapped.data)))
 }
 
 async fn matchups(
@@ -232,7 +232,7 @@ async fn matchups(
         api_version
     );
 
-    let (headers, data) = retrieve_from_ugg::<WrappedMatchupData, Matchups>(
+    let (headers, wrapped) = retrieve_from_ugg::<WrappedMatchupData, Matchups>(
         State(state),
         "matchups",
         &data_path,
@@ -241,5 +241,5 @@ async fn matchups(
     )
     .await?;
 
-    Ok((AppendHeaders(headers), Json(data)))
+    Ok((AppendHeaders(headers), Json(wrapped.data)))
 }
