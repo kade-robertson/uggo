@@ -1,45 +1,50 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "type": "lldb",
-            "request": "launch",
-            "name": "Debug executable 'uggo'",
-            "cargo": {
-                "args": [
-                    "build",
-                    "--bin=uggo",
-                    "--package=uggo"
-                ],
-                "filter": {
-                    "name": "uggo",
-                    "kind": "bin"
-                }
-            },
-            "args": [],
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "type": "lldb",
-            "request": "launch",
-            "name": "Debug unit tests in executable 'uggo'",
-            "cargo": {
-                "args": [
-                    "test",
-                    "--no-run",
-                    "--bin=uggo",
-                    "--package=uggo"
-                ],
-                "filter": {
-                    "name": "uggo",
-                    "kind": "bin"
-                }
-            },
-            "args": [],
-            "cwd": "${workspaceFolder}"
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug executable 'uggo'",
+      "cargo": {
+        "args": ["build", "--bin=uggo", "--package=uggo"],
+        "filter": {
+          "name": "uggo",
+          "kind": "bin"
         }
-    ]
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in executable 'uggo'",
+      "cargo": {
+        "args": ["test", "--no-run", "--bin=uggo", "--package=uggo"],
+        "filter": {
+          "name": "uggo",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug executable 'ugg-proxy'",
+      "cargo": {
+        "args": ["build", "--bin=ugg-proxy", "--package=ugg-proxy"],
+        "filter": {
+          "name": "ugg-proxy",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    }
+  ]
 }
