@@ -2,56 +2,28 @@
 // structure of the champ overview stats data.
 
 use crate::mappings;
-use crate::nested_data::NestedData;
+use crate::nested_data::GroupedData;
 use serde::de::{Deserialize, Deserializer, IgnoredAny, SeqAccess, Visitor};
 use serde::Serialize;
+use serde_json::Value;
 use std::collections::HashMap;
 use std::fmt;
 
-pub type ChampOverview = HashMap<
-    mappings::Region,
-    HashMap<mappings::Rank, HashMap<mappings::Role, WrappedOverviewData>>,
->;
+pub type GroupedOverviewData = HashMap<mappings::Role, WrappedOverviewData>;
 
-impl NestedData<WrappedOverviewData> for ChampOverview {
-    fn is_region_valid(&self, region: &mappings::Region) -> bool {
-        self.contains_key(region)
+pub type ChampOverview = HashMap<mappings::Region, HashMap<mappings::Rank, Value>>;
+
+impl GroupedData<WrappedOverviewData> for GroupedOverviewData {
+    fn is_role_valid(&self, role: &mappings::Role) -> bool {
+        self.contains_key(role)
     }
 
-    fn is_rank_valid(&self, region: &mappings::Region, rank: &mappings::Rank) -> bool {
-        self.get(region).map_or(false, |rd| rd.contains_key(rank))
+    fn get_most_popular_role(&self) -> Option<mappings::Role> {
+        self.iter().max_by(|a, b| a.1.cmp(b.1)).map(|(r, _)| *r)
     }
 
-    fn is_role_valid(
-        &self,
-        region: &mappings::Region,
-        rank: &mappings::Rank,
-        role: &mappings::Role,
-    ) -> bool {
-        self.get(region).map_or(false, |rd| {
-            rd.get(rank).map_or(false, |rk| rk.contains_key(role))
-        })
-    }
-
-    fn get_most_popular_role(
-        &self,
-        region: &mappings::Region,
-        rank: &mappings::Rank,
-    ) -> Option<mappings::Role> {
-        self[region][rank]
-            .iter()
-            .max_by(|a, b| a.1.cmp(b.1))
-            .map(|(r, _)| *r)
-    }
-
-    fn get_wrapped_data(
-        &self,
-        region: &mappings::Region,
-        rank: &mappings::Rank,
-        role: &mappings::Role,
-    ) -> Option<WrappedOverviewData> {
-        self.get(region)
-            .and_then(|rg| rg.get(rank).and_then(|rk| rk.get(role).cloned()))
+    fn get_wrapped_data(&self, role: &mappings::Role) -> Option<WrappedOverviewData> {
+        self.get(role).cloned()
     }
 }
 
@@ -102,7 +74,7 @@ impl<'de> Deserialize<'de> for WrappedOverviewData {
                         while let Some(IgnoredAny) = visitor.next_element()? {}
                         Ok(WrappedOverviewData { data })
                     }
-                    _ => Err(serde::de::Error::missing_field("top-level element")),
+                    _e => Err(serde::de::Error::missing_field("top-level element")),
                 }
             }
         }

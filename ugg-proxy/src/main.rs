@@ -19,9 +19,9 @@ use tracing::Level;
 use tracing_subscriber::{prelude::__tracing_subscriber_SubscriberExt, util::SubscriberInitExt};
 use ugg_types::{
     mappings,
-    matchups::{Matchups, WrappedMatchupData},
-    nested_data::NestedData,
-    overview::{ChampOverview, WrappedOverviewData},
+    matchups::{GroupedMatchupData, Matchups, WrappedMatchupData},
+    nested_data::{GroupedData, NestedData},
+    overview::{ChampOverview, GroupedOverviewData, WrappedOverviewData},
 };
 
 mod config;
@@ -114,7 +114,11 @@ fn get_cache_headers(headers: &HeaderMap) -> Vec<(HeaderName, HeaderValue)> {
         .collect()
 }
 
-async fn retrieve_from_ugg<V, T: DeserializeOwned + NestedData<V>>(
+async fn retrieve_from_ugg<
+    V: DeserializeOwned,
+    G: DeserializeOwned + GroupedData<V>,
+    T: DeserializeOwned + NestedData<serde_json::Value>,
+>(
     State(state): State<AppState>,
     kind: &str,
     data_path: &str,
@@ -159,20 +163,34 @@ async fn retrieve_from_ugg<V, T: DeserializeOwned + NestedData<V>>(
         mappings::Rank::Overall
     };
 
+    let grouped_data = if let Some(d) = json_data.get_wrapped_data(&region_query, &rank_query) {
+        serde_json::from_value::<G>(d).map_err(|e| {
+            tracing::error!("Could not parse grouped {} data: {}", kind, e);
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Could not parse grouped {} data.", kind),
+            )
+        })?
+    } else {
+        tracing::error!("Could not parse grouped {} data.", kind);
+        return Err((
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Could not parse grouped {} data.", kind),
+        ));
+    };
+
     let mut role_query = role;
-    if !json_data.is_role_valid(&region_query, &rank_query, &role_query) {
+    if !grouped_data.is_role_valid(&role_query) {
         if role_query == mappings::Role::Automatic {
             // Go through each role and pick the one with most matches played
-            role_query = json_data
-                .get_most_popular_role(&region_query, &rank_query)
-                .unwrap_or(role_query)
+            role_query = grouped_data.get_most_popular_role().unwrap_or(role_query)
         } else {
             // This should only happen in ARAM
             role_query = mappings::Role::None;
         }
     }
 
-    if let Some(wrapped) = json_data.get_wrapped_data(&region_query, &rank_query, &role_query) {
+    if let Some(wrapped) = grouped_data.get_wrapped_data(&role_query) {
         Ok((response_headers, wrapped))
     } else {
         Err((
@@ -201,13 +219,11 @@ async fn overview(
         api_version
     );
 
-    let (headers, wrapped) = retrieve_from_ugg::<WrappedOverviewData, ChampOverview>(
-        State(state),
-        "overview",
-        &data_path,
-        region,
-        role,
-    )
+    let (headers, wrapped) = retrieve_from_ugg::<
+        WrappedOverviewData,
+        GroupedOverviewData,
+        ChampOverview,
+    >(State(state), "overview", &data_path, region, role)
     .await?;
 
     Ok((AppendHeaders(headers), Json(wrapped.data)))
@@ -232,7 +248,7 @@ async fn matchups(
         api_version
     );
 
-    let (headers, wrapped) = retrieve_from_ugg::<WrappedMatchupData, Matchups>(
+    let (headers, wrapped) = retrieve_from_ugg::<WrappedMatchupData, GroupedMatchupData, Matchups>(
         State(state),
         "matchups",
         &data_path,

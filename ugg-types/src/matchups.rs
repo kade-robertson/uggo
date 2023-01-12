@@ -4,14 +4,30 @@
 // structure of the champ overview stats data.
 
 use crate::mappings;
-use crate::nested_data::NestedData;
+use crate::nested_data::GroupedData;
 use serde::de::{Deserialize, Deserializer, IgnoredAny, SeqAccess, Visitor};
 use serde::Serialize;
+use serde_json::Value;
 use std::collections::HashMap;
 use std::fmt;
 
-pub type Matchups =
-    HashMap<mappings::Region, HashMap<mappings::Rank, HashMap<mappings::Role, WrappedMatchupData>>>;
+pub type GroupedMatchupData = HashMap<mappings::Role, WrappedMatchupData>;
+
+pub type Matchups = HashMap<mappings::Region, HashMap<mappings::Rank, Value>>;
+
+impl GroupedData<WrappedMatchupData> for GroupedMatchupData {
+    fn is_role_valid(&self, role: &mappings::Role) -> bool {
+        self.contains_key(role)
+    }
+
+    fn get_most_popular_role(&self) -> Option<mappings::Role> {
+        self.iter().max_by(|a, b| a.1.cmp(b.1)).map(|(r, _)| *r)
+    }
+
+    fn get_wrapped_data(&self, role: &mappings::Role) -> Option<WrappedMatchupData> {
+        self.get(role).cloned()
+    }
+}
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct WrappedMatchupData {
@@ -29,48 +45,6 @@ impl PartialOrd for WrappedMatchupData {
 impl Ord for WrappedMatchupData {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         self.data.total_matches.cmp(&other.data.total_matches)
-    }
-}
-
-impl NestedData<WrappedMatchupData> for Matchups {
-    fn is_region_valid(&self, region: &mappings::Region) -> bool {
-        self.contains_key(region)
-    }
-
-    fn is_rank_valid(&self, region: &mappings::Region, rank: &mappings::Rank) -> bool {
-        self.get(region).map_or(false, |rd| rd.contains_key(rank))
-    }
-
-    fn is_role_valid(
-        &self,
-        region: &mappings::Region,
-        rank: &mappings::Rank,
-        role: &mappings::Role,
-    ) -> bool {
-        self.get(region).map_or(false, |rd| {
-            rd.get(rank).map_or(false, |rk| rk.contains_key(role))
-        })
-    }
-
-    fn get_most_popular_role(
-        &self,
-        region: &mappings::Region,
-        rank: &mappings::Rank,
-    ) -> Option<mappings::Role> {
-        self[region][rank]
-            .iter()
-            .max_by(|a, b| a.1.cmp(b.1))
-            .map(|(r, _)| *r)
-    }
-
-    fn get_wrapped_data(
-        &self,
-        region: &mappings::Region,
-        rank: &mappings::Rank,
-        role: &mappings::Role,
-    ) -> Option<WrappedMatchupData> {
-        self.get(region)
-            .and_then(|rg| rg.get(rank).and_then(|rk| rk.get(role).cloned()))
     }
 }
 
