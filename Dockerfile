@@ -1,6 +1,13 @@
-FROM rust:bullseye AS builder
-RUN apt-get update && apt-get -y install ca-certificates libssl-dev
+FROM lukemathwalker/cargo-chef:latest-rust-1-bullseye AS chef
 WORKDIR /prod
+
+FROM chef as planner
+COPY . .
+RUN cargo chef prepare --recipe-path recipe.json
+
+FROM chef as builder
+COPY --from=planner /prod/recipe.json recipe.json
+RUN cargo chef cook --release --recipe-path recipe.json
 COPY . .
 RUN cargo build --package ugg-proxy --release
 
