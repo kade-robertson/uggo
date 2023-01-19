@@ -51,7 +51,7 @@ Arguments:
 Options:
   -m, --mode <MODE>
           [default: Normal]
-          [possible values: normal, aram, one-for-all, urf]
+          [possible values: normal, aram, one-for-all, urf, arurf]
 
   -r, --role <ROLE>
           [default: Automatic]
@@ -70,7 +70,8 @@ Options:
 
 #[derive(Debug)]
 struct Args {
-    /// The game mode to look for data from. Can be one of: Normal, ARAM, URF, OneForAll
+    /// The game mode to look for data from. Can be one of: Normal, ARAM, URF, ARURF
+    /// or OneForAll.
     mode: mappings::Mode,
 
     /// Can be specified to pull build data for a specific role. By default, this will
