@@ -280,6 +280,7 @@ pub enum Mode {
     ARAM,
     OneForAll,
     URF,
+    ARURF,
 }
 
 impl Mode {
@@ -289,8 +290,19 @@ impl Mode {
             Self::ARAM => "normal_aram",
             Self::OneForAll => "one_for_all",
             Self::URF => "pick_urf",
+            Self::ARURF => "urf",
         })
         .to_string()
+    }
+
+    pub fn from_api_string(s: &str) -> Self {
+        match s.to_lowercase().as_str() {
+            "normal_aram" => Self::ARAM,
+            "one_for_all" => Self::OneForAll,
+            "pick_urf" => Self::URF,
+            "urf" => Self::ARURF,
+            _ => Self::Normal,
+        }
     }
 
     pub fn all() -> &'static [Mode; 4] {
@@ -305,6 +317,7 @@ impl ToString for Mode {
             Self::ARAM => "ARAM",
             Self::OneForAll => "OneForAll",
             Self::URF => "URF",
+            Self::ARURF => "ARURF",
         })
         .to_string()
     }
@@ -316,6 +329,7 @@ impl From<&str> for Mode {
             "aram" | "all_random_all_mid" | "normal_aram" => Self::ARAM,
             "oneforall" | "one_for_all" => Self::OneForAll,
             "urf" | "ultra_rapid_fire" => Self::URF,
+            "arurf" => Self::ARURF,
             _ => Self::Normal,
         }
     }
@@ -325,12 +339,7 @@ impl FromStr for Mode {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s.to_lowercase().as_str() {
-            "aram" | "all_random_all_mid" | "normal_aram" => Ok(Self::ARAM),
-            "oneforall" | "one_for_all" => Ok(Self::OneForAll),
-            "urf" | "ultra_rapid_fire" => Ok(Self::URF),
-            _ => Ok(Self::Normal),
-        }
+        Ok(Mode::from(s))
     }
 }
 

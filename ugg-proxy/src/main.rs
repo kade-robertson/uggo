@@ -210,14 +210,8 @@ async fn overview(
     Query(UggOptions { region, role }): Query<UggOptions>,
     State(state): State<AppState>,
 ) -> Result<impl IntoResponse, (StatusCode, String)> {
-    let actual_mode: mappings::Mode = mode.as_str().into();
-    let data_path = format!(
-        "{}/{}/{}/{}",
-        patch,
-        actual_mode.to_api_string(),
-        champ,
-        api_version
-    );
+    let actual_mode = mappings::Mode::from_api_string(&mode).to_api_string();
+    let data_path = format!("{}/{}/{}/{}", patch, actual_mode, champ, api_version);
 
     let (headers, wrapped) = retrieve_from_ugg::<
         WrappedOverviewData,
@@ -239,14 +233,8 @@ async fn matchups(
     Query(UggOptions { region, role }): Query<UggOptions>,
     State(state): State<AppState>,
 ) -> Result<impl IntoResponse, (StatusCode, String)> {
-    let actual_mode: mappings::Mode = mode.as_str().into();
-    let data_path = format!(
-        "{}/{}/{}/{}",
-        patch,
-        actual_mode.to_api_string(),
-        champ,
-        api_version
-    );
+    let actual_mode = mappings::Mode::from_api_string(&mode).to_api_string();
+    let data_path = format!("{}/{}/{}/{}", patch, actual_mode, champ, api_version);
 
     let (headers, wrapped) = retrieve_from_ugg::<WrappedMatchupData, GroupedMatchupData, Matchups>(
         State(state),
