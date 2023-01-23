@@ -3,6 +3,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
+#[derive(Clone)]
 pub struct Config {
     cache_dir: PathBuf,
 }

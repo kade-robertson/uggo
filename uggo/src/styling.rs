@@ -1,4 +1,5 @@
 use colored::{ColoredString, Colorize};
+use ddragon::models::runes::RuneElement;
 use prettytable::{format, Table};
 
 use ugg_types::rune::RuneExtended;
@@ -22,7 +23,7 @@ pub fn format_rune_group(name: &str) -> ColoredString {
     format_rune_text(name, None)
 }
 
-pub fn format_rune_position(rune: &RuneExtended) -> String {
+pub fn format_rune_position(rune: &RuneExtended<RuneElement>) -> String {
     let mut position_message = String::new();
     position_message.push('[');
     let mut index = 0;
