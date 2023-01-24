@@ -147,7 +147,7 @@ pub fn clear_cache(cache_dir: &str, filename: &str) {
 
 #[cfg(any(target_os = "windows", target_os = "macos", target_feature = "clippy"))]
 pub fn generate_perk_array(
-    runes: &[(String, Vec<&RuneExtended>)],
+    runes: &[(String, Vec<&RuneExtended<RuneElement>>)],
     shards: &[i64],
 ) -> (i64, i64, Vec<i64>) {
     let mut perk_list: Vec<i64> = Vec::new();
