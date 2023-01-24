@@ -1,6 +1,10 @@
 use crate::config::Config;
 use crate::util::{clear_cache, read_from_cache, sha256, write_to_cache};
 use anyhow::{anyhow, Result};
+use ddragon::models::champions::ChampionShort;
+use ddragon::models::items::Item;
+use ddragon::models::runes::RuneElement;
+use ddragon::DDragonClient;
 use levenshtein::levenshtein;
 use lru::LruCache;
 use serde::de::DeserializeOwned;
@@ -8,13 +12,10 @@ use serde::Serialize;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::num::NonZeroUsize;
-use ugg_types::champion::{ChampionDatum, Champions};
-use ugg_types::item::{ItemDatum, Items};
 use ugg_types::mappings;
 use ugg_types::matchups::MatchupData;
 use ugg_types::overview::OverviewData;
-use ugg_types::rune::{RuneExtended, RunePaths};
-use ugg_types::summonerspell::SummonerSpells;
+use ugg_types::rune::RuneExtended;
 use ureq::Agent;
 
 type UggAPIVersions = HashMap<String, HashMap<String, String>>;
@@ -22,6 +23,7 @@ type UggAPIVersions = HashMap<String, HashMap<String, String>>;
 pub struct DataApi {
     agent: Agent,
     config: Config,
+    ddragon: DDragonClient,
     overview_cache: RefCell<LruCache<String, OverviewData>>,
     matchup_cache: RefCell<LruCache<String, MatchupData>>,
 }
@@ -32,17 +34,20 @@ pub struct UggApi {
 
     pub current_version: String,
     pub patch_version: String,
-    pub champ_data: HashMap<String, ChampionDatum>,
-    pub items: HashMap<String, ItemDatum>,
-    pub runes: HashMap<i64, RuneExtended>,
+    pub champ_data: HashMap<String, ChampionShort>,
+    pub items: HashMap<String, Item>,
+    pub runes: HashMap<i64, RuneExtended<RuneElement>>,
     pub summoner_spells: HashMap<i64, String>,
 }
 
 impl DataApi {
     pub fn new() -> Self {
+        let config = Config::new();
+
         Self {
             agent: Agent::new(),
-            config: Config::new(),
+            config: config.clone(),
+            ddragon: DDragonClient::new(config.cache()).unwrap(),
             overview_cache: RefCell::new(LruCache::new(NonZeroUsize::new(25).unwrap())),
             matchup_cache: RefCell::new(LruCache::new(NonZeroUsize::new(25).unwrap())),
         }
@@ -68,80 +73,51 @@ impl DataApi {
         }
     }
 
-    pub fn get_current_version(&mut self) -> Result<String> {
-        let versions = self.get_data::<Vec<String>>(
-            &"https://static.bigbrain.gg/assets/lol/riot_patch_update/prod/versions.json"
-                .to_string(),
-        );
-
-        versions.map(|vers| vers[0].as_str().to_string())
+    pub fn get_current_version(&mut self) -> String {
+        self.ddragon.version.clone()
     }
 
-    pub fn get_champ_data(&self, version: &String) -> Result<HashMap<String, ChampionDatum>> {
-        let champ_data = self.get_cached_data::<Champions>(&format!(
-            "http://ddragon.leagueoflegends.com/cdn/{}/data/en_US/champion.json",
-            version
-        ));
-
-        champ_data.map(|d| d.data)
+    pub fn get_champ_data(&self) -> Result<HashMap<String, ChampionShort>> {
+        Ok(self.ddragon.champions()?.data)
     }
 
-    pub fn get_items(&self, version: &String) -> Result<HashMap<String, ItemDatum>> {
-        let champ_data = self.get_cached_data::<Items>(&format!(
-            "http://ddragon.leagueoflegends.com/cdn/{}/data/en_US/item.json",
-            version
-        ));
-
-        champ_data.map(|d| d.data)
+    pub fn get_items(&self) -> Result<HashMap<String, Item>> {
+        Ok(self.ddragon.items()?.data)
     }
 
-    pub fn get_runes(&self, version: &String) -> Result<HashMap<i64, RuneExtended>> {
-        let rune_data = self.get_cached_data::<RunePaths>(&format!(
-            "http://ddragon.leagueoflegends.com/cdn/{}/data/en_US/runesReforged.json",
-            version
-        ));
-        match rune_data {
-            Ok(data) => {
-                let mut processed_data = HashMap::new();
-                for class in data {
-                    for (slot_index, slot) in class.slots.iter().enumerate() {
-                        for (index, rune) in slot.runes.iter().enumerate() {
-                            let extended_rune = RuneExtended {
-                                rune: (*rune).clone(),
-                                slot: slot_index as i64,
-                                index: index as i64,
-                                siblings: slot.runes.len() as i64,
-                                parent: class.name.clone(),
-                                parent_id: class.id,
-                            };
-                            processed_data.insert(rune.id, extended_rune);
-                        }
-                    }
+    pub fn get_runes(&self) -> Result<HashMap<i64, RuneExtended<RuneElement>>> {
+        let rune_data = self.ddragon.runes()?;
+
+        let mut processed_data = HashMap::new();
+        for class in rune_data {
+            for (slot_index, slot) in class.slots.iter().enumerate() {
+                for (index, rune) in slot.runes.iter().enumerate() {
+                    let extended_rune = RuneExtended {
+                        rune: (*rune).clone(),
+                        slot: slot_index as i64,
+                        index: index as i64,
+                        siblings: slot.runes.len() as i64,
+                        parent: class.name.clone(),
+                        parent_id: class.id,
+                    };
+                    processed_data.insert(rune.id, extended_rune);
                 }
-                Ok(processed_data)
             }
-            Err(e) => Err(e),
         }
+        Ok(processed_data)
     }
 
-    pub fn get_summoner_spells(&self, version: &String) -> Result<HashMap<i64, String>> {
-        let summoner_data = self.get_cached_data::<SummonerSpells>(&format!(
-            "http://ddragon.leagueoflegends.com/cdn/{}/data/en_US/summoner.json",
-            version
-        ));
-        match summoner_data {
-            Ok(spells) => {
-                let mut reduced_data: HashMap<i64, String> = HashMap::new();
-                for (_spell, spell_info) in spells.data {
-                    reduced_data.insert(
-                        spell_info.key.parse::<i64>().ok().unwrap_or(0),
-                        spell_info.name,
-                    );
-                }
-                Ok(reduced_data)
-            }
-            Err(e) => Err(e),
+    pub fn get_summoner_spells(&self) -> Result<HashMap<i64, String>> {
+        let summoner_data = self.ddragon.summoner_spells()?;
+
+        let mut reduced_data: HashMap<i64, String> = HashMap::new();
+        for (_spell, spell_info) in summoner_data.data {
+            reduced_data.insert(
+                spell_info.key.parse::<i64>().ok().unwrap_or(0),
+                spell_info.name,
+            );
         }
+        Ok(reduced_data)
     }
 
     pub fn get_ugg_api_versions(&self, version: &String) -> Result<UggAPIVersions> {
@@ -168,7 +144,7 @@ impl DataApi {
     pub fn get_stats(
         &self,
         patch: &str,
-        champ: &ChampionDatum,
+        champ: &ChampionShort,
         role: mappings::Role,
         region: mappings::Region,
         mode: mappings::Mode,
@@ -210,7 +186,7 @@ impl DataApi {
     pub fn get_matchups(
         &self,
         patch: &str,
-        champ: &ChampionDatum,
+        champ: &ChampionShort,
         role: mappings::Role,
         region: mappings::Region,
         mode: mappings::Mode,
@@ -250,11 +226,11 @@ impl UggApi {
     pub fn new() -> Result<Self> {
         let mut inner_api = DataApi::new();
 
-        let current_version = inner_api.get_current_version()?;
-        let champ_data = inner_api.get_champ_data(&current_version)?;
-        let items = inner_api.get_items(&current_version)?;
-        let runes = inner_api.get_runes(&current_version)?;
-        let summoner_spells = inner_api.get_summoner_spells(&current_version)?;
+        let current_version = inner_api.get_current_version();
+        let champ_data = inner_api.get_champ_data()?;
+        let items = inner_api.get_items()?;
+        let runes = inner_api.get_runes()?;
+        let summoner_spells = inner_api.get_summoner_spells()?;
 
         let mut patch_version_split = current_version.split('.').collect::<Vec<&str>>();
         patch_version_split.remove(patch_version_split.len() - 1);
@@ -274,15 +250,15 @@ impl UggApi {
         })
     }
 
-    pub fn find_champ(&self, name: &str) -> &ChampionDatum {
+    pub fn find_champ(&self, name: &str) -> &ChampionShort {
         if self.champ_data.contains_key(name) {
             &self.champ_data[name]
         } else {
             let mut lowest_distance = usize::MAX;
-            let mut closest_champ: &ChampionDatum = &self.champ_data["Annie"];
+            let mut closest_champ: &ChampionShort = &self.champ_data["Annie"];
 
             let mut substring_lowest_dist = usize::MAX;
-            let mut substring_closest_champ: Option<&ChampionDatum> = None;
+            let mut substring_closest_champ: Option<&ChampionShort> = None;
 
             for value in self.champ_data.values() {
                 let query_compare = name.to_ascii_lowercase();
@@ -306,7 +282,7 @@ impl UggApi {
 
     pub fn get_stats(
         &self,
-        champ: &ChampionDatum,
+        champ: &ChampionShort,
         role: mappings::Role,
         region: mappings::Region,
         mode: mappings::Mode,
@@ -323,7 +299,7 @@ impl UggApi {
 
     pub fn get_matchups(
         &self,
-        champ: &ChampionDatum,
+        champ: &ChampionShort,
         role: mappings::Role,
         region: mappings::Region,
         mode: mappings::Mode,

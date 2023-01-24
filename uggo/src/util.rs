@@ -1,4 +1,7 @@
 use colored::Colorize;
+use ddragon::models::champions::ChampionShort;
+use ddragon::models::items::Item;
+use ddragon::models::runes::RuneElement;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 use sha2::{Digest, Sha256};
@@ -8,7 +11,7 @@ use std::{collections::HashMap, fs};
 #[cfg(debug_assertions)]
 use time::{macros::format_description, OffsetDateTime};
 
-use ugg_types::{champion::ChampionDatum, item::ItemDatum, rune::RuneExtended};
+use ugg_types::rune::RuneExtended;
 
 #[cfg(debug_assertions)]
 static TIME_FORMAT: &[time::format_description::FormatItem<'_>] =
@@ -43,8 +46,8 @@ pub fn log_info(msg: &str) {
 
 pub fn find_champ_by_key(
     key: i64,
-    champ_data: &'_ HashMap<String, ChampionDatum>,
-) -> Option<&'_ ChampionDatum> {
+    champ_data: &'_ HashMap<String, ChampionShort>,
+) -> Option<&'_ ChampionShort> {
     match champ_data
         .iter()
         .find(|champ| champ.1.key == key.to_string())
@@ -56,9 +59,9 @@ pub fn find_champ_by_key(
 
 pub fn group_runes<'a>(
     rune_ids: &Vec<i64>,
-    rune_data: &'a HashMap<i64, RuneExtended>,
-) -> Vec<(String, Vec<&'a RuneExtended>)> {
-    let mut grouped_runes: Vec<(String, Vec<&'a RuneExtended>)> = Vec::new();
+    rune_data: &'a HashMap<i64, RuneExtended<RuneElement>>,
+) -> Vec<(String, Vec<&'a RuneExtended<RuneElement>>)> {
+    let mut grouped_runes: Vec<(String, Vec<&'a RuneExtended<RuneElement>>)> = Vec::new();
 
     for rune in rune_ids {
         let rune_info = &rune_data[rune];
@@ -80,7 +83,7 @@ pub fn group_runes<'a>(
     grouped_runes
 }
 
-pub fn process_items(champ_items: &[i64], item_data: &HashMap<String, ItemDatum>) -> String {
+pub fn process_items(champ_items: &[i64], item_data: &HashMap<String, Item>) -> String {
     champ_items
         .iter()
         .map(|v| {
@@ -144,7 +147,7 @@ pub fn clear_cache(cache_dir: &str, filename: &str) {
 
 #[cfg(any(target_os = "windows", target_os = "macos", target_feature = "clippy"))]
 pub fn generate_perk_array(
-    runes: &[(String, Vec<&RuneExtended>)],
+    runes: &[(String, Vec<&RuneExtended<RuneElement>>)],
     shards: &[i64],
 ) -> (i64, i64, Vec<i64>) {
     let mut perk_list: Vec<i64> = Vec::new();

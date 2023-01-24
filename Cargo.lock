@@ -571,6 +571,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "ddragon"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bd73350070b04de45ba11da577b5c4100282fd372c8e6ddd4aa2809115c2f91f"
+dependencies = [
+ "cacache",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "ureq",
+ "url",
+]
+
+[[package]]
 name = "digest"
 version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2472,6 +2486,7 @@ version = "0.9.3"
 dependencies = [
  "anyhow",
  "colored",
+ "ddragon",
  "hex 0.4.3",
  "league-client-connector",
  "levenshtein",
