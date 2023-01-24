@@ -1,6 +1,6 @@
 [package]
 name = "uggo"
-version = "0.9.3"
+version = "0.9.4"
 edition = "2021"
 rust-version = "1.59"
 license = "MIT"
@@ -30,7 +30,7 @@ sha2 = "0.10"
 text_io = "0.1"
 time = { version = "0.3", features = ["local-offset", "formatting", "macros"] }
 ureq = { version = "2.6", features = ["json", "native-tls"] }
-ugg-types = { version = "0.1", path = "../ugg-types", features = ["client"] }
+ugg-types = { version = "0.2", path = "../ugg-types", features = ["client"] }
 
 [features]
 clippy = []
