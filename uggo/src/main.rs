@@ -255,30 +255,26 @@ fn fetch(
     }
 
     #[cfg(any(target_os = "windows", target_os = "macos", target_feature = "clippy"))]
-    match client {
-        Some(ref api) => match api.get_current_rune_page() {
-            Some(data) => {
-                let (primary_style_id, sub_style_id, selected_perk_ids) =
-                    util::generate_perk_array(&champ_runes, &champ_overview.shards.shard_ids);
-                api.update_rune_page(
-                    &data.id,
-                    &NewRunePage {
-                        name: match mode {
-                            mappings::Mode::ARAM => {
-                                format!("uggo: {}, ARAM", &query_champ.name)
-                            }
-                            mappings::Mode::URF => format!("uggo: {}, URF", &query_champ.name),
-                            _ => format!("uggo: {}, Normal", &query_champ.name),
-                        },
-                        primary_style_id,
-                        sub_style_id,
-                        selected_perk_ids,
+    if let Some(ref api) = client {
+        if let Some(data) = api.get_current_rune_page() {
+            let (primary_style_id, sub_style_id, selected_perk_ids) =
+                util::generate_perk_array(&champ_runes, &champ_overview.shards.shard_ids);
+            api.update_rune_page(
+                data.id,
+                &NewRunePage {
+                    name: match mode {
+                        mappings::Mode::ARAM => {
+                            format!("uggo: {}, ARAM", &query_champ.name)
+                        }
+                        mappings::Mode::URF => format!("uggo: {}, URF", &query_champ.name),
+                        _ => format!("uggo: {}, Normal", &query_champ.name),
                     },
-                );
-            }
-            _ => (),
-        },
-        None => (),
+                    primary_style_id,
+                    sub_style_id,
+                    selected_perk_ids,
+                },
+            );
+        }
     }
 }
 
@@ -296,7 +292,7 @@ fn main() -> Result<()> {
         debug_assertions,
         any(target_os = "windows", target_os = "macos", target_feature = "clippy")
     ))]
-    if !client_lockfile.as_ref().is_none() {
+    if client_lockfile.as_ref().is_some() {
         let lockfile = client_lockfile.clone().unwrap();
         util::log_info(&format!(
             "- Found client running at https://127.0.0.1:{}/",
@@ -306,23 +302,19 @@ fn main() -> Result<()> {
     }
 
     #[cfg(any(target_os = "windows", target_os = "macos", target_feature = "clippy"))]
-    if !client_lockfile.as_ref().is_none() {
-        clientapi = Some(client_api::ClientAPI::new(client_lockfile.clone().unwrap()));
+    if client_lockfile.as_ref().is_some() {
+        clientapi = Some(client_api::ClientAPI::new(client_lockfile.unwrap()));
     }
 
     #[cfg(any(target_os = "windows", target_os = "macos", target_feature = "clippy"))]
-    match clientapi {
-        Some(ref api) => match api.get_summoner_info() {
-            Some(summoner) => {
-                #[cfg(debug_assertions)]
-                util::log_info(&format!(
-                    "- Found summoner {} (id: {})",
-                    summoner.display_name, summoner.summoner_id
-                ));
-            }
-            None => (),
-        },
-        None => (),
+    if let Some(ref api) = clientapi {
+        if let Some(summoner) = api.get_summoner_info() {
+            #[cfg(debug_assertions)]
+            util::log_info(&format!(
+                "- Found summoner {} (id: {})",
+                summoner.display_name, summoner.summoner_id
+            ));
+        }
     }
 
     let mut raw_args: Vec<_> = args_os().collect();
