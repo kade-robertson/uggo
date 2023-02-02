@@ -128,8 +128,7 @@ async fn retrieve_from_ugg<
     let ugg_response = state
         .client
         .get(format!(
-            "https://stats2.u.gg/lol/1.5/{}/{}.json",
-            kind, data_path
+            "https://stats2.u.gg/lol/1.5/{kind}/{data_path}.json"
         ))
         .send()
         .await
@@ -137,7 +136,7 @@ async fn retrieve_from_ugg<
             tracing::error!("Could not fetch {} data: {}", kind, e);
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Could not fetch {} data.", kind),
+                format!("Could not fetch {kind} data."),
             )
         })?;
 
@@ -147,7 +146,7 @@ async fn retrieve_from_ugg<
         tracing::error!("Could not parse {} data: {}", kind, e);
         (
             StatusCode::INTERNAL_SERVER_ERROR,
-            format!("Could not parse {} data.", kind),
+            format!("Could not parse {kind} data."),
         )
     })?;
 
@@ -168,14 +167,14 @@ async fn retrieve_from_ugg<
             tracing::error!("Could not parse grouped {} data: {}", kind, e);
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Could not parse grouped {} data.", kind),
+                format!("Could not parse grouped {kind} data."),
             )
         })?
     } else {
         tracing::error!("Could not parse grouped {} data.", kind);
         return Err((
             StatusCode::INTERNAL_SERVER_ERROR,
-            format!("Could not parse grouped {} data.", kind),
+            format!("Could not parse grouped {kind} data."),
         ));
     };
 
@@ -195,7 +194,7 @@ async fn retrieve_from_ugg<
     } else {
         Err((
             StatusCode::INTERNAL_SERVER_ERROR,
-            format!("Could not find {} data for your query.", kind),
+            format!("Could not find {kind} data for your query."),
         ))
     }
 }
@@ -211,7 +210,7 @@ async fn overview(
     State(state): State<AppState>,
 ) -> Result<impl IntoResponse, (StatusCode, String)> {
     let actual_mode = mappings::Mode::from_api_string(&mode).to_api_string();
-    let data_path = format!("{}/{}/{}/{}", patch, actual_mode, champ, api_version);
+    let data_path = format!("{patch}/{actual_mode}/{champ}/{api_version}");
 
     let (headers, wrapped) = retrieve_from_ugg::<
         WrappedOverviewData,
@@ -234,7 +233,7 @@ async fn matchups(
     State(state): State<AppState>,
 ) -> Result<impl IntoResponse, (StatusCode, String)> {
     let actual_mode = mappings::Mode::from_api_string(&mode).to_api_string();
-    let data_path = format!("{}/{}/{}/{}", patch, actual_mode, champ, api_version);
+    let data_path = format!("{patch}/{actual_mode}/{champ}/{api_version}");
 
     let (headers, wrapped) = retrieve_from_ugg::<WrappedMatchupData, GroupedMatchupData, Matchups>(
         State(state),
