@@ -14,11 +14,18 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@stable
 
-      - name: Rust Cache
-        uses: Swatinem/rust-cache@v2
+      - name: Cargo cache
+        uses: actions/cache@v3
+        continue-on-error: false
         with:
-          prefix-key: 'rust'
-          shared-key: 'cache'
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/            
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
 
       - name: Publish
         uses: katyo/publish-crates@v1
@@ -37,11 +44,18 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@stable
 
-      - name: Rust Cache
-        uses: Swatinem/rust-cache@v2
+      - name: Cargo cache
+        uses: actions/cache@v3
+        continue-on-error: false
         with:
-          prefix-key: 'rust'
-          shared-key: 'cache'
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/            
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
 
       - uses: actions/setup-node@v3
         with:
