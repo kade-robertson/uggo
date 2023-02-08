@@ -4,7 +4,7 @@ use anyhow::{anyhow, Result};
 use ddragon::models::champions::ChampionShort;
 use ddragon::models::items::Item;
 use ddragon::models::runes::RuneElement;
-use ddragon::DDragonClient;
+use ddragon::Client;
 use levenshtein::levenshtein;
 use lru::LruCache;
 use serde::de::DeserializeOwned;
@@ -23,7 +23,7 @@ type UggAPIVersions = HashMap<String, HashMap<String, String>>;
 pub struct DataApi {
     agent: Agent,
     config: Config,
-    ddragon: DDragonClient,
+    ddragon: Client,
     overview_cache: RefCell<LruCache<String, OverviewData>>,
     matchup_cache: RefCell<LruCache<String, MatchupData>>,
 }
@@ -47,7 +47,7 @@ impl DataApi {
         Self {
             agent: Agent::new(),
             config: config.clone(),
-            ddragon: DDragonClient::new(config.cache()).unwrap(),
+            ddragon: Client::new(config.cache()).unwrap(),
             overview_cache: RefCell::new(LruCache::new(NonZeroUsize::new(25).unwrap())),
             matchup_cache: RefCell::new(LruCache::new(NonZeroUsize::new(25).unwrap())),
         }
