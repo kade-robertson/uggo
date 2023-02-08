@@ -16,7 +16,7 @@ categories = ["command-line-utilities", "games"]
 [dependencies]
 anyhow = "1.0"
 colored = "2"
-ddragon = "0.6"
+ddragon = "0.7"
 hex = "0.4"
 league-client-connector = "0.1"
 levenshtein = "1"
