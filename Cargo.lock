@@ -1004,9 +1004,9 @@ dependencies = [
 
 [[package]]
 name = "http-cache"
-version = "0.8.0"
+version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eb12f9493a96a6e75149885d6e14928ba4210352634b348af655152be4feb6cc"
+checksum = "f1883e624cfa886d834a053dca214b3781f3f7637f4ca61e12f3c4c6f9399fdf"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1024,9 +1024,9 @@ dependencies = [
 
 [[package]]
 name = "http-cache-reqwest"
-version = "0.6.0"
+version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "166fed9ab4881ce1383fb854c41fbd947a067d87986955badb500a2c1c8fd1af"
+checksum = "5c48825cf7511f9a12c07aa70214b9b85e836011e3392d18a2e2dc38c1da8612"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1379,9 +1379,9 @@ dependencies = [
 
 [[package]]
 name = "moka"
-version = "0.9.7"
+version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "19b9268097a2cf211ac9955b1cc95e80fa84fff5c2d13ba292916445dc8a311f"
+checksum = "2b6446f16d504e3d575df79cabb11bfbe9f24b17e9562d964a815db7b28ae3ec"
 dependencies = [
  "async-io",
  "async-lock",
