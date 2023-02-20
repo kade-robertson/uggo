@@ -982,9 +982,9 @@ checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
 
 [[package]]
 name = "http"
-version = "0.2.8"
+version = "0.2.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "75f43d41e26995c17e71ee126451dd3941010b0514a81a9d11f3b341debc2399"
+checksum = "bd6effc99afb63425aff9b05836f029929e345a6148a14b7ecd5ab67af944482"
 dependencies = [
  "bytes",
  "fnv",
@@ -1004,9 +1004,9 @@ dependencies = [
 
 [[package]]
 name = "http-cache"
-version = "0.9.0"
+version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f1883e624cfa886d834a053dca214b3781f3f7637f4ca61e12f3c4c6f9399fdf"
+checksum = "e80b93190e98a1d1cab3b26a9b6966b6c5d1d07a3097e217ff2bebbdaa97e220"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1024,9 +1024,9 @@ dependencies = [
 
 [[package]]
 name = "http-cache-reqwest"
-version = "0.7.0"
+version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5c48825cf7511f9a12c07aa70214b9b85e836011e3392d18a2e2dc38c1da8612"
+checksum = "08ca79abc812659e254b78a1176fef0f3b8d4041018cff2be484101e0e202bfd"
 dependencies = [
  "anyhow",
  "async-trait",
