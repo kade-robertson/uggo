@@ -13,14 +13,14 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install Rust toolchain
+      - id: toolchain
+        name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
           components: clippy
 
       - name: Cargo cache
-        uses: actions/cache@v3
-        continue-on-error: false
+        uses: actions/cache/restore@v3
         with:
           path: |
             ~/.cargo/bin/
@@ -28,8 +28,8 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/            
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: ${{ runner.os }}-cargo-
+          key:  ${{ runner.os }}-rust-${{ steps.toolchain.outputs.cachekey }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys:  ${{ runner.os }}-rust-${{ steps.toolchain.outputs.cachekey }}
           enableCrossOsArchive: true
 
       - name: Test uggo
