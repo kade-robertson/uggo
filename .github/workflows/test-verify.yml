@@ -20,7 +20,7 @@ jobs:
           components: clippy
 
       - name: Cargo cache
-        uses: actions/cache/restore@v3
+        uses: actions/cache@v3
         with:
           path: |
             ~/.cargo/bin/
@@ -33,19 +33,19 @@ jobs:
           enableCrossOsArchive: true
 
       - name: Test uggo
-        run: cargo test --package uggo
+        run: cargo test --locked --package uggo
 
       - name: Build uggo
-        run: cargo build --package uggo --release
+        run: cargo build --locked --package uggo --release
 
       - name: Test ugg-types and ugg-proxy
         if: runner.os == 'Linux'
         run: |
-          cargo test --package ugg-types
-          cargo test --package ugg-proxy
+          cargo test --locked --package ugg-types
+          cargo test --locked --package ugg-proxy
 
       - name: Build ugg-types and ugg-proxy
         if: runner.os == 'Linux'
         run: |
-          cargo build --package ugg-types --release
-          cargo build --package ugg-proxy --release
+          cargo build --locked --package ugg-types --release
+          cargo build --locked --package ugg-proxy --release
