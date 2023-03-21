@@ -12,11 +12,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: dtolnay/rust-toolchain@stable
+      - id: toolchain
+        uses: dtolnay/rust-toolchain@stable
 
       - name: Cargo cache
-        uses: actions/cache@v3
-        continue-on-error: false
+        uses: actions/cache/restore@v3
         with:
           path: |
             ~/.cargo/bin/
@@ -24,8 +24,8 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/            
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: ${{ runner.os }}-cargo-
+          key:  ${{ runner.os }}-rust-${{ steps.toolchain.outputs.cachekey }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys:  ${{ runner.os }}-rust-${{ steps.toolchain.outputs.cachekey }}
           enableCrossOsArchive: true
 
       - name: Publish
@@ -43,11 +43,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: dtolnay/rust-toolchain@stable
+      - id: toolchain
+        uses: dtolnay/rust-toolchain@stable
 
       - name: Cargo cache
-        uses: actions/cache@v3
-        continue-on-error: false
+        uses: actions/cache/restore@v3
         with:
           path: |
             ~/.cargo/bin/
@@ -55,8 +55,8 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/            
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: ${{ runner.os }}-cargo-
+          key:  ${{ runner.os }}-rust-${{ steps.toolchain.outputs.cachekey }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys:  ${{ runner.os }}-rust-${{ steps.toolchain.outputs.cachekey }}
           enableCrossOsArchive: true
 
       - uses: actions/setup-node@v3

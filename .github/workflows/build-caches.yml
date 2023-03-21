@@ -15,21 +15,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: dtolnay/rust-toolchain@stable
-
-      - name: Cargo cache
-        uses: actions/cache@v3
-        continue-on-error: false
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/            
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: ${{ runner.os }}-cargo-
-          enableCrossOsArchive: true
+      - id: toolchain
+        uses: dtolnay/rust-toolchain@stable
 
       - name: Build cache
         run: |
@@ -37,3 +24,15 @@ jobs:
           cargo test --quiet
           cargo check --quiet --release
           cargo build --quiet --release
+
+      - name: Cargo cache
+        uses: actions/cache/save@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/            
+          key: ${{ runner.os }}-rust-${{ steps.toolchain.outputs.cachekey }}
+          enableCrossOsArchive: true

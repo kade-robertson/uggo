@@ -13,14 +13,14 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install Rust toolchain
+      - id: toolchain
+        name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
           components: clippy
 
       - name: Cargo cache
         uses: actions/cache@v3
-        continue-on-error: false
         with:
           path: |
             ~/.cargo/bin/
@@ -28,24 +28,24 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/            
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: ${{ runner.os }}-cargo-
+          key:  ${{ runner.os }}-rust-${{ steps.toolchain.outputs.cachekey }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys:  ${{ runner.os }}-rust-${{ steps.toolchain.outputs.cachekey }}
           enableCrossOsArchive: true
 
       - name: Test uggo
-        run: cargo test --package uggo
+        run: cargo test --locked --package uggo
 
       - name: Build uggo
-        run: cargo build --package uggo --release
+        run: cargo build --locked --package uggo --release
 
       - name: Test ugg-types and ugg-proxy
         if: runner.os == 'Linux'
         run: |
-          cargo test --package ugg-types
-          cargo test --package ugg-proxy
+          cargo test --locked --package ugg-types
+          cargo test --locked --package ugg-proxy
 
       - name: Build ugg-types and ugg-proxy
         if: runner.os == 'Linux'
         run: |
-          cargo build --package ugg-types --release
-          cargo build --package ugg-proxy --release
+          cargo build --locked --package ugg-types --release
+          cargo build --locked --package ugg-proxy --release
