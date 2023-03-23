@@ -2384,7 +2384,7 @@ checksum = "497961ef93d974e23eb6f433eb5fe1b7930b659f06d12dec6fc44a8f554c0bba"
 
 [[package]]
 name = "ugg-proxy"
-version = "0.1.6"
+version = "0.1.7"
 dependencies = [
  "axum",
  "http-cache-reqwest",
@@ -2409,7 +2409,7 @@ dependencies = [
 
 [[package]]
 name = "uggo"
-version = "0.9.8"
+version = "0.9.9"
 dependencies = [
  "anyhow",
  "colored",
