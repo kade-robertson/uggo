@@ -4,3 +4,6 @@ members = ["uggo", "ugg-proxy", "ugg-types"]
 [profile.release]
 opt-level = 3
 strip = true
+
+[patch.crates-io]
+reflink = { git = "https://github.com/nicokoch/reflink.git" }
