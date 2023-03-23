@@ -42,7 +42,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let state = AppState {
         client: Arc::new(
-            ClientBuilder::new(reqwest::Client::new())
+            ClientBuilder::new(reqwest::ClientBuilder::new().use_rustls_tls().build()?)
                 .with(Cache(HttpCache {
                     mode: CacheMode::Default,
                     manager: MokaManager::new(MokaCache::new(500)),
