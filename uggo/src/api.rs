@@ -55,8 +55,8 @@ impl DataApi {
 
     fn get_data<T: DeserializeOwned>(&self, url: &String) -> Result<T> {
         let response = self.agent.get(url).call()?;
-        let text = response.into_string()?;
-        serde_json::from_str::<T>(&text)
+        response
+            .into_json::<T>()
             .map_or_else(|_| Err(anyhow!("Could not fetch {}", url)), |e| Ok(e))
     }
 
