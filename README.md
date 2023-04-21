@@ -114,7 +114,7 @@ By default, when `uggo` is first run it will attempt to connect to the Game Clie
 
 #### Regions
 
-`<region>` can be 1 of 12 options:
+`<region>` can be 1 of 17 options:
 
 - NA1
 - EUW1
@@ -128,6 +128,11 @@ By default, when `uggo` is first run it will attempt to connect to the Game Clie
 - TR1
 - JP1
 - World
+- PH2
+- SG2
+- TH2
+- TW2
+- VN2
 
 `World` is the default.
 

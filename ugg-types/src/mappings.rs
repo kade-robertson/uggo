@@ -106,6 +106,21 @@ pub enum Region {
 
     #[serde(rename = "12")]
     World,
+
+    #[serde(rename = "13")]
+    PH2,
+
+    #[serde(rename = "14")]
+    SG2,
+
+    #[serde(rename = "15")]
+    TH2,
+
+    #[serde(rename = "16")]
+    TW2,
+
+    #[serde(rename = "17")]
+    VN2,
 }
 
 impl Region {
@@ -123,6 +138,11 @@ impl Region {
             Region::TR1 => 10,
             Region::JP1 => 11,
             Region::World => 12,
+            Region::PH2 => 13,
+            Region::SG2 => 14,
+            Region::TH2 => 15,
+            Region::TW2 => 16,
+            Region::VN2 => 17,
         })
         .to_string()
     }
@@ -149,6 +169,11 @@ impl Display for Region {
             Region::TR1 => "TR1",
             Region::JP1 => "JP1",
             Region::World => "World",
+            Region::PH2 => "PH2",
+            Region::SG2 => "SG2",
+            Region::TH2 => "TH2",
+            Region::TW2 => "TW2",
+            Region::VN2 => "VN2",
         };
         write!(f, "{region_str}")
     }
@@ -168,6 +193,11 @@ pub fn get_region(region: &str) -> Region {
         Region::TR1,
         Region::JP1,
         Region::World,
+        Region::PH2,
+        Region::SG2,
+        Region::TH2,
+        Region::TW2,
+        Region::VN2,
     ] {
         let region_str = enum_region.to_string().to_lowercase();
         if region.to_lowercase() == region_str
