@@ -1,6 +1,6 @@
 [package]
 name = "ugg-types"
-version = "0.2.2"
+version = "0.2.3"
 edition = "2021"
 license = "MIT"
 description = "Types for the uggo CLI tool and ugg-proxy server."
