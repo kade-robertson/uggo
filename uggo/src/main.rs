@@ -49,6 +49,9 @@ Arguments:
           If left blank, will open the interactive version of uggo.
 
 Options:
+  -v, --api-version <VERSION>
+          Override for the version used to query from ddragon. If in doubt, do not specify this option.
+
   -m, --mode <MODE>
           [default: Normal]
           [possible values: normal, aram, one-for-all, urf, arurf]
@@ -279,8 +282,37 @@ fn fetch(
 }
 
 fn main() -> Result<()> {
-    let ugg = api::UggApi::new()?;
-    let mut mode = mappings::Mode::Normal;
+    let mut raw_args: Vec<_> = args_os().collect();
+    raw_args.remove(0);
+    let mut args = pico_args::Arguments::from_vec(raw_args);
+
+    if args.contains(["-h", "--help"]) {
+        print!("{HELP_MESSAGE}");
+        exit(0);
+    }
+
+    if args.contains(["-V", "--version"]) {
+        println!("uggo v{}", env!("CARGO_PKG_VERSION"));
+        exit(0);
+    }
+
+    let ugg = api::UggApi::new(
+        args.opt_value_from_str(["-v", "--api-version"])
+            .unwrap_or(None),
+    )?;
+
+    let parsed_args = Args {
+        champ: args.free_from_str().ok(),
+        mode: args
+            .value_from_str::<[&str; 2], mappings::Mode>(["-m", "--mode"])
+            .map_or(DEFAULT_MODE, |m| m),
+        role: args
+            .value_from_str::<[&str; 2], mappings::Role>(["-r", "--role"])
+            .map_or(DEFAULT_ROLE, |r| r),
+        region: args
+            .value_from_str::<[&str; 2], mappings::Region>(["-R", "--region"])
+            .map_or(DEFAULT_REGION, |r| r),
+    };
 
     #[cfg(any(target_os = "windows", target_os = "macos", target_feature = "clippy"))]
     let client_lockfile = LeagueClientConnector::parse_lockfile().ok();
@@ -317,33 +349,6 @@ fn main() -> Result<()> {
         }
     }
 
-    let mut raw_args: Vec<_> = args_os().collect();
-    raw_args.remove(0);
-    let mut args = pico_args::Arguments::from_vec(raw_args);
-
-    if args.contains(["-h", "--help"]) {
-        print!("{HELP_MESSAGE}");
-        exit(0);
-    }
-
-    if args.contains(["-V", "--version"]) {
-        println!("uggo v{}", env!("CARGO_PKG_VERSION"));
-        exit(0);
-    }
-
-    let parsed_args = Args {
-        champ: args.free_from_str().ok(),
-        mode: args
-            .value_from_str::<[&str; 2], mappings::Mode>(["-m", "--mode"])
-            .map_or(DEFAULT_MODE, |m| m),
-        role: args
-            .value_from_str::<[&str; 2], mappings::Role>(["-r", "--role"])
-            .map_or(DEFAULT_ROLE, |r| r),
-        region: args
-            .value_from_str::<[&str; 2], mappings::Region>(["-R", "--region"])
-            .map_or(DEFAULT_REGION, |r| r),
-    };
-
     if let Some(champ_name) = parsed_args.champ {
         #[cfg(not(any(target_os = "windows", target_os = "macos", target_feature = "clippy")))]
         fetch(
@@ -367,6 +372,7 @@ fn main() -> Result<()> {
         return Ok(());
     }
 
+    let mut mode = mappings::Mode::Normal;
     loop {
         print!("query> ");
         io::stdout().flush().unwrap();
