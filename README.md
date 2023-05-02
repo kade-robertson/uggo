@@ -153,6 +153,9 @@ Arguments:
           If left blank, will open the interactive version of uggo.
 
 Options:
+  -v, --api-version <VERSION>
+          Override for the version used to query from ddragon. If in doubt, do not specify this option.
+
   -m, --mode <MODE>
           [default: Normal]
           [possible values: normal, aram, one-for-all, urf]

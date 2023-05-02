@@ -320,6 +320,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "bpaf"
+version = "0.7.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "423bafba382cc2c561f486bfcae41c6692833eaff0a631d10c37a9489ccd3783"
+dependencies = [
+ "bpaf_derive",
+]
+
+[[package]]
+name = "bpaf_derive"
+version = "0.3.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ae9ee23ce08bc40839a8153f4b873fcfa08405221ed2cd9a4968d1a94ad83234"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.15",
+]
+
+[[package]]
 name = "brotli-decompressor"
 version = "2.3.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -558,9 +578,9 @@ dependencies = [
 
 [[package]]
 name = "ddragon"
-version = "0.7.1"
+version = "0.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "64f6a8970bcfba8f883c3cf95335b0635d1b4ae3998d3d15c27e7d3e629988e2"
+checksum = "490f05d1d96c9d4308aed6720029995ca1d805a7abe8801d88276233b06abe03"
 dependencies = [
  "cacache",
  "serde",
@@ -1470,12 +1490,6 @@ name = "percent-encoding"
 version = "2.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "478c572c3d73181ff3c2539045f6eb99e5491218eae919370993b890cdbdd98e"
-
-[[package]]
-name = "pico-args"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5be167a7af36ee22fe3115051bc51f6e6c7054c9348e28deb4f49bd6f705a315"
 
 [[package]]
 name = "pin-project"
@@ -2408,6 +2422,7 @@ name = "uggo"
 version = "0.9.10"
 dependencies = [
  "anyhow",
+ "bpaf",
  "colored",
  "ddragon",
  "hex",
@@ -2415,7 +2430,6 @@ dependencies = [
  "levenshtein",
  "lru",
  "native-tls",
- "pico-args",
  "prettytable-rs",
  "serde",
  "serde_json",

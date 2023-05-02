@@ -15,6 +15,7 @@ categories = ["command-line-utilities", "games"]
 
 [dependencies]
 anyhow = "1.0"
+bpaf = { version = "0.7", features = ["derive"] }
 colored = "2"
 ddragon = "0.7"
 hex = "0.4"
@@ -22,7 +23,6 @@ league-client-connector = "0.1"
 levenshtein = "1"
 lru = "0.10"
 native-tls = "0.2"
-pico-args = "0.5"
 prettytable-rs = "0.10"
 serde = "1"
 serde_json = "1"

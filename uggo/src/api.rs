@@ -4,7 +4,7 @@ use anyhow::{anyhow, Result};
 use ddragon::models::champions::ChampionShort;
 use ddragon::models::items::Item;
 use ddragon::models::runes::RuneElement;
-use ddragon::Client;
+use ddragon::{Client, ClientBuilder};
 use levenshtein::levenshtein;
 use lru::LruCache;
 use serde::de::DeserializeOwned;
@@ -41,13 +41,18 @@ pub struct UggApi {
 }
 
 impl DataApi {
-    pub fn new() -> Self {
+    pub fn new(version: Option<String>) -> Self {
         let config = Config::new();
+
+        let mut client_builder = ClientBuilder::new().cache(config.cache());
+        if let Some(v) = version {
+            client_builder = client_builder.version(v.as_str());
+        }
 
         Self {
             agent: Agent::new(),
-            config: config.clone(),
-            ddragon: Client::new(config.cache()).unwrap(),
+            config,
+            ddragon: client_builder.build().unwrap(),
             overview_cache: RefCell::new(LruCache::new(NonZeroUsize::new(25).unwrap())),
             matchup_cache: RefCell::new(LruCache::new(NonZeroUsize::new(25).unwrap())),
         }
@@ -223,8 +228,8 @@ impl DataApi {
 }
 
 impl UggApi {
-    pub fn new() -> Result<Self> {
-        let mut inner_api = DataApi::new();
+    pub fn new(version: Option<String>) -> Result<Self> {
+        let mut inner_api = DataApi::new(version);
 
         let current_version = inner_api.get_current_version();
         let champ_data = inner_api.get_champ_data()?;
