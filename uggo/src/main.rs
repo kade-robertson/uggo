@@ -12,11 +12,10 @@ use colored::Colorize;
 use league_client_connector::LeagueClientConnector;
 
 use anyhow::{anyhow, Result};
+use bpaf::Bpaf;
 use prettytable::{format, Table};
-use std::env::args_os;
 use std::io;
 use std::io::Write;
-use std::process::exit;
 use text_io::read;
 use ugg_types::mappings::{self, Mode};
 
@@ -33,67 +32,6 @@ mod config;
 mod styling;
 mod util;
 
-static DEFAULT_MODE: mappings::Mode = mappings::Mode::Normal;
-static DEFAULT_ROLE: mappings::Role = mappings::Role::Automatic;
-static DEFAULT_REGION: mappings::Region = mappings::Region::World;
-
-const HELP_MESSAGE: &str = "\
-CLI tool to query builds from u.gg, for League of Legends.
-
-Usage: uggo [OPTIONS] [CHAMP]
-
-Arguments:
-  [CHAMP]
-          The name of the champion you want to match. A best effort will be made to find the champ if it's only a partial query.
-
-          If left blank, will open the interactive version of uggo.
-
-Options:
-  -v, --api-version <VERSION>
-          Override for the version used to query from ddragon. If in doubt, do not specify this option.
-
-  -m, --mode <MODE>
-          [default: Normal]
-          [possible values: normal, aram, one-for-all, urf, arurf]
-
-  -r, --role <ROLE>
-          [default: Automatic]
-          [possible values: jungle, support, ad-carry, top, mid, none, automatic]
-
-  -R, --region <REGION>
-          [default: World]
-          [possible values: na1, euw1, kr, eun1, br1, la1, la2, oc1, run, tr1, jp1, world]
-
-  -h, --help
-          Print help information (use `-h` for a summary)
-
-  -V, --version
-          Print version information
-";
-
-#[derive(Debug)]
-struct Args {
-    /// The game mode to look for data from. Can be one of: Normal, ARAM, URF, ARURF
-    /// or OneForAll.
-    mode: mappings::Mode,
-
-    /// Can be specified to pull build data for a specific role. By default, this will
-    /// not be necessary as the most popular role will be picked automatically. In ARAM,
-    /// this setting is ignored. Can be one of Jungle, Support, ADCarry, Mid, Top, or
-    /// Automatic.
-    role: mappings::Role,
-
-    /// The region to use to filter build results. By default, this uses all regions.
-    /// Can be one of: NA1, EUW1, KR, EUN1, BR1, LA1, LA2, OC1, RU, TR1, JP1, World
-    region: mappings::Region,
-
-    /// The name of the champion you want to match. A best effort will be made
-    /// to find the champ if it's only a partial query.
-    ///
-    /// If left blank, will open the interactive version of uggo.
-    champ: Option<String>,
-}
-
 fn fetch(
     ugg: &api::UggApi,
     #[cfg(any(target_os = "windows", target_os = "macos", target_feature = "clippy"))]
@@ -109,10 +47,10 @@ fn fetch(
     let formatted_champ_name = query_champ.name.as_str().green().bold();
 
     let mut query_message = vec![format!("Looking up info for {formatted_champ_name}")];
-    if role != DEFAULT_ROLE {
+    if role != mappings::Role::default() {
         query_message.push(format!(", playing {}", role.to_string().blue().bold()));
     }
-    if region != DEFAULT_REGION {
+    if region != mappings::Region::default() {
         query_message.push(format!(", in {}", region.to_string().red().bold()));
     }
     query_message.push("...".to_string());
@@ -281,38 +219,46 @@ fn fetch(
     }
 }
 
+#[derive(Debug, Bpaf)]
+#[bpaf(options, version)]
+struct Options {
+    /// The game mode to look for data from. By default, this is set to Normal.
+    ///
+    /// Can be one of: normal, aram, urf, arurf, oneforall
+    #[bpaf(short('m'), long)]
+    mode: Option<mappings::Mode>,
+
+    /// Can be specified to pull build data for a specific role. By default, this will
+    /// not be necessary as the most popular role will be picked automatically. In ARAM,
+    /// this setting is ignored.
+    ///
+    /// Can be one of: top, mid, bottom, adc, jungle, none, automatic
+    #[bpaf(short('r'), long)]
+    role: Option<mappings::Role>,
+
+    /// The region to use to filter build results. By default, this uses all regions.
+    ///
+    /// Can be one of: NA1, EUW1, KR, EUN1, BR1, LA1, LA2, OC1, RU, TR1, JP1, World, PH2, SG2, TH2, TW2, VN2
+    #[bpaf(short('R'), long)]
+    region: Option<mappings::Region>,
+
+    /// The ddragon API version to use instead of the latest version. Useful for when
+    /// u.gg does not have builds for the current patch, for example.
+    #[bpaf(short('v'), long)]
+    api_version: Option<String>,
+
+    /// The name of the champion you want to match. A best effort will be made
+    /// to find the champ if it's only a partial query.
+    ///
+    /// If left blank, will open the interactive version of uggo.
+    #[bpaf(positional("CHAMP"))]
+    champ: Option<String>,
+}
+
 fn main() -> Result<()> {
-    let mut raw_args: Vec<_> = args_os().collect();
-    raw_args.remove(0);
-    let mut args = pico_args::Arguments::from_vec(raw_args);
+    let parsed_args = options().run();
 
-    if args.contains(["-h", "--help"]) {
-        print!("{HELP_MESSAGE}");
-        exit(0);
-    }
-
-    if args.contains(["-V", "--version"]) {
-        println!("uggo v{}", env!("CARGO_PKG_VERSION"));
-        exit(0);
-    }
-
-    let ugg = api::UggApi::new(
-        args.opt_value_from_str(["-v", "--api-version"])
-            .unwrap_or(None),
-    )?;
-
-    let parsed_args = Args {
-        champ: args.free_from_str().ok(),
-        mode: args
-            .value_from_str::<[&str; 2], mappings::Mode>(["-m", "--mode"])
-            .map_or(DEFAULT_MODE, |m| m),
-        role: args
-            .value_from_str::<[&str; 2], mappings::Role>(["-r", "--role"])
-            .map_or(DEFAULT_ROLE, |r| r),
-        region: args
-            .value_from_str::<[&str; 2], mappings::Region>(["-R", "--region"])
-            .map_or(DEFAULT_REGION, |r| r),
-    };
+    let ugg = api::UggApi::new(parsed_args.api_version.clone())?;
 
     #[cfg(any(target_os = "windows", target_os = "macos", target_feature = "clippy"))]
     let client_lockfile = LeagueClientConnector::parse_lockfile().ok();
@@ -355,9 +301,9 @@ fn main() -> Result<()> {
             &ugg,
             None,
             &champ_name,
-            parsed_args.mode,
-            parsed_args.role,
-            parsed_args.region,
+            parsed_args.mode.unwrap_or_default(),
+            parsed_args.role.unwrap_or_default(),
+            parsed_args.region.unwrap_or_default(),
         );
 
         #[cfg(any(target_os = "windows", target_os = "macos", target_feature = "clippy"))]
@@ -365,9 +311,9 @@ fn main() -> Result<()> {
             &ugg,
             &clientapi,
             &champ_name,
-            parsed_args.mode,
-            parsed_args.role,
-            parsed_args.region,
+            parsed_args.mode.unwrap_or_default(),
+            parsed_args.role.unwrap_or_default(),
+            parsed_args.region.unwrap_or_default(),
         );
         return Ok(());
     }
@@ -403,8 +349,8 @@ fn main() -> Result<()> {
         }
 
         let mut query_champ_name = "";
-        let mut query_role = DEFAULT_ROLE;
-        let mut query_region = DEFAULT_REGION;
+        let mut query_role = mappings::Role::default();
+        let mut query_region = mappings::Region::default();
 
         if user_input_split.is_empty()
             || user_input_split.len() > 3

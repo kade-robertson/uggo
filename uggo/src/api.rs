@@ -51,7 +51,7 @@ impl DataApi {
 
         Self {
             agent: Agent::new(),
-            config: config.clone(),
+            config,
             ddragon: client_builder.build().unwrap(),
             overview_cache: RefCell::new(LruCache::new(NonZeroUsize::new(25).unwrap())),
             matchup_cache: RefCell::new(LruCache::new(NonZeroUsize::new(25).unwrap())),
