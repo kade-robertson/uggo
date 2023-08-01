@@ -45,6 +45,12 @@ pub enum Rank {
 
     #[serde(rename = "15")]
     Diamond2Plus = 15,
+
+    #[serde(rename = "16")]
+    Emerald = 16,
+
+    #[serde(rename = "17")]
+    EmeraldPlus = 17,
 }
 
 impl Display for Rank {
@@ -64,6 +70,8 @@ impl Display for Rank {
             Rank::Grandmaster => "Grandmaster",
             Rank::MasterPlus => "MasterPlus",
             Rank::Diamond2Plus => "Diamond2Plus",
+            Rank::Emerald => "Emerald",
+            Rank::EmeraldPlus => "EmeraldPlus",
         };
         write!(f, "{rank_str}")
     }
