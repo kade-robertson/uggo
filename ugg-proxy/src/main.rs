@@ -219,8 +219,6 @@ async fn overview(
     >(State(state), "overview", &data_path, region, role)
     .await?;
 
-    println!("{:?}", wrapped.data.matches);
-
     Ok((AppendHeaders(headers), Json(wrapped.data)))
 }
 
