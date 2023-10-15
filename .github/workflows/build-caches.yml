@@ -1,8 +1,12 @@
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   schedule:
-    - cron: '30 3 * * 1'
+    - cron: "30 3 * * 1"
+
+env:
+  SCCACHE_GHA_ENABLED: true
+  RUSTC_WRAPPER: sccache
 
 name: build-caches
 jobs:
@@ -11,12 +15,18 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        toolchain: [1.68.2, stable]
         os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
       - uses: actions/checkout@v3
 
       - id: toolchain
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.toolchain }}
+
+      - name: Run sccache-cache
+        uses: mozilla-actions/sccache-action@v0.0.3
 
       - name: Build cache
         run: |
@@ -24,15 +34,3 @@ jobs:
           cargo test --quiet
           cargo check --quiet --release
           cargo build --quiet --release
-
-      - name: Cargo cache
-        uses: actions/cache/save@v3
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/            
-          key: ${{ runner.os }}-rust-${{ steps.toolchain.outputs.cachekey }}
-          enableCrossOsArchive: true

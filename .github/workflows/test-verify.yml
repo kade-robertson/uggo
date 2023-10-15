@@ -1,6 +1,6 @@
 on:
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
 name: test
 jobs:
@@ -15,22 +15,12 @@ jobs:
 
       - id: toolchain
         name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@1.68.2
         with:
           components: clippy
 
-      - name: Cargo cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/            
-          key:  ${{ runner.os }}-rust-${{ steps.toolchain.outputs.cachekey }}-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys:  ${{ runner.os }}-rust-${{ steps.toolchain.outputs.cachekey }}
-          enableCrossOsArchive: true
+      - name: Run sccache-cache
+        uses: mozilla-actions/sccache-action@v0.0.3
 
       - name: Test uggo
         run: cargo test --locked --package uggo

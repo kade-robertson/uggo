@@ -4,10 +4,14 @@ on:
 
 name: release
 
+env:
+  SCCACHE_GHA_ENABLED: true
+  RUSTC_WRAPPER: sccache
+
 jobs:
   publish_to_crates_io:
     name: publish to crates.io
-    if: "!github.event.release.prerelease"
+    if: !github.event.release.prerelease
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -15,18 +19,8 @@ jobs:
       - id: toolchain
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Cargo cache
-        uses: actions/cache/restore@v3
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/            
-          key:  ${{ runner.os }}-rust-${{ steps.toolchain.outputs.cachekey }}-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys:  ${{ runner.os }}-rust-${{ steps.toolchain.outputs.cachekey }}
-          enableCrossOsArchive: true
+      - name: Run sccache-cache
+        uses: mozilla-actions/sccache-action@v0.0.3
 
       - name: Publish
         uses: katyo/publish-crates@v1
@@ -38,7 +32,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-    if: "!github.event.release.prerelease"
+    if: !github.event.release.prerelease
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
@@ -46,22 +40,12 @@ jobs:
       - id: toolchain
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Cargo cache
-        uses: actions/cache/restore@v3
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/            
-          key:  ${{ runner.os }}-rust-${{ steps.toolchain.outputs.cachekey }}-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys:  ${{ runner.os }}-rust-${{ steps.toolchain.outputs.cachekey }}
-          enableCrossOsArchive: true
+      - name: Run sccache-cache
+        uses: mozilla-actions/sccache-action@v0.0.3
 
       - uses: actions/setup-node@v3
         with:
-          node-version: '14'
+          node-version: "14"
 
       - name: Set outputs
         id: vars

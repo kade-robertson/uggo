@@ -2,13 +2,14 @@
 name = "ugg-proxy"
 version = "0.1.10"
 edition = "2021"
+rust-version = "1.68.2"
 publish = false
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 axum = "0.6"
-http-cache-reqwest = { version = "0.10", default-features = false, features = ["manager-moka"] }
+http-cache-reqwest = { version = "0.11", default-features = false, features = ["manager-moka"] }
 reqwest = { version = "0.11", features = ["json", "rustls-tls"], default-features = false }
 reqwest-middleware = "0.2"
 serde = { version = "1", features = ["derive"] }

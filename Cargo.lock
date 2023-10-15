@@ -197,9 +197,9 @@ checksum = "7a40729d2133846d9ed0ea60a8b9541bccddab49cd30f0715a1da672fe9a2524"
 
 [[package]]
 name = "async-trait"
-version = "0.1.68"
+version = "0.1.72"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b9ccdd8f2a161be9bd5c023df56f1b2a0bd1d83872ae53b71a84a12c9bf6e842"
+checksum = "cc6dde6e4ed435a4c1ee4e73592f5ba9da2151af10076cc04858746af9352d09"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -983,9 +983,9 @@ dependencies = [
 
 [[package]]
 name = "http-cache"
-version = "0.12.0"
+version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4881b88b09c86b2d640a790ed02f1743d3fbf803a68398aa7cf64023eccf0556"
+checksum = "6bf08bcc92bf30668ea5e396f2f8a2eb3e41697c677a1748bc3620f3de04b1ac"
 dependencies = [
  "async-trait",
  "bincode",
@@ -999,9 +999,9 @@ dependencies = [
 
 [[package]]
 name = "http-cache-reqwest"
-version = "0.10.0"
+version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f48816eafb860d02fe455e28424b0b8c61feb0a3882b8adc98a4da3955499563"
+checksum = "33c5ba396182e217acf42cf5df4a3d7eeacec39dd1dcc4c871e8c7ce2105569e"
 dependencies = [
  "anyhow",
  "async-trait",
