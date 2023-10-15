@@ -11,7 +11,7 @@ env:
 jobs:
   publish_to_crates_io:
     name: publish to crates.io
-    if: !github.event.release.prerelease
+    if: "!github.event.release.prerelease"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -32,7 +32,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-    if: !github.event.release.prerelease
+    if: "!github.event.release.prerelease"
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
