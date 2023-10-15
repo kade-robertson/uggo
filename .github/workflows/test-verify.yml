@@ -2,6 +2,10 @@ on:
   pull_request:
     branches: [master]
 
+env:
+  SCCACHE_GHA_ENABLED: true
+  RUSTC_WRAPPER: sccache
+
 name: test
 jobs:
   test:
