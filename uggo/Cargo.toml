@@ -17,7 +17,7 @@ categories = ["command-line-utilities", "games"]
 anyhow = "1.0"
 bpaf = { version = "0.9", features = ["derive"] }
 colored = "2"
-ddragon = "0.7"
+ddragon = "0.8"
 hex = "0.4"
 league-client-connector = "0.1"
 levenshtein = "1"
