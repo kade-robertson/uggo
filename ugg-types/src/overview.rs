@@ -64,7 +64,8 @@ impl<'de> Deserialize<'de> for WrappedOverviewData {
                         while let Some(IgnoredAny) = visitor.next_element()? {}
                         Ok(WrappedOverviewData { data })
                     }
-                    _e => Err(serde::de::Error::missing_field("top-level element")),
+                    Err(e) => Err(e),
+                    _ => Err(serde::de::Error::custom("No more data left.")),
                 }
             }
         }
@@ -352,26 +353,36 @@ impl<'de> Deserialize<'de> for OverviewData {
             where
                 V: SeqAccess<'de>,
             {
-                let runes = visitor.next_element::<Runes>().unwrap().unwrap();
-                let summoner_spells = visitor.next_element::<SummonerSpells>().unwrap().unwrap();
-
-                let starting_items = visitor.next_element::<Items>().unwrap().unwrap();
-                let core_items = visitor.next_element::<Items>().unwrap().unwrap();
-                let abilities = visitor.next_element::<Abilities>().unwrap().unwrap();
+                let runes = visitor
+                    .next_element::<Runes>()?
+                    .ok_or(serde::de::Error::custom("Could not parse runes."))?;
+                let summoner_spells = visitor
+                    .next_element::<SummonerSpells>()?
+                    .ok_or(serde::de::Error::custom("Could not parse summoner spells."))?;
+                let starting_items = visitor
+                    .next_element::<Items>()?
+                    .ok_or(serde::de::Error::custom("Could not parse starting items."))?;
+                let core_items = visitor
+                    .next_element::<Items>()?
+                    .ok_or(serde::de::Error::custom("Could not parse core items."))?;
+                let abilities = visitor
+                    .next_element::<Abilities>()?
+                    .ok_or(serde::de::Error::custom("Could not parse abilities."))?;
                 let late_items = visitor
-                    .next_element::<Vec<Vec<LateItem>>>()
-                    .unwrap()
-                    .unwrap();
-                let match_info = handle_unknown(visitor.next_element::<Vec<i64>>());
+                    .next_element::<Vec<Vec<LateItem>>>()?
+                    .ok_or(serde::de::Error::custom("Could not parse late items."))?;
+                let match_info = visitor.next_element::<Vec<i64>>()?.unwrap_or_default();
                 let low_sample_size = match_info[1] < 1000;
 
                 // this is the original low sample size value, it's always false though, so ignore.
                 if visitor.next_element::<serde_json::Value>().is_ok() {}
 
-                let shards = visitor.next_element::<Shards>().ok().unwrap().unwrap();
+                let shards = visitor
+                    .next_element::<Shards>()?
+                    .ok_or(serde::de::Error::custom("Could not parse shards."))?;
 
-                // this array is never used?
-                if visitor.next_element::<serde_json::Value>().is_ok() {}
+                // Don't know what this is yet
+                while let Some(IgnoredAny) = visitor.next_element()? {}
 
                 let overview_data = OverviewData {
                     runes,

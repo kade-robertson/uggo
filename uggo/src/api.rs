@@ -99,9 +99,9 @@ impl DataApi {
                 for (index, rune) in slot.runes.iter().enumerate() {
                     let extended_rune = RuneExtended {
                         rune: (*rune).clone(),
-                        slot: slot_index as i64,
-                        index: index as i64,
-                        siblings: slot.runes.len() as i64,
+                        slot: slot_index as u64,
+                        index: index as u64,
+                        siblings: slot.runes.len() as u64,
                         parent: class.name.clone(),
                         parent_id: class.id,
                     };
