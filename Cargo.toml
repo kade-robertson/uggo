@@ -1,4 +1,5 @@
 [workspace]
+resolver = "2"
 members = ["uggo", "ugg-proxy", "ugg-types"]
 
 [profile.release]
