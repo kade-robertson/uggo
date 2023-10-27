@@ -319,6 +319,7 @@ pub enum Mode {
     OneForAll,
     URF,
     ARURF,
+    NexusBlitz,
 }
 
 impl Mode {
@@ -329,6 +330,7 @@ impl Mode {
             Self::OneForAll => "one_for_all",
             Self::URF => "pick_urf",
             Self::ARURF => "urf",
+            Self::NexusBlitz => "nexus_blitz",
         })
         .to_string()
     }
@@ -339,12 +341,13 @@ impl Mode {
             "one_for_all" => Self::OneForAll,
             "pick_urf" => Self::URF,
             "urf" => Self::ARURF,
+            "nexus_blitz" => Self::NexusBlitz,
             _ => Self::Normal,
         }
     }
 
-    pub fn all() -> &'static [Mode; 4] {
-        &[Mode::Normal, Mode::ARAM, Mode::OneForAll, Mode::URF]
+    pub fn all() -> &'static [Mode; 6] {
+        &[Mode::Normal, Mode::ARAM, Mode::OneForAll, Mode::URF, Mode::ARURF, Mode::NexusBlitz]
     }
 }
 
@@ -356,6 +359,7 @@ impl ToString for Mode {
             Self::OneForAll => "OneForAll",
             Self::URF => "URF",
             Self::ARURF => "ARURF",
+            Self::NexusBlitz => "NexusBlitz",
         })
         .to_string()
     }
@@ -368,6 +372,7 @@ impl From<&str> for Mode {
             "oneforall" | "one_for_all" => Self::OneForAll,
             "urf" | "ultra_rapid_fire" => Self::URF,
             "arurf" => Self::ARURF,
+            "nexus_blitz" | "nexusblitz" => Self::NexusBlitz,
             _ => Self::Normal,
         }
     }
