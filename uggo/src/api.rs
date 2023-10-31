@@ -168,11 +168,12 @@ impl DataApi {
             champ.key.as_str(),
             api_version
         );
+        let cache_path = format!("{data_path}-{region}-{role}");
 
         let stats_data = match self
             .overview_cache
             .try_borrow_mut()?
-            .get(&sha256(data_path))
+            .get(&sha256(&cache_path))
         {
             Some(data) => Ok(data.clone()),
             None => self.get_data::<OverviewData>(&format!(
@@ -182,7 +183,7 @@ impl DataApi {
         }?;
 
         if let Ok(mut c) = self.overview_cache.try_borrow_mut() {
-            c.put(sha256(data_path), stats_data.clone());
+            c.put(sha256(&cache_path), stats_data.clone());
         }
 
         Ok(Box::new(stats_data))
@@ -210,8 +211,13 @@ impl DataApi {
             champ.key.as_str(),
             api_version
         );
+        let cache_path = format!("{data_path}-{region}-{role}");
 
-        let matchup_data = match self.matchup_cache.try_borrow_mut()?.get(&sha256(data_path)) {
+        let matchup_data = match self
+            .matchup_cache
+            .try_borrow_mut()?
+            .get(&sha256(&cache_path))
+        {
             Some(data) => Ok(data.clone()),
             None => self.get_data::<MatchupData>(&format!(
                 "https://ugg-proxy.kaderobertson.dev/{}/matchups.json?region={}&role={}",
@@ -220,7 +226,7 @@ impl DataApi {
         }?;
 
         if let Ok(mut c) = self.matchup_cache.try_borrow_mut() {
-            c.put(sha256(data_path), matchup_data.clone());
+            c.put(sha256(&cache_path), matchup_data.clone());
         }
 
         Ok(Box::new(matchup_data))

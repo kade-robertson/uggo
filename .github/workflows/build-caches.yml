@@ -30,7 +30,5 @@ jobs:
 
       - name: Build cache
         run: |
-          cargo check --quiet
-          cargo test --quiet
-          cargo check --quiet --release
-          cargo build --quiet --release
+          cargo test --locked
+          cargo build --locked --release
