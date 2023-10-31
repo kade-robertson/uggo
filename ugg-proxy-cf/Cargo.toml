@@ -1,0 +1,23 @@
+[package]
+name = "ugg-proxy-cf"
+version = "0.1.0"
+edition = "2021"
+
+# https://github.com/rustwasm/wasm-pack/issues/1247
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+worker = "0.0.18"
+reqwest = { version = "0.11", features = ["json", "rustls-tls"], default-features = false }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+ugg-types = { path = "../ugg-types" }
+
+[profile.release]
+lto = true
+strip = true
+codegen-units = 1
