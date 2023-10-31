@@ -1,3 +1,4 @@
 /target
 .vscode
 fly.toml
+**/node_modules
