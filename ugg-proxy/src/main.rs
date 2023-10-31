@@ -6,7 +6,9 @@ use axum::{
     Router, Server,
 };
 use config::get_config;
-use http_cache_reqwest::{Cache, CacheMode, HttpCache, HttpCacheOptions, MokaCache, MokaManager};
+use http_cache_reqwest::{
+    Cache, CacheMode, HttpCache, HttpCacheOptions, MokaCacheBuilder, MokaManager,
+};
 use reqwest::header::{HeaderName, AGE, CACHE_CONTROL, ETAG, LAST_MODIFIED};
 use reqwest_middleware::{ClientBuilder, ClientWithMiddleware};
 use serde::{de::DeserializeOwned, Deserialize};
@@ -45,7 +47,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             ClientBuilder::new(reqwest::ClientBuilder::new().use_rustls_tls().build()?)
                 .with(Cache(HttpCache {
                     mode: CacheMode::Default,
-                    manager: MokaManager::new(MokaCache::new(1000)),
+                    manager: MokaManager::new(
+                        MokaCacheBuilder::new(config.cache_size)
+                            .eviction_listener(|key, _, s| {
+                                tracing::debug!("Evicted {} from cache because {:?}", key, s);
+                            })
+                            .build(),
+                    ),
                     options: HttpCacheOptions::default(),
                 }))
                 .build(),
