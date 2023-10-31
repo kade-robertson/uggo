@@ -1,6 +1,6 @@
 [package]
 name = "uggo"
-version = "0.10.0"
+version = "0.10.1"
 edition = "2021"
 rust-version = "1.68.2"
 license = "MIT"
