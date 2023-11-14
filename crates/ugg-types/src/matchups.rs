@@ -1,35 +1,14 @@
-#![allow(clippy::cast_precision_loss)]
-
 // Credit to https://github.com/pradishb/ugg-parser for figuring out the
 // structure of the champ overview stats data.
 
 use crate::mappings;
-use crate::nested_data::GroupedData;
 use serde::de::{Deserialize, Deserializer, IgnoredAny, SeqAccess, Visitor};
 use serde::Serialize;
-use serde_json::Value;
 use std::collections::HashMap;
 use std::fmt;
 
 pub type GroupedMatchupData = HashMap<mappings::Role, WrappedMatchupData>;
-
-pub type Matchups = HashMap<mappings::Region, HashMap<mappings::Rank, Value>>;
-
-impl GroupedData<WrappedMatchupData> for GroupedMatchupData {
-    fn is_role_valid(&self, role: &mappings::Role) -> bool {
-        self.contains_key(role)
-    }
-
-    fn get_most_popular_role(&self) -> Option<mappings::Role> {
-        self.iter()
-            .max_by(|a, b| a.1.data.total_matches.cmp(&b.1.data.total_matches))
-            .map(|(r, _)| *r)
-    }
-
-    fn get_wrapped_data(&self, role: &mappings::Role) -> Option<WrappedMatchupData> {
-        self.get(role).cloned()
-    }
-}
+pub type Matchups = HashMap<mappings::Region, HashMap<mappings::Rank, GroupedMatchupData>>;
 
 #[derive(Debug, Clone, Serialize)]
 pub struct WrappedMatchupData {
@@ -68,7 +47,6 @@ impl<'de> Deserialize<'de> for WrappedMatchupData {
     }
 }
 
-#[cfg_attr(feature = "client", derive(serde::Deserialize))]
 #[derive(Debug, Clone, Serialize)]
 pub struct MatchupData {
     pub best_matchups: Vec<Matchup>,
@@ -76,7 +54,6 @@ pub struct MatchupData {
     pub total_matches: i64,
 }
 
-#[cfg_attr(feature = "client", derive(serde::Deserialize))]
 #[derive(Debug, Clone, Serialize)]
 pub struct Matchup {
     pub champion_id: i64,
@@ -85,7 +62,6 @@ pub struct Matchup {
     pub winrate: f64,
 }
 
-#[cfg(not(feature = "client"))]
 impl<'de> Deserialize<'de> for MatchupData {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where

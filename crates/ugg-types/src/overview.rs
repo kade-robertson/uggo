@@ -2,38 +2,18 @@
 // structure of the champ overview stats data.
 
 use crate::mappings;
-use crate::nested_data::GroupedData;
 use serde::de::{Deserialize, Deserializer, IgnoredAny, SeqAccess, Visitor};
 use serde::Serialize;
-use serde_json::Value;
 use std::collections::HashMap;
 use std::fmt;
 
-pub type GroupedOverviewData = HashMap<mappings::Role, WrappedOverviewData>;
+pub type ChampOverview = HashMap<
+    mappings::Region,
+    HashMap<mappings::Rank, HashMap<mappings::Role, WrappedOverviewData>>,
+>;
 
-pub type ChampOverview = HashMap<mappings::Region, HashMap<mappings::Rank, Value>>;
-
-impl GroupedData<WrappedOverviewData> for GroupedOverviewData {
-    fn is_role_valid(&self, role: &mappings::Role) -> bool {
-        self.contains_key(role)
-    }
-
-    fn get_most_popular_role(&self) -> Option<mappings::Role> {
-        self.iter()
-            .max_by(|a, b| a.1.data.matches.cmp(&b.1.data.matches))
-            .map(|(r, _)| *r)
-    }
-
-    fn get_wrapped_data(&self, role: &mappings::Role) -> Option<WrappedOverviewData> {
-        self.get(role).cloned()
-    }
-}
-
-#[cfg(not(feature = "client"))]
 fn handle_unknown<T: Default, E>(result: Result<Option<T>, E>) -> T {
-    result
-        .unwrap_or_else(|_| Some(T::default()))
-        .unwrap_or_default()
+    result.ok().flatten().unwrap_or_default()
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -74,7 +54,6 @@ impl<'de> Deserialize<'de> for WrappedOverviewData {
     }
 }
 
-#[cfg_attr(feature = "client", derive(serde::Deserialize))]
 #[derive(Debug, Clone, Serialize)]
 pub struct OverviewData {
     pub runes: Runes,
@@ -91,7 +70,6 @@ pub struct OverviewData {
     pub shards: Shards,
 }
 
-#[cfg_attr(feature = "client", derive(serde::Deserialize))]
 #[derive(Debug, Clone, Serialize)]
 pub struct Runes {
     pub matches: i64,
@@ -101,7 +79,6 @@ pub struct Runes {
     pub rune_ids: Vec<i64>,
 }
 
-#[cfg(not(feature = "client"))]
 impl<'de> Deserialize<'de> for Runes {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
@@ -134,7 +111,6 @@ impl<'de> Deserialize<'de> for Runes {
     }
 }
 
-#[cfg_attr(feature = "client", derive(serde::Deserialize))]
 #[derive(Debug, Clone, Serialize)]
 pub struct SummonerSpells {
     pub matches: i64,
@@ -142,7 +118,6 @@ pub struct SummonerSpells {
     pub spell_ids: Vec<i64>,
 }
 
-#[cfg(not(feature = "client"))]
 impl<'de> Deserialize<'de> for SummonerSpells {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
@@ -173,7 +148,6 @@ impl<'de> Deserialize<'de> for SummonerSpells {
     }
 }
 
-#[cfg_attr(feature = "client", derive(serde::Deserialize))]
 #[derive(Debug, Clone, Serialize)]
 pub struct Items {
     pub matches: i64,
@@ -181,7 +155,6 @@ pub struct Items {
     pub item_ids: Vec<i64>,
 }
 
-#[cfg(not(feature = "client"))]
 impl<'de> Deserialize<'de> for Items {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
@@ -212,7 +185,6 @@ impl<'de> Deserialize<'de> for Items {
     }
 }
 
-#[cfg_attr(feature = "client", derive(serde::Deserialize))]
 #[derive(Debug, Clone, Serialize)]
 pub struct Abilities {
     pub matches: i64,
@@ -221,7 +193,6 @@ pub struct Abilities {
     pub ability_max_order: String,
 }
 
-#[cfg(not(feature = "client"))]
 impl<'de> Deserialize<'de> for Abilities {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
@@ -253,7 +224,6 @@ impl<'de> Deserialize<'de> for Abilities {
     }
 }
 
-#[cfg_attr(feature = "client", derive(serde::Deserialize))]
 #[derive(Debug, Clone, Serialize)]
 pub struct LateItem {
     pub matches: i64,
@@ -261,7 +231,6 @@ pub struct LateItem {
     pub id: i64,
 }
 
-#[cfg(not(feature = "client"))]
 impl<'de> Deserialize<'de> for LateItem {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
@@ -292,7 +261,6 @@ impl<'de> Deserialize<'de> for LateItem {
     }
 }
 
-#[cfg_attr(feature = "client", derive(serde::Deserialize))]
 #[derive(Debug, Clone, Serialize)]
 pub struct Shards {
     pub matches: i64,
@@ -300,7 +268,6 @@ pub struct Shards {
     pub shard_ids: Vec<i64>,
 }
 
-#[cfg(not(feature = "client"))]
 impl<'de> Deserialize<'de> for Shards {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
@@ -334,7 +301,6 @@ impl<'de> Deserialize<'de> for Shards {
     }
 }
 
-#[cfg(not(feature = "client"))]
 impl<'de> Deserialize<'de> for OverviewData {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
@@ -375,7 +341,7 @@ impl<'de> Deserialize<'de> for OverviewData {
                 let low_sample_size = match_info[1] < 1000;
 
                 // this is the original low sample size value, it's always false though, so ignore.
-                let _ = visitor.next_element::<serde_json::Value>().is_ok();
+                let _ = visitor.next_element::<IgnoredAny>().is_ok();
 
                 let shards = visitor
                     .next_element::<Shards>()?

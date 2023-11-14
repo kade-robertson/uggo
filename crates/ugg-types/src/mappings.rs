@@ -77,6 +77,31 @@ impl Display for Rank {
     }
 }
 
+impl Rank {
+    pub fn preferred_order() -> [Rank; 16] {
+        // Prefer Platinum+, then overall, the plus ranks from lowest to highest,
+        // and finally individual ranks.
+        [
+            Rank::PlatinumPlus,
+            Rank::Overall,
+            Rank::EmeraldPlus,
+            Rank::DiamondPlus,
+            Rank::Diamond2Plus,
+            Rank::MasterPlus,
+            Rank::Iron,
+            Rank::Bronze,
+            Rank::Silver,
+            Rank::Gold,
+            Rank::Platinum,
+            Rank::Emerald,
+            Rank::Diamond,
+            Rank::Master,
+            Rank::Grandmaster,
+            Rank::Challenger,
+        ]
+    }
+}
+
 #[derive(Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, Debug)]
 pub enum Region {
     #[serde(rename = "1")]
@@ -347,7 +372,14 @@ impl Mode {
     }
 
     pub fn all() -> &'static [Mode; 6] {
-        &[Mode::Normal, Mode::ARAM, Mode::OneForAll, Mode::URF, Mode::ARURF, Mode::NexusBlitz]
+        &[
+            Mode::Normal,
+            Mode::ARAM,
+            Mode::OneForAll,
+            Mode::URF,
+            Mode::ARURF,
+            Mode::NexusBlitz,
+        ]
     }
 }
 

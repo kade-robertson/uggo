@@ -1,13 +1,10 @@
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 
-#[cfg(any(target_os = "windows", target_os = "macos", target_feature = "clippy"))]
 pub type RunePages = Vec<RunePage>;
 
 #[derive(Default, Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RunePage {
-    pub auto_modified_selections: Vec<Value>,
     pub current: bool,
     pub id: i64,
     pub is_active: bool,
