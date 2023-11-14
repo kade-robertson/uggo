@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["uggo", "ugg-proxy", "ugg-proxy-cf", "ugg-types"]
+members = ["crates/uggo", "crates/ugg-proxy", "crates/ugg-types"]
 
 [profile.release]
 opt-level = 3

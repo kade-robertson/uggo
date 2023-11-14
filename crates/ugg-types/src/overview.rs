@@ -375,7 +375,7 @@ impl<'de> Deserialize<'de> for OverviewData {
                 let low_sample_size = match_info[1] < 1000;
 
                 // this is the original low sample size value, it's always false though, so ignore.
-                if visitor.next_element::<serde_json::Value>().is_ok() {}
+                let _ = visitor.next_element::<serde_json::Value>().is_ok();
 
                 let shards = visitor
                     .next_element::<Shards>()?
