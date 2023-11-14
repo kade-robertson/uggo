@@ -122,7 +122,9 @@ pub fn sha256(value: &str) -> String {
 pub fn read_from_cache<T: DeserializeOwned>(cache_dir: &str, filename: &str) -> Option<T> {
     let file_path = Path::new(cache_dir).join(format!("{}.json", sha256(filename)));
     if file_path.exists() {
-        match serde_json::from_str::<T>(&fs::read_to_string(file_path).unwrap_or_default()) {
+        match simd_json::serde::from_owned_value::<T>(simd_json::OwnedValue::String(
+            fs::read_to_string(file_path).unwrap_or_default(),
+        )) {
             Ok(data) => Some(data),
             Err(_) => None,
         }
@@ -133,7 +135,7 @@ pub fn read_from_cache<T: DeserializeOwned>(cache_dir: &str, filename: &str) -> 
 
 pub fn write_to_cache<T: Serialize>(cache_dir: &str, filename: &str, data: &T) {
     let file_path = Path::new(cache_dir).join(format!("{}.json", sha256(filename)));
-    if let Ok(data) = serde_json::to_string::<T>(data) {
+    if let Ok(data) = simd_json::serde::to_string::<T>(data) {
         fs::write(file_path, data).ok();
     }
 }
@@ -145,7 +147,7 @@ pub fn clear_cache(cache_dir: &str, filename: &str) {
     }
 }
 
-#[cfg(any(target_os = "windows", target_os = "macos", target_feature = "clippy"))]
+#[cfg(any(target_os = "windows", target_os = "macos"))]
 pub fn generate_perk_array(
     runes: &[(String, Vec<&RuneExtended<RuneElement>>)],
     shards: &[i64],

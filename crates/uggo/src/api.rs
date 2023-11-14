@@ -11,10 +11,11 @@ use serde::de::DeserializeOwned;
 use serde::Serialize;
 use std::cell::RefCell;
 use std::collections::HashMap;
+use std::io::Read;
 use std::num::NonZeroUsize;
-use ugg_types::mappings;
-use ugg_types::matchups::MatchupData;
-use ugg_types::overview::OverviewData;
+use ugg_types::mappings::{self, Rank};
+use ugg_types::matchups::{MatchupData, Matchups};
+use ugg_types::overview::{ChampOverview, OverviewData};
 use ugg_types::rune::RuneExtended;
 use ureq::Agent;
 
@@ -24,8 +25,8 @@ pub struct DataApi {
     agent: Agent,
     config: Config,
     ddragon: Client,
-    overview_cache: RefCell<LruCache<String, OverviewData>>,
-    matchup_cache: RefCell<LruCache<String, MatchupData>>,
+    overview_cache: RefCell<LruCache<String, ChampOverview>>,
+    matchup_cache: RefCell<LruCache<String, Matchups>>,
 }
 
 pub struct UggApi {
@@ -60,8 +61,9 @@ impl DataApi {
 
     fn get_data<T: DeserializeOwned>(&self, url: &String) -> Result<T> {
         let response = self.agent.get(url).call()?;
-        response
-            .into_json::<T>()
+        let reader = response.into_reader();
+
+        simd_json::serde::from_reader::<Box<dyn Read + Send + Sync>, T>(reader)
             .map_or_else(|_| Err(anyhow!("Could not fetch {}", url)), |e| Ok(e))
     }
 
@@ -176,9 +178,8 @@ impl DataApi {
             .get(&sha256(&cache_path))
         {
             Some(data) => Ok(data.clone()),
-            None => self.get_data::<OverviewData>(&format!(
-                "https://ugg-proxy.kaderobertson.dev/{}/overview.json?region={}&role={}",
-                data_path, region as i32, role as i32
+            None => self.get_data::<ChampOverview>(&format!(
+                "https://stats2.u.gg/lol/1.5/overview/{data_path}.json"
             )),
         }?;
 
@@ -186,7 +187,26 @@ impl DataApi {
             c.put(sha256(&cache_path), stats_data.clone());
         }
 
-        Ok(Box::new(stats_data))
+        let data_by_role = Rank::preferred_order()
+            .iter()
+            .find_map(|rank| {
+                stats_data
+                    .get(&region)
+                    .and_then(|region_data| region_data.get(rank))
+            })
+            .ok_or(anyhow!("Could not find overview data"))?;
+
+        data_by_role
+            .get(&role)
+            .or_else(|| {
+                data_by_role
+                    .iter()
+                    .max_by_key(|(_, data)| data.data.matches)
+                    .map(|(role, _)| role)
+                    .and_then(|r| data_by_role.get(r))
+            })
+            .map(|d| Box::new(d.data.clone()))
+            .ok_or(anyhow!("Could not find overview data"))
     }
 
     pub fn get_matchups(
@@ -219,17 +239,31 @@ impl DataApi {
             .get(&sha256(&cache_path))
         {
             Some(data) => Ok(data.clone()),
-            None => self.get_data::<MatchupData>(&format!(
-                "https://ugg-proxy.kaderobertson.dev/{}/matchups.json?region={}&role={}",
-                data_path, region as i32, role as i32
+            None => self.get_data::<Matchups>(&format!(
+                "https://stats2.u.gg/lol/1.5/matchups/{data_path}.json",
             )),
         }?;
 
-        if let Ok(mut c) = self.matchup_cache.try_borrow_mut() {
-            c.put(sha256(&cache_path), matchup_data.clone());
-        }
+        let data_by_role = Rank::preferred_order()
+            .iter()
+            .find_map(|rank| {
+                matchup_data
+                    .get(&region)
+                    .and_then(|region_data| region_data.get(rank))
+            })
+            .ok_or(anyhow!("Could not find matchup data"))?;
 
-        Ok(Box::new(matchup_data))
+        data_by_role
+            .get(&role)
+            .or_else(|| {
+                data_by_role
+                    .iter()
+                    .max_by_key(|(_, data)| data.data.total_matches)
+                    .map(|(role, _)| role)
+                    .and_then(|r| data_by_role.get(r))
+            })
+            .map(|d| Box::new(d.data.clone()))
+            .ok_or(anyhow!("Could not find matchup data"))
     }
 }
 
