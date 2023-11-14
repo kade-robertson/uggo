@@ -3,12 +3,17 @@
 #![allow(clippy::module_name_repetitions)]
 #![allow(clippy::struct_excessive_bools)]
 
+use mimalloc::MiMalloc;
+
+#[global_allocator]
+static GLOBAL: MiMalloc = MiMalloc;
+
 #[macro_use]
 extern crate prettytable;
 
 use colored::Colorize;
 
-#[cfg(any(target_os = "windows", target_os = "macos", target_feature = "clippy"))]
+#[cfg(any(target_os = "windows", target_os = "macos"))]
 use league_client_connector::LeagueClientConnector;
 
 use anyhow::{anyhow, Result};
@@ -21,11 +26,11 @@ use ugg_types::mappings::{self, Mode};
 
 use crate::styling::format_ability_order;
 
-#[cfg(any(target_os = "windows", target_os = "macos", target_feature = "clippy"))]
+#[cfg(any(target_os = "windows", target_os = "macos"))]
 use ugg_types::client_runepage::NewRunePage;
 
 mod api;
-#[cfg(any(target_os = "windows", target_os = "macos", target_feature = "clippy"))]
+#[cfg(any(target_os = "windows", target_os = "macos"))]
 mod client_api;
 
 mod config;
@@ -34,9 +39,8 @@ mod util;
 
 fn fetch(
     ugg: &api::UggApi,
-    #[cfg(any(target_os = "windows", target_os = "macos", target_feature = "clippy"))]
-    client: &Option<client_api::ClientAPI>,
-    #[cfg(not(any(target_os = "windows", target_os = "macos", target_feature = "clippy")))] _client: Option<bool>,
+    #[cfg(any(target_os = "windows", target_os = "macos"))] client: &Option<client_api::ClientAPI>,
+    #[cfg(not(any(target_os = "windows", target_os = "macos")))] _client: Option<bool>,
     champ: &str,
     mode: mappings::Mode,
     role: mappings::Role,
@@ -195,7 +199,7 @@ fn fetch(
         );
     }
 
-    #[cfg(any(target_os = "windows", target_os = "macos", target_feature = "clippy"))]
+    #[cfg(any(target_os = "windows", target_os = "macos"))]
     if let Some(ref api) = client {
         if let Some(data) = api.get_current_rune_page() {
             let (primary_style_id, sub_style_id, selected_perk_ids) =
@@ -260,16 +264,13 @@ fn main() -> Result<()> {
 
     let ugg = api::UggApi::new(parsed_args.api_version.clone())?;
 
-    #[cfg(any(target_os = "windows", target_os = "macos", target_feature = "clippy"))]
+    #[cfg(any(target_os = "windows", target_os = "macos"))]
     let client_lockfile = LeagueClientConnector::parse_lockfile().ok();
 
-    #[cfg(any(target_os = "windows", target_os = "macos", target_feature = "clippy"))]
+    #[cfg(any(target_os = "windows", target_os = "macos"))]
     let mut clientapi: Option<client_api::ClientAPI> = None;
 
-    #[cfg(all(
-        debug_assertions,
-        any(target_os = "windows", target_os = "macos", target_feature = "clippy")
-    ))]
+    #[cfg(all(debug_assertions, any(target_os = "windows", target_os = "macos")))]
     if client_lockfile.as_ref().is_some() {
         let lockfile = client_lockfile.clone().unwrap();
         util::log_info(&format!(
@@ -279,12 +280,12 @@ fn main() -> Result<()> {
         clientapi = Some(client_api::ClientAPI::new(lockfile));
     }
 
-    #[cfg(any(target_os = "windows", target_os = "macos", target_feature = "clippy"))]
+    #[cfg(any(target_os = "windows", target_os = "macos"))]
     if client_lockfile.as_ref().is_some() {
         clientapi = Some(client_api::ClientAPI::new(client_lockfile.unwrap()));
     }
 
-    #[cfg(any(target_os = "windows", target_os = "macos", target_feature = "clippy"))]
+    #[cfg(any(target_os = "windows", target_os = "macos"))]
     if let Some(ref api) = clientapi {
         if let Some(summoner) = api.get_summoner_info() {
             #[cfg(debug_assertions)]
@@ -296,7 +297,7 @@ fn main() -> Result<()> {
     }
 
     if let Some(champ_name) = parsed_args.champ {
-        #[cfg(not(any(target_os = "windows", target_os = "macos", target_feature = "clippy")))]
+        #[cfg(not(any(target_os = "windows", target_os = "macos")))]
         fetch(
             &ugg,
             None,
@@ -306,7 +307,7 @@ fn main() -> Result<()> {
             parsed_args.region.unwrap_or_default(),
         );
 
-        #[cfg(any(target_os = "windows", target_os = "macos", target_feature = "clippy"))]
+        #[cfg(any(target_os = "windows", target_os = "macos"))]
         fetch(
             &ugg,
             &clientapi,
@@ -376,10 +377,10 @@ fn main() -> Result<()> {
             query_region = mappings::get_region(user_input_split[2]);
         }
 
-        #[cfg(not(any(target_os = "windows", target_os = "macos", target_feature = "clippy")))]
+        #[cfg(not(any(target_os = "windows", target_os = "macos")))]
         fetch(&ugg, None, query_champ_name, mode, query_role, query_region);
 
-        #[cfg(any(target_os = "windows", target_os = "macos", target_feature = "clippy"))]
+        #[cfg(any(target_os = "windows", target_os = "macos"))]
         fetch(
             &ugg,
             &clientapi,

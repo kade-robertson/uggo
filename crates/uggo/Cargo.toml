@@ -22,15 +22,20 @@ hex = "0.4"
 league-client-connector = "0.1"
 levenshtein = "1"
 lru = "0.12"
+mimalloc = "0.1.39"
 native-tls = "0.2"
 prettytable-rs = "0.10"
 serde = "1"
-simd-json = "0.13.4"
+simd-json = { version = "0.13.4", default-features = false, features = ["serde_impl", "swar-number-parsing"] }
 sha2 = "0.10"
 text_io = "0.1"
 time = { version = "0.3", features = ["local-offset", "formatting", "macros"] }
 ureq = { version = "2.7", features = ["json", "native-tls", "brotli"] }
 ugg-types = { version = "0.3", path = "../ugg-types" }
+
+[features]
+json-runtime-detection = ["simd-json/runtime-detection"]
+default = ["json-runtime-detection"]
 
 [package.metadata.binstall]
 pkg-url = "{ repo }/releases/download/v{ version }/{ name }-{version}-{ target }{ archive-suffix }"
