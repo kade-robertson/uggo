@@ -14,24 +14,24 @@ categories = ["command-line-utilities", "games"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-anyhow = "1.0"
-bpaf = { version = "0.9", features = ["derive"] }
-colored = "2"
+anyhow = "1.0.75"
+bpaf = { version = "0.9.6", features = ["derive"] }
+colored = "2.0.4"
 ddragon = "0.8.1"
-hex = "0.4"
-league-client-connector = "0.1"
-levenshtein = "1"
-lru = "0.12"
+hex = "0.4.3"
+league-client-connector = "0.1.2"
+levenshtein = "1.0.5"
+lru = "0.12.0"
 mimalloc = "0.1.39"
-native-tls = "0.2"
-prettytable-rs = "0.10"
-serde = "1"
+native-tls = "0.2.11"
+prettytable-rs = "0.10.0"
+serde = "1.0.192"
 simd-json = { version = "0.13.4", default-features = false, features = ["serde_impl", "swar-number-parsing"] }
-sha2 = "0.10"
-text_io = "0.1"
-time = { version = "0.3", features = ["local-offset", "formatting", "macros"] }
-ureq = { version = "2.7", features = ["json", "native-tls", "brotli"] }
-ugg-types = { version = "0.3", path = "../ugg-types" }
+sha2 = "0.10.8"
+text_io = "0.1.12"
+time = { version = "0.3.30", features = ["local-offset", "formatting", "macros"] }
+ureq = { version = "2.8.0", features = ["native-tls", "brotli"] }
+ugg-types = { version = "0.3.0", path = "../ugg-types" }
 
 [features]
 json-runtime-detection = ["simd-json/runtime-detection"]
