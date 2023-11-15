@@ -16,7 +16,7 @@ use colored::Colorize;
 #[cfg(any(target_os = "windows", target_os = "macos"))]
 use league_client_connector::LeagueClientConnector;
 
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 use bpaf::Bpaf;
 use prettytable::{format, Table};
 use std::io;
@@ -29,16 +29,16 @@ use crate::styling::format_ability_order;
 #[cfg(any(target_os = "windows", target_os = "macos"))]
 use ugg_types::client_runepage::NewRunePage;
 
-mod api;
 #[cfg(any(target_os = "windows", target_os = "macos"))]
 mod client_api;
 
-mod config;
+use uggo_ugg_api::UggApi;
+
 mod styling;
 mod util;
 
 fn fetch(
-    ugg: &api::UggApi,
+    ugg: &UggApi,
     #[cfg(any(target_os = "windows", target_os = "macos"))] client: &Option<client_api::ClientAPI>,
     #[cfg(not(any(target_os = "windows", target_os = "macos")))] _client: Option<bool>,
     champ: &str,
@@ -68,9 +68,9 @@ fn fetch(
     };
 
     let matchups = if mode == Mode::ARAM {
-        Err(anyhow!("ARAM does not have matchup data."))
+        None
     } else {
-        ugg.get_matchups(query_champ, role, region, mode)
+        ugg.get_matchups(query_champ, role, region, mode).ok()
     };
 
     let stats_message = vec![format!("Build for {formatted_champ_name}")];
@@ -160,7 +160,7 @@ fn fetch(
     println!();
     item_table.printstd();
 
-    if let Ok(safe_matchups) = matchups {
+    if let Some(safe_matchups) = matchups {
         let mut matchup_table = Table::new();
         matchup_table.set_format(*format::consts::FORMAT_CLEAN);
         matchup_table.add_row(row![
@@ -262,7 +262,7 @@ struct Options {
 fn main() -> Result<()> {
     let parsed_args = options().run();
 
-    let ugg = api::UggApi::new(parsed_args.api_version.clone())?;
+    let ugg = UggApi::new(parsed_args.api_version.clone())?;
 
     #[cfg(any(target_os = "windows", target_os = "macos"))]
     let client_lockfile = LeagueClientConnector::parse_lockfile().ok();

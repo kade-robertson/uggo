@@ -1,6 +1,4 @@
-use crate::config::Config;
 use crate::util::{clear_cache, read_from_cache, sha256, write_to_cache};
-use anyhow::{anyhow, Result};
 use ddragon::models::champions::ChampionShort;
 use ddragon::models::items::Item;
 use ddragon::models::runes::RuneElement;
@@ -13,13 +11,33 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::io::Read;
 use std::num::NonZeroUsize;
+use thiserror::Error;
 use ugg_types::mappings::{self, Rank};
 use ugg_types::matchups::{MatchupData, Matchups};
 use ugg_types::overview::{ChampOverview, OverviewData};
 use ugg_types::rune::RuneExtended;
+use uggo_config::Config;
 use ureq::Agent;
 
+mod util;
+
 type UggAPIVersions = HashMap<String, HashMap<String, String>>;
+
+#[derive(Error, Debug)]
+pub enum UggError {
+    #[error("DDragon error")]
+    DDragonError(#[from] ddragon::ClientError),
+    #[error("HTTP request failed")]
+    RequestError(#[from] Box<ureq::Error>),
+    #[error("JSON parsing failed")]
+    ParseError(#[from] simd_json::Error),
+    #[error("Missing region or rank entry")]
+    MissingRegionOrRank,
+    #[error("Missing role entry")]
+    MissingRole,
+    #[error("Unknown error occurred")]
+    Unknown,
+}
 
 pub struct DataApi {
     agent: Agent,
@@ -43,7 +61,7 @@ pub struct UggApi {
 
 impl DataApi {
     pub fn new(version: Option<String>) -> Self {
-        let config = Config::new();
+        let config = Config::default();
 
         let mut client_builder = ClientBuilder::new().cache(config.cache());
         if let Some(v) = version {
@@ -59,15 +77,15 @@ impl DataApi {
         }
     }
 
-    fn get_data<T: DeserializeOwned>(&self, url: &String) -> Result<T> {
-        let response = self.agent.get(url).call()?;
+    fn get_data<T: DeserializeOwned>(&self, url: &str) -> Result<T, UggError> {
+        let response = self.agent.get(url).call().map_err(Box::new)?;
         let reader = response.into_reader();
 
         simd_json::serde::from_reader::<Box<dyn Read + Send + Sync>, T>(reader)
-            .map_or_else(|_| Err(anyhow!("Could not fetch {}", url)), |e| Ok(e))
+            .map_err(UggError::ParseError)
     }
 
-    fn get_cached_data<T: DeserializeOwned + Serialize>(&self, url: &String) -> Result<T> {
+    fn get_cached_data<T: DeserializeOwned + Serialize>(&self, url: &str) -> Result<T, UggError> {
         if let Some(data) = read_from_cache::<T>(self.config.cache(), url) {
             return Ok(data);
         }
@@ -84,15 +102,15 @@ impl DataApi {
         self.ddragon.version.clone()
     }
 
-    pub fn get_champ_data(&self) -> Result<HashMap<String, ChampionShort>> {
+    pub fn get_champ_data(&self) -> Result<HashMap<String, ChampionShort>, UggError> {
         Ok(self.ddragon.champions()?.data)
     }
 
-    pub fn get_items(&self) -> Result<HashMap<String, Item>> {
+    pub fn get_items(&self) -> Result<HashMap<String, Item>, UggError> {
         Ok(self.ddragon.items()?.data)
     }
 
-    pub fn get_runes(&self) -> Result<HashMap<i64, RuneExtended<RuneElement>>> {
+    pub fn get_runes(&self) -> Result<HashMap<i64, RuneExtended<RuneElement>>, UggError> {
         let rune_data = self.ddragon.runes()?;
 
         let mut processed_data = HashMap::new();
@@ -114,7 +132,7 @@ impl DataApi {
         Ok(processed_data)
     }
 
-    pub fn get_summoner_spells(&self) -> Result<HashMap<i64, String>> {
+    pub fn get_summoner_spells(&self) -> Result<HashMap<i64, String>, UggError> {
         let summoner_data = self.ddragon.summoner_spells()?;
 
         let mut reduced_data: HashMap<i64, String> = HashMap::new();
@@ -127,7 +145,7 @@ impl DataApi {
         Ok(reduced_data)
     }
 
-    pub fn get_ugg_api_versions(&self, version: &String) -> Result<UggAPIVersions> {
+    pub fn get_ugg_api_versions(&self, version: &String) -> Result<UggAPIVersions, UggError> {
         let ugg_api_version_endpoint =
             "https://static.bigbrain.gg/assets/lol/riot_patch_update/prod/ugg/ugg-api-versions.json"
                 .to_string();
@@ -156,7 +174,7 @@ impl DataApi {
         region: mappings::Region,
         mode: mappings::Mode,
         api_versions: &HashMap<String, HashMap<String, String>>,
-    ) -> Result<Box<OverviewData>> {
+    ) -> Result<Box<OverviewData>, UggError> {
         let api_version =
             if api_versions.contains_key(patch) && api_versions[patch].contains_key("overview") {
                 api_versions[patch]["overview"].as_str()
@@ -172,15 +190,17 @@ impl DataApi {
         );
         let cache_path = format!("{data_path}-{region}-{role}");
 
-        let stats_data = match self
+        let stats_data = if let Some(data) = self
             .overview_cache
-            .try_borrow_mut()?
-            .get(&sha256(&cache_path))
+            .try_borrow_mut()
+            .ok()
+            .and_then(|mut c| c.get(&sha256(&cache_path)).cloned())
         {
-            Some(data) => Ok(data.clone()),
-            None => self.get_data::<ChampOverview>(&format!(
+            Ok(data)
+        } else {
+            self.get_data::<ChampOverview>(&format!(
                 "https://stats2.u.gg/lol/1.5/overview/{data_path}.json"
-            )),
+            ))
         }?;
 
         if let Ok(mut c) = self.overview_cache.try_borrow_mut() {
@@ -194,7 +214,7 @@ impl DataApi {
                     .get(&region)
                     .and_then(|region_data| region_data.get(rank))
             })
-            .ok_or(anyhow!("Could not find overview data"))?;
+            .ok_or(UggError::MissingRegionOrRank)?;
 
         data_by_role
             .get(&role)
@@ -206,7 +226,7 @@ impl DataApi {
                     .and_then(|r| data_by_role.get(r))
             })
             .map(|d| Box::new(d.data.clone()))
-            .ok_or(anyhow!("Could not find overview data"))
+            .ok_or(UggError::MissingRole)
     }
 
     pub fn get_matchups(
@@ -217,7 +237,7 @@ impl DataApi {
         region: mappings::Region,
         mode: mappings::Mode,
         api_versions: &HashMap<String, HashMap<String, String>>,
-    ) -> Result<Box<MatchupData>> {
+    ) -> Result<Box<MatchupData>, UggError> {
         let api_version =
             if api_versions.contains_key(patch) && api_versions[patch].contains_key("matchups") {
                 api_versions[patch]["matchups"].as_str()
@@ -233,15 +253,17 @@ impl DataApi {
         );
         let cache_path = format!("{data_path}-{region}-{role}");
 
-        let matchup_data = match self
+        let matchup_data = if let Some(data) = self
             .matchup_cache
-            .try_borrow_mut()?
-            .get(&sha256(&cache_path))
+            .try_borrow_mut()
+            .ok()
+            .and_then(|mut c| c.get(&sha256(&cache_path)).cloned())
         {
-            Some(data) => Ok(data.clone()),
-            None => self.get_data::<Matchups>(&format!(
+            Ok(data)
+        } else {
+            self.get_data::<Matchups>(&format!(
                 "https://stats2.u.gg/lol/1.5/matchups/{data_path}.json",
-            )),
+            ))
         }?;
 
         let data_by_role = Rank::preferred_order()
@@ -251,7 +273,7 @@ impl DataApi {
                     .get(&region)
                     .and_then(|region_data| region_data.get(rank))
             })
-            .ok_or(anyhow!("Could not find matchup data"))?;
+            .ok_or(UggError::MissingRegionOrRank)?;
 
         data_by_role
             .get(&role)
@@ -263,12 +285,12 @@ impl DataApi {
                     .and_then(|r| data_by_role.get(r))
             })
             .map(|d| Box::new(d.data.clone()))
-            .ok_or(anyhow!("Could not find matchup data"))
+            .ok_or(UggError::MissingRole)
     }
 }
 
 impl UggApi {
-    pub fn new(version: Option<String>) -> Result<Self> {
+    pub fn new(version: Option<String>) -> Result<Self, UggError> {
         let mut inner_api = DataApi::new(version);
 
         let current_version = inner_api.get_current_version();
@@ -331,7 +353,7 @@ impl UggApi {
         role: mappings::Role,
         region: mappings::Region,
         mode: mappings::Mode,
-    ) -> Result<Box<OverviewData>> {
+    ) -> Result<Box<OverviewData>, UggError> {
         self.api.get_stats(
             &self.patch_version,
             champ,
@@ -348,7 +370,7 @@ impl UggApi {
         role: mappings::Role,
         region: mappings::Region,
         mode: mappings::Mode,
-    ) -> Result<Box<MatchupData>> {
+    ) -> Result<Box<MatchupData>, UggError> {
         self.api.get_matchups(
             &self.patch_version,
             champ,

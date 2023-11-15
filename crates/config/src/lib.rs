@@ -38,3 +38,9 @@ impl Config {
         self.cache_dir.to_str().unwrap()
     }
 }
+
+impl Default for Config {
+    fn default() -> Self {
+        Self::new()
+    }
+}

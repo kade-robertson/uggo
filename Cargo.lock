@@ -1482,6 +1482,30 @@ dependencies = [
  "text_io",
  "time",
  "ugg-types",
+ "uggo-config",
+ "uggo-ugg-api",
+ "ureq",
+]
+
+[[package]]
+name = "uggo-config"
+version = "0.1.0"
+
+[[package]]
+name = "uggo-ugg-api"
+version = "0.1.0"
+dependencies = [
+ "ddragon",
+ "hex",
+ "levenshtein",
+ "lru",
+ "native-tls",
+ "serde",
+ "sha2",
+ "simd-json",
+ "thiserror",
+ "ugg-types",
+ "uggo-config",
  "ureq",
 ]
 
