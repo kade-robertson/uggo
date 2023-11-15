@@ -1483,6 +1483,7 @@ dependencies = [
  "time",
  "ugg-types",
  "uggo-config",
+ "uggo-lol-client",
  "uggo-ugg-api",
  "ureq",
 ]
@@ -1490,6 +1491,19 @@ dependencies = [
 [[package]]
 name = "uggo-config"
 version = "0.1.0"
+
+[[package]]
+name = "uggo-lol-client"
+version = "0.1.0"
+dependencies = [
+ "league-client-connector",
+ "native-tls",
+ "serde",
+ "sha2",
+ "thiserror",
+ "ugg-types",
+ "ureq",
+]
 
 [[package]]
 name = "uggo-ugg-api"

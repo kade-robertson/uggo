@@ -1,31 +1,44 @@
-use league_client_connector::RiotLockFile;
+use league_client_connector::{LeagueClientConnector, RiotLockFile};
 use native_tls::TlsConnector;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 use std::sync::Arc;
+use thiserror::Error;
 use ureq::{Agent, AgentBuilder};
 
 use ugg_types::client_runepage::{NewRunePage, RunePage, RunePages};
 use ugg_types::client_summoner::ClientSummoner;
 
-pub struct ClientAPI {
+#[derive(Error, Debug)]
+pub enum LOLClientError {
+    #[error("Unable to create TLS connector for League client")]
+    TlsInitError(#[from] native_tls::Error),
+    #[error("Unable to read lockfile")]
+    LockfileReadError(#[from] league_client_connector::LeagueConnectorError),
+    #[error("Linux is not supported")]
+    LinuxNotSupported,
+}
+
+pub struct LOLClientAPI {
     agent: Agent,
     lockfile: RiotLockFile,
 }
 
-impl ClientAPI {
-    pub fn new(lockfile: RiotLockFile) -> ClientAPI {
-        ClientAPI {
+impl LOLClientAPI {
+    pub fn new() -> Result<LOLClientAPI, LOLClientError> {
+        if cfg!(target_os = "linux") {
+            return Err(LOLClientError::LinuxNotSupported);
+        }
+        Ok(LOLClientAPI {
             agent: AgentBuilder::new()
                 .tls_connector(Arc::new(
                     TlsConnector::builder()
                         .danger_accept_invalid_certs(true)
-                        .build()
-                        .unwrap(),
+                        .build()?,
                 ))
                 .build(),
-            lockfile,
-        }
+            lockfile: LeagueClientConnector::parse_lockfile()?,
+        })
     }
 
     fn get_data<T: DeserializeOwned>(&self, url: &str) -> Option<T> {

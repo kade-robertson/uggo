@@ -13,24 +13,19 @@ extern crate prettytable;
 
 use colored::Colorize;
 
-#[cfg(any(target_os = "windows", target_os = "macos"))]
-use league_client_connector::LeagueClientConnector;
-
 use anyhow::Result;
 use bpaf::Bpaf;
 use prettytable::{format, Table};
 use std::io;
 use std::io::Write;
 use text_io::read;
-use ugg_types::mappings::{self, Mode};
+use ugg_types::{
+    client_runepage::NewRunePage,
+    mappings::{self, Mode},
+};
+use uggo_lol_client::LOLClientAPI;
 
 use crate::styling::format_ability_order;
-
-#[cfg(any(target_os = "windows", target_os = "macos"))]
-use ugg_types::client_runepage::NewRunePage;
-
-#[cfg(any(target_os = "windows", target_os = "macos"))]
-mod client_api;
 
 use uggo_ugg_api::UggApi;
 
@@ -39,8 +34,7 @@ mod util;
 
 fn fetch(
     ugg: &UggApi,
-    #[cfg(any(target_os = "windows", target_os = "macos"))] client: &Option<client_api::ClientAPI>,
-    #[cfg(not(any(target_os = "windows", target_os = "macos")))] _client: Option<bool>,
+    client: &Option<LOLClientAPI>,
     champ: &str,
     mode: mappings::Mode,
     role: mappings::Role,
@@ -199,7 +193,6 @@ fn fetch(
         );
     }
 
-    #[cfg(any(target_os = "windows", target_os = "macos"))]
     if let Some(ref api) = client {
         if let Some(data) = api.get_current_rune_page() {
             let (primary_style_id, sub_style_id, selected_perk_ids) =
@@ -264,50 +257,9 @@ fn main() -> Result<()> {
 
     let ugg = UggApi::new(parsed_args.api_version.clone())?;
 
-    #[cfg(any(target_os = "windows", target_os = "macos"))]
-    let client_lockfile = LeagueClientConnector::parse_lockfile().ok();
-
-    #[cfg(any(target_os = "windows", target_os = "macos"))]
-    let mut clientapi: Option<client_api::ClientAPI> = None;
-
-    #[cfg(all(debug_assertions, any(target_os = "windows", target_os = "macos")))]
-    if client_lockfile.as_ref().is_some() {
-        let lockfile = client_lockfile.clone().unwrap();
-        util::log_info(&format!(
-            "- Found client running at https://127.0.0.1:{}/",
-            lockfile.port
-        ));
-        clientapi = Some(client_api::ClientAPI::new(lockfile));
-    }
-
-    #[cfg(any(target_os = "windows", target_os = "macos"))]
-    if client_lockfile.as_ref().is_some() {
-        clientapi = Some(client_api::ClientAPI::new(client_lockfile.unwrap()));
-    }
-
-    #[cfg(any(target_os = "windows", target_os = "macos"))]
-    if let Some(ref api) = clientapi {
-        if let Some(summoner) = api.get_summoner_info() {
-            #[cfg(debug_assertions)]
-            util::log_info(&format!(
-                "- Found summoner {} (id: {})",
-                summoner.display_name, summoner.summoner_id
-            ));
-        }
-    }
+    let clientapi = LOLClientAPI::new().ok();
 
     if let Some(champ_name) = parsed_args.champ {
-        #[cfg(not(any(target_os = "windows", target_os = "macos")))]
-        fetch(
-            &ugg,
-            None,
-            &champ_name,
-            parsed_args.mode.unwrap_or_default(),
-            parsed_args.role.unwrap_or_default(),
-            parsed_args.region.unwrap_or_default(),
-        );
-
-        #[cfg(any(target_os = "windows", target_os = "macos"))]
         fetch(
             &ugg,
             &clientapi,
@@ -377,10 +329,6 @@ fn main() -> Result<()> {
             query_region = mappings::get_region(user_input_split[2]);
         }
 
-        #[cfg(not(any(target_os = "windows", target_os = "macos")))]
-        fetch(&ugg, None, query_champ_name, mode, query_role, query_region);
-
-        #[cfg(any(target_os = "windows", target_os = "macos"))]
         fetch(
             &ugg,
             &clientapi,

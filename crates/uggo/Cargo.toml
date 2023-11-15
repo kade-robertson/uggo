@@ -33,6 +33,7 @@ time = { version = "0.3.30", features = ["local-offset", "formatting", "macros"]
 ureq = { version = "2.8.0", features = ["native-tls", "brotli"] }
 ugg-types = { version = "0.3.0", path = "../ugg-types" }
 uggo-config = { version = "0.1.0", path = "../config" }
+uggo-lol-client = { version = "0.1.0", path = "../lol-client" }
 uggo-ugg-api = { version = "0.1.0", path = "../ugg-api" }
 
 [features]

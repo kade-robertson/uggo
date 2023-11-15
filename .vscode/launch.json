@@ -31,20 +31,6 @@
       },
       "args": [],
       "cwd": "${workspaceFolder}"
-    },
-    {
-      "type": "lldb",
-      "request": "launch",
-      "name": "Debug executable 'ugg-proxy'",
-      "cargo": {
-        "args": ["build", "--bin=ugg-proxy", "--package=ugg-proxy"],
-        "filter": {
-          "name": "ugg-proxy",
-          "kind": "bin"
-        }
-      },
-      "args": [],
-      "cwd": "${workspaceFolder}"
     }
   ]
 }

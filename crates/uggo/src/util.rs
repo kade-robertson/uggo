@@ -111,7 +111,6 @@ pub fn process_shards(shards: &[i64]) -> Vec<String> {
     shard_text
 }
 
-#[cfg(any(target_os = "windows", target_os = "macos"))]
 pub fn generate_perk_array(
     runes: &[(String, Vec<&RuneExtended<RuneElement>>)],
     shards: &[i64],
