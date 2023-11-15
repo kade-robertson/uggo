@@ -1,6 +1,12 @@
 [package]
 name = "uggo-config"
-version = "0.1.0"
+version = "0.0.99"
 edition = "2021"
 rust-version = "1.68.2"
 license = "MIT"
+description = "uggo dependency -- shared config definition"
+homepage = "https://github.com/kade-robertson/uggo"
+repository = "https://github.com/kade-robertson/uggo"
+readme = "../../README.md"
+keywords = ["uggo"]
+categories = ["config"]

@@ -1469,16 +1469,9 @@ dependencies = [
  "bpaf",
  "colored",
  "ddragon",
- "hex",
- "league-client-connector",
- "levenshtein",
- "lru",
  "mimalloc",
- "native-tls",
  "prettytable-rs",
  "serde",
- "sha2",
- "simd-json",
  "text_io",
  "time",
  "ugg-types",
@@ -1490,11 +1483,11 @@ dependencies = [
 
 [[package]]
 name = "uggo-config"
-version = "0.1.0"
+version = "0.0.99"
 
 [[package]]
 name = "uggo-lol-client"
-version = "0.1.0"
+version = "0.0.99"
 dependencies = [
  "league-client-connector",
  "native-tls",
@@ -1507,7 +1500,7 @@ dependencies = [
 
 [[package]]
 name = "uggo-ugg-api"
-version = "0.1.0"
+version = "0.0.99"
 dependencies = [
  "ddragon",
  "hex",
