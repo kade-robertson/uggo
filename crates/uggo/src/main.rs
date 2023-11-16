@@ -23,11 +23,12 @@ use ugg_types::{
     client_runepage::NewRunePage,
     mappings::{self, Mode},
 };
+use uggo_config::Config;
 use uggo_lol_client::LOLClientAPI;
 
 use crate::styling::format_ability_order;
 
-use uggo_ugg_api::UggApi;
+use uggo_ugg_api::{UggApi, UggApiBuilder};
 
 mod styling;
 mod util;
@@ -254,8 +255,13 @@ struct Options {
 
 fn main() -> Result<()> {
     let parsed_args = options().run();
+    let config = Config::new()?;
 
-    let ugg = UggApi::new(parsed_args.api_version.clone())?;
+    let mut ugg = UggApiBuilder::new().cache_dir(config.cache());
+    if let Some(api_version) = parsed_args.api_version {
+        ugg = ugg.version(&api_version);
+    }
+    let ugg = ugg.build()?;
 
     let clientapi = LOLClientAPI::new().ok();
 

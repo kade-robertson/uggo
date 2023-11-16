@@ -1,46 +1,31 @@
-use std::{
-    env, fs,
-    path::{Path, PathBuf},
-};
+use std::path::PathBuf;
+
+use config_better::Config as CBConfig;
+use thiserror::Error;
+
+#[derive(Error, Debug)]
+pub enum ConfigError {
+    #[error("Could not create app directories.")]
+    CouldNotMakeDirs,
+}
 
 #[derive(Clone)]
 pub struct Config {
-    cache_dir: PathBuf,
+    inner: CBConfig,
 }
 
 impl Config {
-    pub fn new() -> Self {
-        Self {
-            cache_dir: match env::var("XDG_CACHE_HOME") {
-                Ok(dir) => Path::new(&dir).join("uggo"),
-                Err(_) => match env::consts::OS {
-                    "windows" => {
-                        Path::new(&env::var("APPDATA").unwrap_or_else(|_| ".".to_string()))
-                            .join("uggo")
-                            .join("Cache")
-                    }
-                    "macos" => Path::new(&env::var("HOME").unwrap_or_else(|_| ".".to_string()))
-                        .join("Library")
-                        .join("Caches")
-                        .join("uggo"),
-                    _ => Path::new(&env::var("HOME").unwrap_or_else(|_| ".".to_string()))
-                        .join(".cache")
-                        .join("uggo"),
-                },
-            },
-        }
+    pub fn new() -> Result<Self, ConfigError> {
+        let config = CBConfig::new("uggo");
+
+        config
+            .create_all()
+            .map_err(|_| ConfigError::CouldNotMakeDirs)?;
+
+        Ok(Self { inner: config })
     }
 
-    pub fn cache(&self) -> &str {
-        if !&self.cache_dir.exists() {
-            let _result = fs::create_dir_all(self.cache_dir.as_path()).ok();
-        }
-        self.cache_dir.to_str().unwrap()
-    }
-}
-
-impl Default for Config {
-    fn default() -> Self {
-        Self::new()
+    pub fn cache(&self) -> &PathBuf {
+        &self.inner.cache.path
     }
 }

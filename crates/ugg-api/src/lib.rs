@@ -11,12 +11,12 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::io::Read;
 use std::num::NonZeroUsize;
+use std::path::{Path, PathBuf};
 use thiserror::Error;
 use ugg_types::mappings::{self, Rank};
 use ugg_types::matchups::{MatchupData, Matchups};
 use ugg_types::overview::{ChampOverview, OverviewData};
 use ugg_types::rune::RuneExtended;
-use uggo_config::Config;
 use ureq::Agent;
 
 mod util;
@@ -41,7 +41,7 @@ pub enum UggError {
 
 pub struct DataApi {
     agent: Agent,
-    config: Config,
+    cache_dir: PathBuf,
     ddragon: Client,
     overview_cache: RefCell<LruCache<String, ChampOverview>>,
     matchup_cache: RefCell<LruCache<String, Matchups>>,
@@ -60,38 +60,39 @@ pub struct UggApi {
 }
 
 impl DataApi {
-    pub fn new(version: Option<String>) -> Self {
-        let config = Config::default();
-
-        let mut client_builder = ClientBuilder::new().cache(config.cache());
+    pub fn new(version: Option<String>, cache_dir: Option<PathBuf>) -> Result<Self, UggError> {
+        let mut client_builder = ClientBuilder::new();
+        let safe_dir = cache_dir.ok_or(UggError::Unknown)?;
         if let Some(v) = version {
             client_builder = client_builder.version(v.as_str());
         }
+        if let Some(dir) = safe_dir.clone().to_str() {
+            client_builder = client_builder.cache(dir);
+        }
 
-        Self {
+        Ok(Self {
             agent: Agent::new(),
-            config,
-            ddragon: client_builder.build().unwrap(),
+            cache_dir: safe_dir,
+            ddragon: client_builder.build()?,
             overview_cache: RefCell::new(LruCache::new(NonZeroUsize::new(25).unwrap())),
             matchup_cache: RefCell::new(LruCache::new(NonZeroUsize::new(25).unwrap())),
-        }
+        })
     }
 
     fn get_data<T: DeserializeOwned>(&self, url: &str) -> Result<T, UggError> {
-        let response = self.agent.get(url).call().map_err(Box::new)?;
-        let reader = response.into_reader();
-
-        simd_json::serde::from_reader::<Box<dyn Read + Send + Sync>, T>(reader)
-            .map_err(UggError::ParseError)
+        simd_json::serde::from_reader::<Box<dyn Read + Send + Sync>, T>(
+            self.agent.get(url).call().map_err(Box::new)?.into_reader(),
+        )
+        .map_err(UggError::ParseError)
     }
 
     fn get_cached_data<T: DeserializeOwned + Serialize>(&self, url: &str) -> Result<T, UggError> {
-        if let Some(data) = read_from_cache::<T>(self.config.cache(), url) {
+        if let Some(data) = read_from_cache::<T>(&self.cache_dir, url) {
             return Ok(data);
         }
         match self.get_data::<T>(url) {
             Ok(data) => {
-                write_to_cache::<T>(self.config.cache(), url, &data);
+                write_to_cache::<T>(&self.cache_dir, url, &data);
                 Ok(data)
             }
             Err(e) => Err(e),
@@ -156,7 +157,7 @@ impl DataApi {
                 if ugg_api.contains_key(version) {
                     Ok(ugg_api)
                 } else {
-                    clear_cache(self.config.cache(), &ugg_api_version_endpoint);
+                    clear_cache(&self.cache_dir, &ugg_api_version_endpoint);
                     ugg_api_data =
                         self.get_cached_data::<UggAPIVersions>(&ugg_api_version_endpoint);
                     ugg_api_data
@@ -290,8 +291,8 @@ impl DataApi {
 }
 
 impl UggApi {
-    pub fn new(version: Option<String>) -> Result<Self, UggError> {
-        let mut inner_api = DataApi::new(version);
+    pub fn new(version: Option<String>, cache_dir: Option<PathBuf>) -> Result<Self, UggError> {
+        let mut inner_api = DataApi::new(version, cache_dir)?;
 
         let current_version = inner_api.get_current_version();
         let champ_data = inner_api.get_champ_data()?;
@@ -379,5 +380,39 @@ impl UggApi {
             mode,
             &self.ugg_api_versions,
         )
+    }
+}
+
+pub struct UggApiBuilder {
+    version: Option<String>,
+    cache_dir: Option<PathBuf>,
+}
+
+impl UggApiBuilder {
+    pub fn new() -> Self {
+        Self {
+            version: None,
+            cache_dir: None,
+        }
+    }
+
+    pub fn version(mut self, version: &str) -> Self {
+        self.version = Some(version.to_owned());
+        self
+    }
+
+    pub fn cache_dir(mut self, cache_dir: &Path) -> Self {
+        self.cache_dir = Some(cache_dir.to_path_buf());
+        self
+    }
+
+    pub fn build(self) -> Result<UggApi, UggError> {
+        UggApi::new(self.version, self.cache_dir)
+    }
+}
+
+impl Default for UggApiBuilder {
+    fn default() -> Self {
+        Self::new()
     }
 }

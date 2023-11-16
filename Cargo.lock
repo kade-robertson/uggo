@@ -215,6 +215,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "config-better"
+version = "1.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "007f2db8abc3714b5a2414f4bbc06a734914112535a352150611a14d489b0d28"
+dependencies = [
+ "thiserror",
+]
+
+[[package]]
 name = "core-foundation"
 version = "0.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1484,6 +1493,10 @@ dependencies = [
 [[package]]
 name = "uggo-config"
 version = "0.0.99"
+dependencies = [
+ "config-better",
+ "thiserror",
+]
 
 [[package]]
 name = "uggo-lol-client"
@@ -1512,7 +1525,6 @@ dependencies = [
  "simd-json",
  "thiserror",
  "ugg-types",
- "uggo-config",
  "ureq",
 ]
 
