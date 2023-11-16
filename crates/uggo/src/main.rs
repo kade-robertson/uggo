@@ -8,342 +8,209 @@ use mimalloc::MiMalloc;
 #[global_allocator]
 static GLOBAL: MiMalloc = MiMalloc;
 
-#[macro_use]
-extern crate prettytable;
-
-use colored::Colorize;
-
-use anyhow::Result;
-use bpaf::Bpaf;
-use prettytable::{format, Table};
-use std::io;
-use std::io::Write;
-use text_io::read;
-use ugg_types::{
-    client_runepage::NewRunePage,
-    mappings::{self, Mode},
+use crossterm::{
+    event::{self, Event, KeyCode},
+    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
+    ExecutableCommand,
 };
+use ratatui::{
+    prelude::*,
+    widgets::{Block, Borders, List, ListItem, ListState, Paragraph},
+};
+use std::io::{self, stdout};
+use tui_input::{backend::crossterm::EventHandler, Input};
 use uggo_config::Config;
-use uggo_lol_client::LOLClientAPI;
-
-use crate::styling::format_ability_order;
-
 use uggo_ugg_api::{UggApi, UggApiBuilder};
 
-mod styling;
-mod util;
+enum State {
+    Initial,
+    TextInput,
+    ChampScroll,
+}
 
-fn fetch(
-    ugg: &UggApi,
-    client: &Option<LOLClientAPI>,
-    champ: &str,
-    mode: mappings::Mode,
-    role: mappings::Role,
-    region: mappings::Region,
-) {
-    let query_champ = ugg.find_champ(champ);
+struct AppContext<'a> {
+    api: UggApi,
+    state: State,
+    scroll_pos: Option<usize>,
+    champ_list: Vec<ListItem<'a>>,
+    input: Input,
+}
 
-    let formatted_champ_name = query_champ.name.as_str().green().bold();
+fn update_champ_list(ctx: &mut AppContext) {
+    let mut ordered_champ_names = ctx
+        .api
+        .champ_data
+        .values()
+        .map(|c| c.name.clone())
+        .collect::<Vec<_>>();
+    ordered_champ_names.sort();
 
-    let mut query_message = vec![format!("Looking up info for {formatted_champ_name}")];
-    if role != mappings::Role::default() {
-        query_message.push(format!(", playing {}", role.to_string().blue().bold()));
-    }
-    if region != mappings::Region::default() {
-        query_message.push(format!(", in {}", region.to_string().red().bold()));
-    }
-    query_message.push("...".to_string());
-    util::log_info(query_message.concat().as_str());
+    ctx.champ_list = ordered_champ_names
+        .iter()
+        .filter(|c| c.to_lowercase().contains(&ctx.input.value().to_lowercase()))
+        .map(|c| ListItem::new(c.clone()))
+        .collect::<Vec<_>>();
+}
 
-    let champ_overview = if let Ok(data) = ugg.get_stats(query_champ, role, region, mode) {
-        *data
-    } else {
-        util::log_error(format!("Couldn't get required data for {formatted_champ_name}.").as_str());
-        return;
+fn main() -> anyhow::Result<()> {
+    enable_raw_mode()?;
+    stdout().execute(EnterAlternateScreen)?;
+    let mut terminal = Terminal::new(CrosstermBackend::new(stdout()))?;
+
+    let config = Config::new()?;
+    let api = UggApiBuilder::new().cache_dir(config.cache()).build()?;
+
+    let mut app_context = AppContext {
+        api,
+        state: State::Initial,
+        scroll_pos: None,
+        champ_list: Vec::new(),
+        input: Input::default(),
     };
+    update_champ_list(&mut app_context);
 
-    let matchups = if mode == Mode::ARAM {
-        None
-    } else {
-        ugg.get_matchups(query_champ, role, region, mode).ok()
-    };
-
-    let stats_message = vec![format!("Build for {formatted_champ_name}")];
-    let true_length = 10 /* "Build for " */ + query_champ.name.len();
-    let stats_message_str = stats_message.concat();
-    println!(" {}", "-".repeat(true_length));
-    println!(" {stats_message_str}");
-    println!(" {}", "-".repeat(true_length));
-
-    let champ_runes = util::group_runes(&champ_overview.runes.rune_ids, &ugg.runes);
-    let mut rune_table = Table::new();
-    rune_table.set_format(*format::consts::FORMAT_CLEAN);
-    rune_table.add_row(row![
-        styling::format_rune_group(champ_runes[0].0.as_str()),
-        "",
-        styling::format_rune_group(champ_runes[1].0.as_str()),
-        ""
-    ]);
-    rune_table.add_row(row![
-        &champ_runes[0].1[0].rune.name,
-        styling::format_rune_position(champ_runes[0].1[0]),
-        format!(
-            "{} (Row {})",
-            &champ_runes[1].1[0].rune.name, &champ_runes[1].1[0].slot
-        ),
-        styling::format_rune_position(champ_runes[1].1[0])
-    ]);
-    rune_table.add_row(row![
-        &champ_runes[0].1[1].rune.name,
-        styling::format_rune_position(champ_runes[0].1[1]),
-        format!(
-            "{} (Row {})",
-            &champ_runes[1].1[1].rune.name, &champ_runes[1].1[1].slot
-        ),
-        styling::format_rune_position(champ_runes[1].1[1])
-    ]);
-    rune_table.add_row(row![
-        &champ_runes[0].1[2].rune.name,
-        styling::format_rune_position(champ_runes[0].1[2])
-    ]);
-    rune_table.add_row(row![
-        &champ_runes[0].1[3].rune.name,
-        styling::format_rune_position(champ_runes[0].1[3])
-    ]);
-    rune_table.printstd();
-
-    println!();
-    println!(" {}", "Shards:".magenta().bold());
-    for shard in &util::process_shards(&champ_overview.shards.shard_ids) {
-        println!(" {shard}");
+    let mut should_quit = false;
+    while !should_quit {
+        terminal.draw(|frame| ui(frame, &app_context))?;
+        should_quit = handle_events(&mut app_context)?;
     }
 
-    println!();
-    println!(
-        " {} {}, {}",
-        "Spells:".yellow().bold(),
-        &ugg.summoner_spells[&champ_overview.summoner_spells.spell_ids[0]],
-        &ugg.summoner_spells[&champ_overview.summoner_spells.spell_ids[1]]
+    disable_raw_mode()?;
+    stdout().execute(LeaveAlternateScreen)?;
+    Ok(())
+}
+
+fn handle_events(ctx: &mut AppContext) -> io::Result<bool> {
+    if event::poll(std::time::Duration::from_millis(50))? {
+        if let Event::Key(key) = event::read()? {
+            match ctx.state {
+                State::Initial => {
+                    if key.kind == event::KeyEventKind::Press && key.code == KeyCode::Char('e') {
+                        ctx.state = State::TextInput;
+                    }
+                    if key.kind == event::KeyEventKind::Press && key.code == KeyCode::Char('q') {
+                        return Ok(true);
+                    }
+                }
+                State::TextInput => match key.code {
+                    KeyCode::Esc => {
+                        ctx.state = State::Initial;
+                        ctx.scroll_pos = None;
+                    }
+                    KeyCode::Enter => {
+                        ctx.state = State::ChampScroll;
+                        if !ctx.champ_list.is_empty() {
+                            ctx.scroll_pos = Some(0);
+                        }
+                    }
+                    _ => {
+                        ctx.input.handle_event(&Event::Key(key));
+                        update_champ_list(ctx);
+                    }
+                },
+                State::ChampScroll => match key.code {
+                    KeyCode::Esc => {
+                        ctx.state = State::Initial;
+                        ctx.scroll_pos = None;
+                    }
+                    KeyCode::Up => {
+                        if let Some(pos) = ctx.scroll_pos {
+                            if pos > 0 {
+                                ctx.scroll_pos = Some(pos - 1);
+                            }
+                        }
+                    }
+                    KeyCode::Down => {
+                        if let Some(pos) = ctx.scroll_pos {
+                            if pos < ctx.champ_list.len() - 1 {
+                                ctx.scroll_pos = Some(pos + 1);
+                            }
+                        }
+                    }
+                    _ => {}
+                },
+            }
+        }
+    }
+    Ok(false)
+}
+
+fn ui(frame: &mut Frame, ctx: &AppContext) {
+    let outer_block = Block::default()
+        .title(format!(" uggo v{} ", env!("CARGO_PKG_VERSION")))
+        .title_style(Style::default().bold())
+        .title_alignment(Alignment::Center)
+        .borders(Borders::ALL)
+        .magenta();
+    let app_border = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([Constraint::Percentage(100)])
+        .split(frame.size());
+    frame.render_widget(outer_block, app_border[0]);
+
+    let main_layout_size = Rect::new(
+        frame.size().x + 1,
+        frame.size().y + 1,
+        frame.size().width - 1,
+        frame.size().height - 1,
+    );
+    let main_layout = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints([Constraint::Length(19), Constraint::Min(0)])
+        .margin(1)
+        .split(main_layout_size);
+    frame.render_widget(
+        Block::default()
+            .white()
+            .title("Right")
+            .borders(Borders::ALL),
+        main_layout[1],
     );
 
-    println!();
-    println!(" {}", "Ability Order:".bright_cyan().bold(),);
-    format_ability_order(&champ_overview.abilities.ability_order).printstd();
-
-    let mut item_table = Table::new();
-    item_table.set_format(*format::consts::FORMAT_CLEAN);
-    item_table.add_row(row![
-        r->"Starting:".green(),
-        util::process_items(&champ_overview.starting_items.item_ids, &ugg.items)
-    ]);
-    item_table.add_row(row![
-        r->"Core:".green(),
-        util::process_items(&champ_overview.core_items.item_ids, &ugg.items)
-    ]);
-    item_table.add_row(row![
-        r->"4th:".green(),
-        util::process_items(&champ_overview.item_4_options.iter().map(|x| x.id).collect::<Vec<i64>>(), &ugg.items)
-    ]);
-    item_table.add_row(row![
-        r->"5th:".green(),
-        util::process_items(&champ_overview.item_5_options.iter().map(|x| x.id).collect::<Vec<i64>>(), &ugg.items)
-    ]);
-    item_table.add_row(row![
-        r->"6th:".green(),
-        util::process_items(&champ_overview.item_6_options.iter().map(|x| x.id).collect::<Vec<i64>>(), &ugg.items)
-    ]);
-    println!();
-    item_table.printstd();
-
-    if let Some(safe_matchups) = matchups {
-        let mut matchup_table = Table::new();
-        matchup_table.set_format(*format::consts::FORMAT_CLEAN);
-        matchup_table.add_row(row![
-            r->"Best Matchups:".cyan().bold(),
-            safe_matchups
-                .best_matchups
-                .into_iter()
-                .map(|m| util::find_champ_by_key(m.champion_id, &ugg.champ_data)
-                    .unwrap()
-                    .name
-                    .as_str())
-                .collect::<Vec<&str>>()
-                .join(", ")
-        ]);
-        matchup_table.add_row(row![
-            r->"Worst Matchups:".red().bold(),
-            safe_matchups
-                .worst_matchups
-                .into_iter()
-                .map(|m| util::find_champ_by_key(m.champion_id, &ugg.champ_data)
-                    .unwrap()
-                    .name
-                    .as_str())
-                .collect::<Vec<&str>>()
-                .join(", ")
-        ]);
-        println!();
-        matchup_table.printstd();
-    }
-
-    if champ_overview.low_sample_size {
-        println!();
-        println!(
-            " {} Data has a low sample size for this combination!",
-            "Warning:".yellow().bold()
+    let champion_search_layout = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([Constraint::Length(3), Constraint::Min(0)])
+        .split(main_layout[0]);
+    frame.render_stateful_widget(
+        List::new(ctx.champ_list.clone())
+            .block(
+                Block::default()
+                    .title("Champion List")
+                    .style(match ctx.state {
+                        State::ChampScroll => Style::default().fg(Color::White).bold(),
+                        _ => Style::default().fg(Color::White),
+                    })
+                    .borders(Borders::ALL),
+            )
+            .style(Style::default().fg(Color::White).not_bold())
+            .highlight_style(
+                Style::default()
+                    .fg(Color::Green)
+                    .add_modifier(Modifier::ITALIC),
+            )
+            .highlight_symbol("> "),
+        champion_search_layout[1],
+        &mut ListState::default().with_selected(ctx.scroll_pos),
+    );
+    if ctx.champ_list.is_empty() {
+        let text = "No results :(";
+        let length = 13u16;
+        let no_results_text = Paragraph::new(text).style(Style::default().fg(Color::Red));
+        let no_results_offset = Rect::new(
+            champion_search_layout[1].x + (champion_search_layout[1].width - length) / 2,
+            champion_search_layout[1].y + 2,
+            length,
+            1,
         );
+        frame.render_widget(no_results_text, no_results_offset);
     }
-
-    if let Some(ref api) = client {
-        if let Some(data) = api.get_current_rune_page() {
-            let (primary_style_id, sub_style_id, selected_perk_ids) =
-                util::generate_perk_array(&champ_runes, &champ_overview.shards.shard_ids);
-            api.update_rune_page(
-                data.id,
-                &NewRunePage {
-                    name: match mode {
-                        mappings::Mode::ARAM => {
-                            format!("uggo: {}, ARAM", &query_champ.name)
-                        }
-                        mappings::Mode::URF => format!("uggo: {}, URF", &query_champ.name),
-                        _ => format!("uggo: {}, Normal", &query_champ.name),
-                    },
-                    primary_style_id,
-                    sub_style_id,
-                    selected_perk_ids,
-                },
-            );
-        }
-    }
-}
-
-#[derive(Debug, Bpaf)]
-#[bpaf(options, version)]
-struct Options {
-    /// The game mode to look for data from. By default, this is set to Normal.
-    ///
-    /// Can be one of: normal, aram, urf, arurf, oneforall
-    #[bpaf(short('m'), long)]
-    mode: Option<mappings::Mode>,
-
-    /// Can be specified to pull build data for a specific role. By default, this will
-    /// not be necessary as the most popular role will be picked automatically. In ARAM,
-    /// this setting is ignored.
-    ///
-    /// Can be one of: top, mid, bottom, adc, jungle, none, automatic
-    #[bpaf(short('r'), long)]
-    role: Option<mappings::Role>,
-
-    /// The region to use to filter build results. By default, this uses all regions.
-    ///
-    /// Can be one of: NA1, EUW1, KR, EUN1, BR1, LA1, LA2, OC1, RU, TR1, JP1, World, PH2, SG2, TH2, TW2, VN2
-    #[bpaf(short('R'), long)]
-    region: Option<mappings::Region>,
-
-    /// The ddragon API version to use instead of the latest version. Useful for when
-    /// u.gg does not have builds for the current patch, for example.
-    #[bpaf(short('v'), long)]
-    api_version: Option<String>,
-
-    /// The name of the champion you want to match. A best effort will be made
-    /// to find the champ if it's only a partial query.
-    ///
-    /// If left blank, will open the interactive version of uggo.
-    #[bpaf(positional("CHAMP"))]
-    champ: Option<String>,
-}
-
-fn main() -> Result<()> {
-    let parsed_args = options().run();
-    let config = Config::new()?;
-
-    let mut ugg = UggApiBuilder::new().cache_dir(config.cache());
-    if let Some(api_version) = parsed_args.api_version {
-        ugg = ugg.version(&api_version);
-    }
-    let ugg = ugg.build()?;
-
-    let clientapi = LOLClientAPI::new().ok();
-
-    if let Some(champ_name) = parsed_args.champ {
-        fetch(
-            &ugg,
-            &clientapi,
-            &champ_name,
-            parsed_args.mode.unwrap_or_default(),
-            parsed_args.role.unwrap_or_default(),
-            parsed_args.region.unwrap_or_default(),
-        );
-        return Ok(());
-    }
-
-    let mut mode = mappings::Mode::Normal;
-    loop {
-        print!("query> ");
-        io::stdout().flush().unwrap();
-        let user_input: String = read!("{}\n");
-        let clean_user_input = user_input.trim();
-        let user_input_split = clean_user_input
-            .split(',')
-            .map(str::trim)
-            .collect::<Vec<&str>>();
-
-        if clean_user_input == "modes" {
-            util::log_info("Available modes:");
-            mappings::Mode::all()
-                .iter()
-                .for_each(|m| util::log_info(format!("- {m:?}").as_str()));
-            continue;
-        }
-
-        if clean_user_input.starts_with("mode") {
-            let mode_to_set = clean_user_input.split(' ').collect::<Vec<&str>>();
-            if mode_to_set.len() > 1 {
-                mode = mappings::Mode::from(mode_to_set[1]);
-                util::log_info(format!("Switching mode to {mode:?}...").as_str());
-                continue;
-            }
-            util::log_info(format!("Current mode: {mode:?}").as_str());
-            continue;
-        }
-
-        let mut query_champ_name = "";
-        let mut query_role = mappings::Role::default();
-        let mut query_region = mappings::Region::default();
-
-        if user_input_split.is_empty()
-            || user_input_split.len() > 3
-            || user_input_split[0].is_empty()
-        {
-            util::log_info("This doesn't look like a valid query.");
-            util::log_info("Query format is <champion>[,<role>][,<region>]");
-            continue;
-        }
-        if !user_input_split.is_empty() {
-            query_champ_name = user_input_split[0];
-        }
-        if user_input_split.len() >= 2 {
-            let try_role = mappings::get_role(user_input_split[1]);
-            if try_role == query_role {
-                query_region = mappings::get_region(user_input_split[1]);
-            } else {
-                query_role = try_role;
-            }
-        }
-        if user_input_split.len() == 3 {
-            query_role = mappings::get_role(user_input_split[1]);
-            query_region = mappings::get_region(user_input_split[2]);
-        }
-
-        fetch(
-            &ugg,
-            &clientapi,
-            query_champ_name,
-            mode,
-            query_role,
-            query_region,
-        );
-
-        println!();
-    }
+    frame.render_widget(
+        Paragraph::new(ctx.input.value())
+            .style(match ctx.state {
+                State::TextInput => Style::default().fg(Color::Green),
+                _ => Style::default().fg(Color::White),
+            })
+            .block(Block::default().borders(Borders::ALL).title("Search")),
+        champion_search_layout[0],
+    );
 }
