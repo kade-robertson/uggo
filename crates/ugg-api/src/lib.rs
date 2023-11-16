@@ -87,16 +87,14 @@ impl DataApi {
     }
 
     fn get_cached_data<T: DeserializeOwned + Serialize>(&self, url: &str) -> Result<T, UggError> {
-        if let Some(data) = read_from_cache::<T>(&self.cache_dir, url) {
+        if let Ok(data) = read_from_cache::<T>(&self.cache_dir, url) {
             return Ok(data);
         }
-        match self.get_data::<T>(url) {
-            Ok(data) => {
-                write_to_cache::<T>(&self.cache_dir, url, &data);
-                Ok(data)
-            }
-            Err(e) => Err(e),
-        }
+
+        self.get_data::<T>(url).map(|d| {
+            let _ = write_to_cache::<T>(&self.cache_dir, url, &d);
+            d
+        })
     }
 
     pub fn get_current_version(&mut self) -> String {
