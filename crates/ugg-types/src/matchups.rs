@@ -7,8 +7,8 @@ use serde::Serialize;
 use std::collections::HashMap;
 use std::fmt;
 
-pub type GroupedMatchupData = HashMap<mappings::Role, WrappedMatchupData>;
-pub type Matchups = HashMap<mappings::Region, HashMap<mappings::Rank, GroupedMatchupData>>;
+pub type Matchups =
+    HashMap<mappings::Region, HashMap<mappings::Rank, HashMap<mappings::Role, WrappedMatchupData>>>;
 
 #[derive(Debug, Clone, Serialize)]
 pub struct WrappedMatchupData {

@@ -3,53 +3,68 @@
 #![allow(clippy::module_name_repetitions)]
 #![allow(clippy::struct_excessive_bools)]
 
+use ddragon::models::champions::ChampionShort;
 use mimalloc::MiMalloc;
 
 #[global_allocator]
 static GLOBAL: MiMalloc = MiMalloc;
 
 use crossterm::{
-    event::{self, Event, KeyCode},
+    event::{self, Event, KeyCode, KeyModifiers},
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
     ExecutableCommand,
 };
 use ratatui::{
     prelude::*,
-    widgets::{Block, Borders, List, ListItem, ListState, Paragraph},
+    widgets::{
+        block::{Position, Title},
+        Block, Borders, List, ListItem, ListState, Paragraph,
+    },
 };
 use std::io::{self, stdout};
+use styling::format_ability_level_order;
 use tui_input::{backend::crossterm::EventHandler, Input};
+use ugg_types::{
+    mappings::{Mode, Region, Role},
+    matchups::MatchupData,
+    overview::OverviewData,
+};
 use uggo_config::Config;
 use uggo_ugg_api::{UggApi, UggApiBuilder};
+
+mod styling;
 
 enum State {
     Initial,
     TextInput,
     ChampScroll,
+    ChampSelected,
 }
 
 struct AppContext<'a> {
     api: UggApi,
     state: State,
     scroll_pos: Option<usize>,
+    champ_data: Vec<(usize, ChampionShort)>,
+    list_indices: Vec<usize>,
     champ_list: Vec<ListItem<'a>>,
+    selected_champ: Option<ChampionShort>,
+    selected_champ_overview: Option<OverviewData>,
+    selected_champ_matchups: Option<MatchupData>,
     input: Input,
 }
 
 fn update_champ_list(ctx: &mut AppContext) {
-    let mut ordered_champ_names = ctx
-        .api
+    (ctx.list_indices, ctx.champ_list) = ctx
         .champ_data
-        .values()
-        .map(|c| c.name.clone())
-        .collect::<Vec<_>>();
-    ordered_champ_names.sort();
-
-    ctx.champ_list = ordered_champ_names
         .iter()
-        .filter(|c| c.to_lowercase().contains(&ctx.input.value().to_lowercase()))
-        .map(|c| ListItem::new(c.clone()))
-        .collect::<Vec<_>>();
+        .filter(|(_, c)| {
+            c.name
+                .to_lowercase()
+                .contains(&ctx.input.value().to_lowercase())
+        })
+        .map(|(i, c)| (i, ListItem::new(c.name.clone())))
+        .unzip();
 }
 
 fn main() -> anyhow::Result<()> {
@@ -60,12 +75,25 @@ fn main() -> anyhow::Result<()> {
     let config = Config::new()?;
     let api = UggApiBuilder::new().cache_dir(config.cache()).build()?;
 
+    let mut ordered_champ_data = api
+        .champ_data
+        .values()
+        .enumerate()
+        .map(|(i, c)| (i, c.clone()))
+        .collect::<Vec<_>>();
+    ordered_champ_data.sort_by(|(_, a), (_, b)| a.name.cmp(&b.name));
+
     let mut app_context = AppContext {
         api,
         state: State::Initial,
         scroll_pos: None,
+        champ_data: ordered_champ_data,
+        list_indices: Vec::new(),
         champ_list: Vec::new(),
         input: Input::default(),
+        selected_champ: None,
+        selected_champ_overview: None,
+        selected_champ_matchups: None,
     };
     update_champ_list(&mut app_context);
 
@@ -80,16 +108,42 @@ fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
+fn select_champion(ctx: &mut AppContext, champ: &ChampionShort) {
+    ctx.scroll_pos = None;
+    ctx.selected_champ = Some(champ.clone());
+    ctx.selected_champ_overview = ctx
+        .api
+        .get_stats(champ, Role::Automatic, Region::World, Mode::Normal)
+        .map(|v| *v)
+        .ok();
+    ctx.selected_champ_matchups = ctx
+        .api
+        .get_matchups(champ, Role::Automatic, Region::World, Mode::Normal)
+        .map(|v| *v)
+        .ok();
+
+    ctx.state = State::ChampSelected;
+}
+
 fn handle_events(ctx: &mut AppContext) -> io::Result<bool> {
     if event::poll(std::time::Duration::from_millis(50))? {
         if let Event::Key(key) = event::read()? {
+            if key.kind == event::KeyEventKind::Press
+                && key.code == KeyCode::Char('q')
+                && key.modifiers.contains(KeyModifiers::CONTROL)
+            {
+                return Ok(true);
+            }
             match ctx.state {
-                State::Initial => {
-                    if key.kind == event::KeyEventKind::Press && key.code == KeyCode::Char('e') {
+                State::ChampSelected | State::Initial => {
+                    if key.kind == event::KeyEventKind::Press && key.code == KeyCode::Char('s') {
                         ctx.state = State::TextInput;
                     }
-                    if key.kind == event::KeyEventKind::Press && key.code == KeyCode::Char('q') {
-                        return Ok(true);
+                    if key.kind == event::KeyEventKind::Press && key.code == KeyCode::Char('c') {
+                        ctx.state = State::ChampScroll;
+                        if !ctx.champ_list.is_empty() {
+                            ctx.scroll_pos = Some(0);
+                        }
                     }
                 }
                 State::TextInput => match key.code {
@@ -102,10 +156,27 @@ fn handle_events(ctx: &mut AppContext) -> io::Result<bool> {
                         if !ctx.champ_list.is_empty() {
                             ctx.scroll_pos = Some(0);
                         }
+                        if ctx.champ_list.len() == 1 {
+                            if let Some(champ) = ctx
+                                .list_indices
+                                .first()
+                                .and_then(|p| ctx.champ_data.iter().find(|(i, _)| i == p))
+                                .map(|(_, c)| c)
+                                .cloned()
+                            {
+                                select_champion(ctx, &champ);
+                            }
+                        }
                     }
-                    _ => {
+                    KeyCode::Backspace => {
                         ctx.input.handle_event(&Event::Key(key));
                         update_champ_list(ctx);
+                    }
+                    _ => {
+                        if ctx.input.value().len() < 17 {
+                            ctx.input.handle_event(&Event::Key(key));
+                            update_champ_list(ctx);
+                        }
                     }
                 },
                 State::ChampScroll => match key.code {
@@ -127,6 +198,21 @@ fn handle_events(ctx: &mut AppContext) -> io::Result<bool> {
                             }
                         }
                     }
+                    KeyCode::Enter => {
+                        if let Some(champ) = ctx
+                            .scroll_pos
+                            .and_then(|p| ctx.list_indices.get(p))
+                            .and_then(|p| ctx.champ_data.iter().find(|(i, _)| i == p))
+                            .map(|(_, c)| c)
+                            .cloned()
+                        {
+                            select_champion(ctx, &champ);
+                        }
+                    }
+                    KeyCode::Char('s') => {
+                        ctx.state = State::TextInput;
+                        ctx.scroll_pos = None;
+                    }
                     _ => {}
                 },
             }
@@ -135,18 +221,97 @@ fn handle_events(ctx: &mut AppContext) -> io::Result<bool> {
     Ok(false)
 }
 
-fn ui(frame: &mut Frame, ctx: &AppContext) {
+fn make_app_border(frame: &mut Frame) {
     let outer_block = Block::default()
-        .title(format!(" uggo v{} ", env!("CARGO_PKG_VERSION")))
+        .title(
+            Title::from(format!(" uggo v{} ", env!("CARGO_PKG_VERSION")))
+                .position(Position::Top)
+                .alignment(Alignment::Center),
+        )
+        .title(
+            Title::from(" [Esc: Back] [Enter: Commit] [Ctrl + q: Exit] ")
+                .position(Position::Bottom)
+                .alignment(Alignment::Left),
+        )
         .title_style(Style::default().bold())
-        .title_alignment(Alignment::Center)
         .borders(Borders::ALL)
         .magenta();
+
     let app_border = Layout::default()
         .direction(Direction::Vertical)
         .constraints([Constraint::Percentage(100)])
         .split(frame.size());
+
     frame.render_widget(outer_block, app_border[0]);
+}
+
+fn make_champ_overview(frame: &mut Frame, bounds: Rect, overview: &OverviewData) {
+    // Draw Q |
+    frame.render_widget(
+        Paragraph::new("Q│ "),
+        Rect::new(bounds.left(), bounds.top(), 4, 1),
+    );
+    // Draw Q abilities
+    frame.render_widget(
+        Paragraph::new(format_ability_level_order(
+            &overview.abilities.ability_order,
+            'Q',
+        ))
+        .style(Style::default().fg(Color::Cyan).bold()),
+        Rect::new(bounds.left() + 3, bounds.top(), 36, 4),
+    );
+    // Draw W |
+    frame.render_widget(
+        Paragraph::new("W│ "),
+        Rect::new(bounds.left(), bounds.top() + 1, 4, 1),
+    );
+    // Draw W abilities
+    frame.render_widget(
+        Paragraph::new(format_ability_level_order(
+            &overview.abilities.ability_order,
+            'W',
+        ))
+        .style(Style::default().fg(Color::Yellow).bold()),
+        Rect::new(bounds.left() + 3, bounds.top() + 1, 36, 4),
+    );
+
+    // Draw E |
+    frame.render_widget(
+        Paragraph::new("E│ "),
+        Rect::new(bounds.left(), bounds.top() + 2, 4, 1),
+    );
+    // Draw E abilities
+    frame.render_widget(
+        Paragraph::new(format_ability_level_order(
+            &overview.abilities.ability_order,
+            'E',
+        ))
+        .style(Style::default().fg(Color::Green).bold()),
+        Rect::new(bounds.left() + 3, bounds.top() + 2, 36, 1),
+    );
+    // Draw R |
+    frame.render_widget(
+        Paragraph::new("R│ "),
+        Rect::new(bounds.left(), bounds.top() + 3, 4, 1),
+    );
+    // Draw R abilities
+    frame.render_widget(
+        Paragraph::new(format_ability_level_order(
+            &overview.abilities.ability_order,
+            'R',
+        ))
+        .style(Style::default().fg(Color::Red).bold()),
+        Rect::new(bounds.left() + 3, bounds.top() + 3, 36, 1),
+    );
+    // Reset style
+    frame.render_widget(
+        Paragraph::new("").style(Style::default().white()),
+        Rect::new(bounds.left(), bounds.bottom(), bounds.width, bounds.height),
+    );
+}
+
+fn ui(frame: &mut Frame, ctx: &AppContext) {
+    make_app_border(frame);
 
     let main_layout_size = Rect::new(
         frame.size().x + 1,
@@ -159,13 +324,28 @@ fn ui(frame: &mut Frame, ctx: &AppContext) {
         .constraints([Constraint::Length(19), Constraint::Min(0)])
         .margin(1)
         .split(main_layout_size);
+
+    let overview_layout = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([
+            Constraint::Length(6), // ability order
+            Constraint::Min(0),    // rest
+        ])
+        .split(main_layout[1]);
     frame.render_widget(
         Block::default()
             .white()
-            .title("Right")
+            .title("Ability Order")
             .borders(Borders::ALL),
-        main_layout[1],
+        overview_layout[0],
     );
+    if let Some(overview) = &ctx.selected_champ_overview {
+        make_champ_overview(
+            frame,
+            overview_layout[0].inner(&Margin::new(1, 1)),
+            overview,
+        );
+    }
 
     let champion_search_layout = Layout::default()
         .direction(Direction::Vertical)
@@ -175,7 +355,7 @@ fn ui(frame: &mut Frame, ctx: &AppContext) {
         List::new(ctx.champ_list.clone())
             .block(
                 Block::default()
-                    .title("Champion List")
+                    .title("Champion List [c]")
                     .style(match ctx.state {
                         State::ChampScroll => Style::default().fg(Color::White).bold(),
                         _ => Style::default().fg(Color::White),
@@ -210,7 +390,7 @@ fn ui(frame: &mut Frame, ctx: &AppContext) {
                 State::TextInput => Style::default().fg(Color::Green),
                 _ => Style::default().fg(Color::White),
             })
-            .block(Block::default().borders(Borders::ALL).title("Search")),
+            .block(Block::default().borders(Borders::ALL).title("Search [s]")),
         champion_search_layout[0],
     );
 }
