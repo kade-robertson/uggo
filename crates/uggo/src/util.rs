@@ -2,61 +2,15 @@ use colored::Colorize;
 use ddragon::models::champions::ChampionShort;
 use ddragon::models::items::Item;
 use ddragon::models::runes::RuneElement;
+use ratatui::text::Text;
 use std::collections::HashMap;
 
-#[cfg(debug_assertions)]
-use time::{macros::format_description, OffsetDateTime};
-
 use ugg_types::rune::RuneExtended;
-
-#[cfg(debug_assertions)]
-static TIME_FORMAT: &[time::format_description::FormatItem<'_>] =
-    format_description!("[year]-[month]-[day] [hour]:[minute]:[second].[subsecond digits:3]");
-
-#[cfg(debug_assertions)]
-fn now_fmt() -> String {
-    OffsetDateTime::now_local()
-        .map_or_else(|_| OffsetDateTime::now_utc(), |t| t)
-        .format(TIME_FORMAT)
-        .unwrap()
-}
-
-pub fn log_error(msg: &str) {
-    #[cfg(debug_assertions)]
-    {
-        eprint!("[{}] ", now_fmt().as_str());
-    }
-    eprint!("{} ", "Error:".red().bold());
-    eprintln!("{msg}");
-}
-
-pub fn log_info(msg: &str) {
-    let mut message = String::new();
-    #[cfg(debug_assertions)]
-    {
-        message.push_str(format!("[{}] ", now_fmt()).as_str());
-    }
-    message.push_str(msg);
-    println!("{message}");
-}
-
-pub fn find_champ_by_key(
-    key: i64,
-    champ_data: &'_ HashMap<String, ChampionShort>,
-) -> Option<&'_ ChampionShort> {
-    match champ_data
-        .iter()
-        .find(|champ| champ.1.key == key.to_string())
-    {
-        Some(data) => Some(data.1),
-        None => None,
-    }
-}
 
 pub fn group_runes<'a>(
     rune_ids: &Vec<i64>,
     rune_data: &'a HashMap<i64, RuneExtended<RuneElement>>,
-) -> Vec<(String, Vec<&'a RuneExtended<RuneElement>>)> {
+) -> [(String, Vec<&'a RuneExtended<RuneElement>>); 2] {
     let mut grouped_runes: Vec<(String, Vec<&'a RuneExtended<RuneElement>>)> = Vec::new();
 
     for rune in rune_ids {
@@ -76,7 +30,7 @@ pub fn group_runes<'a>(
         .iter_mut()
         .for_each(|group| group.1.sort_by(|&a, &b| a.slot.cmp(&b.slot)));
 
-    grouped_runes
+    [grouped_runes[0].to_owned(), grouped_runes[1].to_owned()]
 }
 
 pub fn process_items(champ_items: &[i64], item_data: &HashMap<String, Item>) -> String {
@@ -103,11 +57,10 @@ const fn get_shard(id: &i64) -> &str {
     }
 }
 
-pub fn process_shards(shards: &[i64]) -> Vec<String> {
-    let mut shard_text: Vec<String> = Vec::new();
-    shard_text.push(format!("- Offense: {}", get_shard(&shards[0])));
-    shard_text.push(format!("- Flex: {}", get_shard(&shards[1])));
-    shard_text.push(format!("- Defense: {}", get_shard(&shards[2])));
+pub fn process_shards(shards: &[i64]) -> Text {
+    let mut shard_text = Text::raw(format!("Offense: {}", get_shard(&shards[0])));
+    shard_text.extend(Text::raw(format!("Flex: {}", get_shard(&shards[1]))));
+    shard_text.extend(Text::raw(format!("Defense: {}", get_shard(&shards[2]))));
     shard_text
 }
 
@@ -121,3 +74,4 @@ pub fn generate_perk_array(
     perk_list.append(&mut shards.to_vec());
     (runes[0].1[0].parent_id, runes[1].1[0].parent_id, perk_list)
 }
+

@@ -178,7 +178,7 @@ impl DataApi {
             if api_versions.contains_key(patch) && api_versions[patch].contains_key("overview") {
                 api_versions[patch]["overview"].as_str()
             } else {
-                "1.4.0"
+                "1.5.0"
             };
         let data_path = &format!(
             "{}/{}/{}/{}",
@@ -241,7 +241,7 @@ impl DataApi {
             if api_versions.contains_key(patch) && api_versions[patch].contains_key("matchups") {
                 api_versions[patch]["matchups"].as_str()
             } else {
-                "1.4.0"
+                "1.5.0"
             };
         let data_path = &format!(
             "{}/{}/{}/{}",

@@ -383,17 +383,17 @@ impl Mode {
     }
 }
 
-impl ToString for Mode {
-    fn to_string(&self) -> String {
-        (match &self {
+impl Display for Mode {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let mode_str = match self {
             Self::Normal => "Normal",
             Self::ARAM => "ARAM",
             Self::OneForAll => "OneForAll",
             Self::URF => "URF",
             Self::ARURF => "ARURF",
             Self::NexusBlitz => "NexusBlitz",
-        })
-        .to_string()
+        };
+        write!(f, "{mode_str}")
     }
 }
 
