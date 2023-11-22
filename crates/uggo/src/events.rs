@@ -13,25 +13,6 @@ pub fn handle_events(ctx: &mut AppContext) -> anyhow::Result<bool> {
             {
                 return Ok(true);
             }
-            if ctx.state != State::TextInput
-                && key.kind == event::KeyEventKind::Press
-                && key.code == KeyCode::Char('m')
-            {
-                // Cycle through all modes.
-                ctx.mode = match ctx.mode {
-                    Mode::Normal => Mode::ARAM,
-                    Mode::ARAM => Mode::OneForAll,
-                    Mode::OneForAll => Mode::URF,
-                    Mode::URF => Mode::ARURF,
-                    Mode::ARURF => Mode::NexusBlitz,
-                    Mode::NexusBlitz => Mode::Normal,
-                };
-                let selected = ctx.selected_champ.clone();
-                if let Some(champ) = selected {
-                    ctx.select_champion(&champ);
-                }
-                return Ok(false);
-            }
             match ctx.state {
                 State::ChampSelected | State::Initial => {
                     if key.kind == event::KeyEventKind::Press && key.code == KeyCode::Char('s') {
@@ -40,19 +21,23 @@ pub fn handle_events(ctx: &mut AppContext) -> anyhow::Result<bool> {
                     if key.kind == event::KeyEventKind::Press && key.code == KeyCode::Char('c') {
                         ctx.state = State::ChampScroll;
                         if !ctx.champ_list.is_empty() {
-                            ctx.scroll_pos = Some(0);
+                            ctx.champ_scroll_pos = Some(0);
                         }
+                    }
+                    if key.kind == event::KeyEventKind::Press && key.code == KeyCode::Char('m') {
+                        ctx.state = State::ModeSelect;
+                        ctx.mode_scroll_pos = Some(ctx.mode_scroll_pos.unwrap_or_default());
                     }
                 }
                 State::TextInput => match key.code {
                     KeyCode::Esc => {
                         ctx.state = State::Initial;
-                        ctx.scroll_pos = None;
+                        ctx.champ_scroll_pos = None;
                     }
                     KeyCode::Enter => {
                         ctx.state = State::ChampScroll;
                         if !ctx.champ_list.is_empty() {
-                            ctx.scroll_pos = Some(0);
+                            ctx.champ_scroll_pos = Some(0);
                         }
                         if ctx.champ_list.len() == 1 {
                             if let Some(champ) = ctx
@@ -80,25 +65,25 @@ pub fn handle_events(ctx: &mut AppContext) -> anyhow::Result<bool> {
                 State::ChampScroll => match key.code {
                     KeyCode::Esc => {
                         ctx.state = State::Initial;
-                        ctx.scroll_pos = None;
+                        ctx.champ_scroll_pos = None;
                     }
                     KeyCode::Up => {
-                        if let Some(pos) = ctx.scroll_pos {
+                        if let Some(pos) = ctx.champ_scroll_pos {
                             if pos > 0 {
-                                ctx.scroll_pos = Some(pos - 1);
+                                ctx.champ_scroll_pos = Some(pos - 1);
                             }
                         }
                     }
                     KeyCode::Down => {
-                        if let Some(pos) = ctx.scroll_pos {
+                        if let Some(pos) = ctx.champ_scroll_pos {
                             if pos < ctx.champ_list.len() - 1 {
-                                ctx.scroll_pos = Some(pos + 1);
+                                ctx.champ_scroll_pos = Some(pos + 1);
                             }
                         }
                     }
                     KeyCode::Enter => {
                         if let Some(champ) = ctx
-                            .scroll_pos
+                            .champ_scroll_pos
                             .and_then(|p| ctx.list_indices.get(p))
                             .and_then(|p| ctx.champ_data.iter().find(|(i, _)| i == p))
                             .map(|(_, c)| c)
@@ -109,7 +94,37 @@ pub fn handle_events(ctx: &mut AppContext) -> anyhow::Result<bool> {
                     }
                     KeyCode::Char('s') => {
                         ctx.state = State::TextInput;
-                        ctx.scroll_pos = None;
+                        ctx.champ_scroll_pos = None;
+                    }
+                    _ => {}
+                },
+                State::ModeSelect => match key.code {
+                    KeyCode::Esc => {
+                        ctx.state = State::Initial;
+                    }
+                    KeyCode::Up => {
+                        if let Some(pos) = ctx.mode_scroll_pos {
+                            if pos > 0 {
+                                ctx.mode_scroll_pos = Some(pos - 1);
+                            }
+                        }
+                    }
+                    KeyCode::Down => {
+                        if let Some(pos) = ctx.mode_scroll_pos {
+                            if pos < ctx.champ_list.len() - 1 {
+                                ctx.mode_scroll_pos = Some(pos + 1);
+                            }
+                        }
+                    }
+                    KeyCode::Enter => {
+                        if let Some(mode) = ctx.mode_scroll_pos.and_then(|p| Mode::all().get(p)) {
+                            ctx.mode = *mode;
+                            ctx.state = State::Initial;
+                            if let Some(champ) = ctx.selected_champ.clone() {
+                                ctx.select_champion(&champ);
+                                ctx.state = State::ChampSelected;
+                            }
+                        }
                     }
                     _ => {}
                 },

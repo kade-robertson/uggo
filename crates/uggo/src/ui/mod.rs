@@ -2,13 +2,14 @@ mod ability_order;
 mod app_border;
 mod items;
 mod matchups;
+mod mode_select;
 mod rune_path;
 mod shards;
 
 use ratatui::{
     layout::{Constraint, Direction, Layout, Margin, Rect},
     style::{Color, Modifier, Style, Stylize},
-    widgets::{Block, Borders, List, ListState, Paragraph},
+    widgets::{Block, Borders, Clear, List, ListState, Paragraph},
     Frame,
 };
 
@@ -34,6 +35,58 @@ pub fn render(frame: &mut Frame, ctx: &AppContext) {
         .constraints([Constraint::Length(19), Constraint::Min(0)])
         .margin(1)
         .split(app_border[0].inner(&Margin::new(1, 1)));
+
+    let champion_search_layout = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([Constraint::Length(3), Constraint::Min(0)])
+        .split(main_layout[0]);
+
+    frame.render_stateful_widget(
+        List::new(ctx.champ_list.clone())
+            .block(
+                Block::default()
+                    .title(" Champions [c] ")
+                    .style(Style::default().fg(Color::White).bold())
+                    .borders(Borders::ALL),
+            )
+            .style(Style::default().fg(Color::White).not_bold())
+            .highlight_style(
+                Style::default()
+                    .fg(Color::Green)
+                    .add_modifier(Modifier::ITALIC),
+            )
+            .highlight_symbol("> "),
+        champion_search_layout[1],
+        &mut ListState::default().with_selected(ctx.champ_scroll_pos),
+    );
+
+    if ctx.champ_list.is_empty() {
+        let text = "No results :(";
+        let length = 13u16;
+        let no_results_text = Paragraph::new(text).style(Style::default().fg(Color::Red));
+        let no_results_offset = Rect::new(
+            champion_search_layout[1].x + (champion_search_layout[1].width - length) / 2,
+            champion_search_layout[1].y + 2,
+            length,
+            1,
+        );
+        frame.render_widget(no_results_text, no_results_offset);
+    }
+
+    frame.render_widget(
+        Paragraph::new(ctx.input.value())
+            .style(match ctx.state {
+                State::TextInput => Style::default().fg(Color::Green),
+                _ => Style::default().fg(Color::White),
+            })
+            .block(
+                Block::default()
+                    .borders(Borders::ALL)
+                    .title(" Search [s] ")
+                    .title_style(Style::default().fg(Color::White).bold()),
+            ),
+        champion_search_layout[0],
+    );
 
     let overview_layout = Layout::default()
         .direction(Direction::Vertical)
@@ -107,55 +160,17 @@ pub fn render(frame: &mut Frame, ctx: &AppContext) {
         frame.render_widget(worst, overview_layout[5]);
     }
 
-    let champion_search_layout = Layout::default()
-        .direction(Direction::Vertical)
-        .constraints([Constraint::Length(3), Constraint::Min(0)])
-        .split(main_layout[0]);
-
-    frame.render_stateful_widget(
-        List::new(ctx.champ_list.clone())
-            .block(
-                Block::default()
-                    .title(" Champions [c] ")
-                    .style(Style::default().fg(Color::White).bold())
-                    .borders(Borders::ALL),
-            )
-            .style(Style::default().fg(Color::White).not_bold())
-            .highlight_style(
-                Style::default()
-                    .fg(Color::Green)
-                    .add_modifier(Modifier::ITALIC),
-            )
-            .highlight_symbol("> "),
-        champion_search_layout[1],
-        &mut ListState::default().with_selected(ctx.scroll_pos),
-    );
-
-    if ctx.champ_list.is_empty() {
-        let text = "No results :(";
-        let length = 13u16;
-        let no_results_text = Paragraph::new(text).style(Style::default().fg(Color::Red));
-        let no_results_offset = Rect::new(
-            champion_search_layout[1].x + (champion_search_layout[1].width - length) / 2,
-            champion_search_layout[1].y + 2,
-            length,
-            1,
+    if ctx.state == State::ModeSelect {
+        let (mode_list, mut mode_list_state, minimum_area) = mode_select::make_mode_select(ctx);
+        let safe_area = main_layout[1].inner(&Margin::new(
+            (main_layout[1].width - minimum_area.width) / 2 - 1,
+            (main_layout[1].height - minimum_area.height) / 2 - 1,
+        ));
+        frame.render_widget(Clear, safe_area);
+        frame.render_stateful_widget(
+            mode_list,
+            safe_area.inner(&Margin::new(1, 1)),
+            &mut mode_list_state,
         );
-        frame.render_widget(no_results_text, no_results_offset);
     }
-
-    frame.render_widget(
-        Paragraph::new(ctx.input.value())
-            .style(match ctx.state {
-                State::TextInput => Style::default().fg(Color::Green),
-                _ => Style::default().fg(Color::White),
-            })
-            .block(
-                Block::default()
-                    .borders(Borders::ALL)
-                    .title(" Search [s] ")
-                    .title_style(Style::default().fg(Color::White).bold()),
-            ),
-        champion_search_layout[0],
-    );
 }

@@ -21,13 +21,14 @@ pub enum State {
     TextInput,
     ChampScroll,
     ChampSelected,
+    ModeSelect,
 }
 
 pub struct AppContext<'a> {
     pub api: UggApi,
     pub client_api: Option<LOLClientAPI>,
     pub state: State,
-    pub scroll_pos: Option<usize>,
+    pub champ_scroll_pos: Option<usize>,
     pub champ_data: Vec<(usize, ChampionShort)>,
     pub champ_by_key: HashMap<String, ChampionShort>,
     pub list_indices: Vec<usize>,
@@ -40,6 +41,7 @@ pub struct AppContext<'a> {
     pub mode: Mode,
     pub input: Input,
     pub last_render_duration: Option<Duration>,
+    pub mode_scroll_pos: Option<usize>,
 }
 
 impl AppContext<'_> {
@@ -81,7 +83,7 @@ impl AppContext<'_> {
             api,
             client_api: LOLClientAPI::new().ok(),
             state: State::Initial,
-            scroll_pos: None,
+            champ_scroll_pos: None,
             champ_data: ordered_champ_data,
             champ_by_key,
             list_indices: Vec::new(),
@@ -94,6 +96,7 @@ impl AppContext<'_> {
             items: ordered_item_names,
             mode: Mode::Normal,
             last_render_duration: None,
+            mode_scroll_pos: None,
         };
         app_context.update_champ_list();
 
@@ -114,7 +117,7 @@ impl AppContext<'_> {
     }
 
     pub fn select_champion(&mut self, champ: &ChampionShort) {
-        self.scroll_pos = None;
+        self.champ_scroll_pos = None;
         self.selected_champ = Some(champ.clone());
         self.selected_champ_overview = self
             .api
