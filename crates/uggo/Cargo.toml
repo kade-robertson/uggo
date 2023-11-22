@@ -19,7 +19,6 @@ bpaf = { version = "0.9.6", features = ["derive"] }
 colored = "2.0.4"
 ddragon = "0.8.1"
 mimalloc = "0.1.39"
-prettytable-rs = "0.10.0"
 serde = "1.0.192"
 text_io = "0.1.12"
 time = { version = "0.3.30", features = ["local-offset", "formatting", "macros"] }

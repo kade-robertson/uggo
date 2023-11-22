@@ -1,8 +1,4 @@
-use colored::Colorize;
-use ddragon::models::champions::ChampionShort;
-use ddragon::models::items::Item;
 use ddragon::models::runes::RuneElement;
-use ratatui::text::Text;
 use std::collections::HashMap;
 
 use ugg_types::rune::RuneExtended;
@@ -33,37 +29,6 @@ pub fn group_runes<'a>(
     [grouped_runes[0].to_owned(), grouped_runes[1].to_owned()]
 }
 
-pub fn process_items(champ_items: &[i64], item_data: &HashMap<String, Item>) -> String {
-    champ_items
-        .iter()
-        .map(|v| {
-            item_data
-                .get(&v.to_string())
-                .map_or_else(|| format!("<unknown item {v}>"), |i| i.name.clone())
-        })
-        .collect::<Vec<String>>()
-        .join(", ")
-}
-
-const fn get_shard(id: &i64) -> &str {
-    match id {
-        5001 => "+15-90 Health",
-        5002 => "+6 Armor",
-        5003 => "+8 Magic Resist",
-        5005 => "+10% Attack Speed",
-        5007 => "+8 Ability Haste",
-        5008 => "+9 Adaptive Force",
-        _ => "Unknown",
-    }
-}
-
-pub fn process_shards(shards: &[i64]) -> Text {
-    let mut shard_text = Text::raw(format!("Offense: {}", get_shard(&shards[0])));
-    shard_text.extend(Text::raw(format!("Flex: {}", get_shard(&shards[1]))));
-    shard_text.extend(Text::raw(format!("Defense: {}", get_shard(&shards[2]))));
-    shard_text
-}
-
 pub fn generate_perk_array(
     runes: &[(String, Vec<&RuneExtended<RuneElement>>)],
     shards: &[i64],
@@ -74,4 +39,3 @@ pub fn generate_perk_array(
     perk_list.append(&mut shards.to_vec());
     (runes[0].1[0].parent_id, runes[1].1[0].parent_id, perk_list)
 }
-
