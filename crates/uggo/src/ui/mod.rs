@@ -25,13 +25,30 @@ use crate::context::{AppContext, State};
 
 use self::{mode_select::make_mode_select, version_select::make_version_select};
 
+const TOO_SMALL_MESSAGE: &str = "Please resize the window to at least 105x28! Ctrl+Q to exit.";
+#[allow(clippy::cast_possible_truncation)]
+const TOO_SMALL_MESSAGE_LENGTH: u16 = TOO_SMALL_MESSAGE.len() as u16;
+
 pub fn render(frame: &mut Frame, ctx: &AppContext) {
+    let frame_size = frame.size();
+
     let app_border = Layout::default()
         .direction(Direction::Vertical)
         .constraints([Constraint::Percentage(100)])
-        .split(frame.size());
+        .split(frame_size);
 
     frame.render_widget(make_app_border(ctx), app_border[0]);
+
+    if frame_size.width <= 105 || frame_size.height <= 28 {
+        frame.render_widget(
+            Paragraph::new(TOO_SMALL_MESSAGE).style(Style::default().fg(Color::Red).bold()),
+            app_border[0].inner(&Margin::new(
+                (frame_size.width - TOO_SMALL_MESSAGE_LENGTH) / 2,
+                frame_size.height / 2 - 1,
+            )),
+        );
+        return;
+    }
 
     let main_layout = Layout::default()
         .direction(Direction::Horizontal)

@@ -30,8 +30,12 @@ fn main() -> anyhow::Result<()> {
     let mut app_context = AppContext::new()?;
     let mut should_quit = false;
     while !should_quit {
+        #[cfg(debug_assertions)]
         let start_render = Instant::now();
+
         terminal.draw(|frame| ui::render(frame, &app_context))?;
+
+        #[cfg(debug_assertions)]
         app_context.set_render_duration(start_render.elapsed());
 
         should_quit = events::handle_events(&mut app_context)?;
