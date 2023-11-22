@@ -13,7 +13,7 @@ use crossterm::{
     ExecutableCommand,
 };
 use ratatui::prelude::*;
-use std::io::stdout;
+use std::{io::stdout, time::Instant};
 
 mod context;
 mod events;
@@ -30,7 +30,10 @@ fn main() -> anyhow::Result<()> {
     let mut app_context = AppContext::new()?;
     let mut should_quit = false;
     while !should_quit {
+        let start_render = Instant::now();
         terminal.draw(|frame| ui::render(frame, &app_context))?;
+        app_context.set_render_duration(start_render.elapsed());
+
         should_quit = events::handle_events(&mut app_context)?;
     }
 

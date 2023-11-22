@@ -9,6 +9,7 @@ use ratatui::{
 
 use crate::context::AppContext;
 
+#[allow(clippy::cast_precision_loss)]
 pub fn make_app_border(ctx: &AppContext) -> impl Widget {
     let app_border = Block::default()
         .title(
@@ -22,9 +23,14 @@ pub fn make_app_border(ctx: &AppContext) -> impl Widget {
                 .alignment(Alignment::Left),
         )
         .title(
-            Title::from(format!(" [Mode: {}] ", ctx.mode))
-                .position(Position::Bottom)
-                .alignment(Alignment::Right),
+            Title::from(format!(
+                " [Mode: {}] [Render: {:.2}ms] ",
+                ctx.mode,
+                ctx.last_render_duration
+                    .map_or(0.0, |d| d.as_micros() as f64 / 1000.0)
+            ))
+            .position(Position::Bottom)
+            .alignment(Alignment::Right),
         )
         .title_style(Style::default().bold())
         .borders(Borders::ALL)

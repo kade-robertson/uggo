@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, time::Duration};
 
 use ddragon::models::champions::ChampionShort;
 use ratatui::widgets::ListItem;
@@ -39,6 +39,7 @@ pub struct AppContext<'a> {
     pub items: Vec<String>,
     pub mode: Mode,
     pub input: Input,
+    pub last_render_duration: Option<Duration>,
 }
 
 impl AppContext<'_> {
@@ -92,6 +93,7 @@ impl AppContext<'_> {
             max_item_length,
             items: ordered_item_names,
             mode: Mode::Normal,
+            last_render_duration: None,
         };
         app_context.update_champ_list();
 
@@ -151,5 +153,9 @@ impl AppContext<'_> {
         }
 
         self.state = State::ChampSelected;
+    }
+
+    pub fn set_render_duration(&mut self, duration: Duration) {
+        self.last_render_duration = Some(duration);
     }
 }
