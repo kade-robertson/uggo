@@ -42,8 +42,8 @@ pub fn make_mode_select<'a>(ctx: &AppContext) -> (List<'a>, ListState, Rect) {
                 .map(|s| s.to_string().len())
                 .max()
                 .unwrap_or_default() as u16
-                + 4,
-            Mode::all().len() as u16 + 4,
+                + 5,
+            Mode::all().len() as u16 + 2,
         ),
     )
 }

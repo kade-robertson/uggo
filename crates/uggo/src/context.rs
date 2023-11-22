@@ -22,6 +22,7 @@ pub enum State {
     ChampScroll,
     ChampSelected,
     ModeSelect,
+    VersionSelect,
 }
 
 pub struct AppContext<'a> {
@@ -38,19 +39,21 @@ pub struct AppContext<'a> {
     pub selected_champ_matchups: Option<MatchupData>,
     pub max_item_length: usize,
     pub items: Vec<String>,
-    pub mode: Mode,
     pub input: Input,
-    pub last_render_duration: Option<Duration>,
+    pub mode: Mode,
     pub mode_scroll_pos: Option<usize>,
+    pub version: String,
+    pub version_scroll_pos: Option<usize>,
+    pub last_render_duration: Option<Duration>,
 }
 
 impl AppContext<'_> {
-    pub fn new() -> anyhow::Result<Self> {
-        let config = Config::new()?;
-        let api = UggApiBuilder::new()
-            .version("13.22.1")
-            .cache_dir(config.cache())
-            .build()?;
+    fn create(api: UggApi) -> Self {
+        let version = api.current_version.clone();
+        let version_index = api
+            .allowed_versions
+            .iter()
+            .position(|v| v.ddragon == version);
 
         let mut ordered_champ_data = api
             .champ_data
@@ -95,12 +98,34 @@ impl AppContext<'_> {
             max_item_length,
             items: ordered_item_names,
             mode: Mode::Normal,
-            last_render_duration: None,
             mode_scroll_pos: None,
+            version,
+            version_scroll_pos: version_index,
+            last_render_duration: None,
         };
         app_context.update_champ_list();
 
-        Ok(app_context)
+        app_context
+    }
+
+    pub fn new_with_version(version: &str) -> anyhow::Result<Self> {
+        let config = Config::new()?;
+        let api = UggApiBuilder::new()
+            .version(version)
+            .cache_dir(config.cache())
+            .build()?;
+        Ok(Self::create(api))
+    }
+
+    pub fn new() -> anyhow::Result<Self> {
+        let config = Config::new()?;
+        let api = UggApiBuilder::new().cache_dir(config.cache()).build()?;
+        Ok(Self::create(api))
+    }
+
+    pub fn replace(&mut self, version: &str) -> anyhow::Result<()> {
+        *self = Self::new_with_version(version)?;
+        Ok(())
     }
 
     pub fn update_champ_list(&mut self) {

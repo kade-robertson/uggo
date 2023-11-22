@@ -18,13 +18,14 @@ pub fn make_app_border(ctx: &AppContext) -> impl Widget {
                 .alignment(Alignment::Center),
         )
         .title(
-            Title::from(" [Esc: Back] [Enter: Commit] [m: Cycle Mode] [Ctrl + q: Exit] ")
+            Title::from(" [Esc: Back] [Enter: Commit] [m: Mode] [v: Version] [Ctrl + q: Exit] ")
                 .position(Position::Bottom)
                 .alignment(Alignment::Left),
         )
         .title(
             Title::from(format!(
-                " [Mode: {}] [Render: {:.2}ms] ",
+                " [Game Version: {}] [Mode: {}] [Render: {:.2}ms] ",
+                ctx.version,
                 ctx.mode,
                 ctx.last_render_duration
                     .map_or(0.0, |d| d.as_micros() as f64 / 1000.0)

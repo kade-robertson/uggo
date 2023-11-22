@@ -1,4 +1,4 @@
-use crate::util::{clear_cache, read_from_cache, sha256, write_to_cache};
+use crate::util::sha256;
 use ddragon::models::champions::ChampionShort;
 use ddragon::models::items::Item;
 use ddragon::models::runes::RuneElement;
@@ -6,7 +6,6 @@ use ddragon::{Client, ClientBuilder};
 use levenshtein::levenshtein;
 use lru::LruCache;
 use serde::de::DeserializeOwned;
-use serde::Serialize;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::io::Read;
@@ -41,10 +40,15 @@ pub enum UggError {
 
 pub struct DataApi {
     agent: Agent,
-    cache_dir: PathBuf,
     ddragon: Client,
     overview_cache: RefCell<LruCache<String, ChampOverview>>,
     matchup_cache: RefCell<LruCache<String, Matchups>>,
+}
+
+#[derive(Debug, Clone)]
+pub struct SupportedVersion {
+    pub ddragon: String,
+    pub ugg: String,
 }
 
 pub struct UggApi {
@@ -52,6 +56,7 @@ pub struct UggApi {
     ugg_api_versions: UggAPIVersions,
 
     pub current_version: String,
+    pub allowed_versions: Vec<SupportedVersion>,
     pub patch_version: String,
     pub champ_data: HashMap<String, ChampionShort>,
     pub items: HashMap<String, Item>,
@@ -72,10 +77,9 @@ impl DataApi {
 
         Ok(Self {
             agent: Agent::new(),
-            cache_dir: safe_dir,
             ddragon: client_builder.build()?,
-            overview_cache: RefCell::new(LruCache::new(NonZeroUsize::new(25).unwrap())),
-            matchup_cache: RefCell::new(LruCache::new(NonZeroUsize::new(25).unwrap())),
+            overview_cache: RefCell::new(LruCache::new(NonZeroUsize::new(50).unwrap())),
+            matchup_cache: RefCell::new(LruCache::new(NonZeroUsize::new(50).unwrap())),
         })
     }
 
@@ -86,19 +90,12 @@ impl DataApi {
         .map_err(UggError::ParseError)
     }
 
-    fn get_cached_data<T: DeserializeOwned + Serialize>(&self, url: &str) -> Result<T, UggError> {
-        if let Ok(data) = read_from_cache::<T>(&self.cache_dir, url) {
-            return Ok(data);
-        }
-
-        self.get_data::<T>(url).map(|d| {
-            let _ = write_to_cache::<T>(&self.cache_dir, url, &d);
-            d
-        })
-    }
-
     pub fn get_current_version(&mut self) -> String {
         self.ddragon.version.clone()
+    }
+
+    pub fn get_supported_versions(&self) -> Result<Vec<String>, UggError> {
+        self.get_data("https://ddragon.leagueoflegends.com/api/versions.json")
     }
 
     pub fn get_champ_data(&self) -> Result<HashMap<String, ChampionShort>, UggError> {
@@ -144,25 +141,8 @@ impl DataApi {
         Ok(reduced_data)
     }
 
-    pub fn get_ugg_api_versions(&self, version: &String) -> Result<UggAPIVersions, UggError> {
-        let ugg_api_version_endpoint =
-            "https://static.bigbrain.gg/assets/lol/riot_patch_update/prod/ugg/ugg-api-versions.json"
-                .to_string();
-        let mut ugg_api_data = self.get_cached_data::<UggAPIVersions>(&ugg_api_version_endpoint);
-
-        match ugg_api_data {
-            Ok(ugg_api) => {
-                if ugg_api.contains_key(version) {
-                    Ok(ugg_api)
-                } else {
-                    clear_cache(&self.cache_dir, &ugg_api_version_endpoint);
-                    ugg_api_data =
-                        self.get_cached_data::<UggAPIVersions>(&ugg_api_version_endpoint);
-                    ugg_api_data
-                }
-            }
-            Err(e) => Err(e),
-        }
+    pub fn get_ugg_api_versions(&self) -> Result<UggAPIVersions, UggError> {
+        self.get_data::<UggAPIVersions>("https://static.bigbrain.gg/assets/lol/riot_patch_update/prod/ugg/ugg-api-versions.json")
     }
 
     pub fn get_stats(
@@ -290,9 +270,32 @@ impl DataApi {
 
 impl UggApi {
     pub fn new(version: Option<String>, cache_dir: Option<PathBuf>) -> Result<Self, UggError> {
-        let mut inner_api = DataApi::new(version, cache_dir)?;
+        let mut inner_api = DataApi::new(version, cache_dir.clone())?;
 
-        let current_version = inner_api.get_current_version();
+        let mut current_version = inner_api.get_current_version();
+        let allowed_versions = inner_api.get_supported_versions()?;
+        let ugg_api_versions = inner_api.get_ugg_api_versions()?;
+        let versions_ugg_supports = allowed_versions
+            .into_iter()
+            .map(|v| SupportedVersion {
+                ddragon: v.clone(),
+                ugg: (v.split('.').take(2).collect::<Vec<&str>>()).join("_"),
+            })
+            .filter(|v| ugg_api_versions.contains_key(&v.ugg))
+            .collect::<Vec<_>>();
+
+        if let Some(default_if_fails) = versions_ugg_supports.first() {
+            if !versions_ugg_supports
+                .iter()
+                .any(|v| v.ddragon == current_version)
+            {
+                inner_api = DataApi::new(Some(default_if_fails.ddragon.clone()), cache_dir)?;
+                current_version = inner_api.get_current_version();
+            }
+        } else {
+            return Err(UggError::Unknown);
+        }
+
         let champ_data = inner_api.get_champ_data()?;
         let items = inner_api.get_items()?;
         let runes = inner_api.get_runes()?;
@@ -302,10 +305,9 @@ impl UggApi {
         patch_version_split.remove(patch_version_split.len() - 1);
         let patch_version = patch_version_split.join("_");
 
-        let ugg_api_versions = inner_api.get_ugg_api_versions(&patch_version)?;
-
         Ok(Self {
             api: inner_api,
+            allowed_versions: versions_ugg_supports,
             ugg_api_versions,
             current_version,
             patch_version,

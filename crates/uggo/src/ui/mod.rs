@@ -5,6 +5,7 @@ mod matchups;
 mod mode_select;
 mod rune_path;
 mod shards;
+mod version_select;
 
 use ratatui::{
     layout::{Constraint, Direction, Layout, Margin, Rect},
@@ -21,6 +22,8 @@ use rune_path::{make_rune_paths, make_rune_paths_placeholder};
 use shards::{make_shards, make_shards_placeholder};
 
 use crate::context::{AppContext, State};
+
+use self::{mode_select::make_mode_select, version_select::make_version_select};
 
 pub fn render(frame: &mut Frame, ctx: &AppContext) {
     let app_border = Layout::default()
@@ -161,16 +164,32 @@ pub fn render(frame: &mut Frame, ctx: &AppContext) {
     }
 
     if ctx.state == State::ModeSelect {
-        let (mode_list, mut mode_list_state, minimum_area) = mode_select::make_mode_select(ctx);
+        let (mode_list, mut mode_list_state, minimum_area) = make_mode_select(ctx);
         let safe_area = main_layout[1].inner(&Margin::new(
             (main_layout[1].width - minimum_area.width) / 2 - 1,
             (main_layout[1].height - minimum_area.height) / 2 - 1,
         ));
+        frame.render_widget(Block::new().bg(Color::Black), main_layout[1]);
         frame.render_widget(Clear, safe_area);
         frame.render_stateful_widget(
             mode_list,
             safe_area.inner(&Margin::new(1, 1)),
             &mut mode_list_state,
+        );
+    }
+
+    if ctx.state == State::VersionSelect {
+        let (version_list, mut version_list_state, minimum_area) = make_version_select(ctx);
+        let safe_area = main_layout[1].inner(&Margin::new(
+            (main_layout[1].width - minimum_area.width) / 2 - 1,
+            (main_layout[1].height - minimum_area.height) / 2 - 1,
+        ));
+        frame.render_widget(Block::new().bg(Color::Black), main_layout[1]);
+        frame.render_widget(Clear, safe_area);
+        frame.render_stateful_widget(
+            version_list,
+            safe_area.inner(&Margin::new(1, 1)),
+            &mut version_list_state,
         );
     }
 }
