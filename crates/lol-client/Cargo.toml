@@ -2,7 +2,7 @@
 name = "uggo-lol-client"
 version = "0.0.99"
 edition = "2021"
-rust-version = "1.68.2"
+rust-version = "1.74"
 license = "MIT"
 description = "uggo dependency -- API bindings for the League of Legends client"
 homepage = "https://github.com/kade-robertson/uggo"

@@ -2,7 +2,7 @@
 name = "uggo-ugg-api"
 version = "0.0.99"
 edition = "2021"
-rust-version = "1.68.2"
+rust-version = "1.74"
 license = "MIT"
 description = "uggo dependency -- API client for u.gg"
 homepage = "https://github.com/kade-robertson/uggo"

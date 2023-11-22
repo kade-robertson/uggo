@@ -26,20 +26,8 @@ jobs:
       - name: Run sccache-cache
         uses: mozilla-actions/sccache-action@v0.0.3
 
-      - name: Test uggo
-        run: cargo test --locked --package uggo
+      - name: Test
+        run: cargo test --locked
 
-      - name: Build uggo
-        run: cargo build --locked --package uggo --release
-
-      - name: Test ugg-types and ugg-proxy
-        if: runner.os == 'Linux'
-        run: |
-          cargo test --locked --package ugg-types
-          cargo test --locked --package ugg-proxy
-
-      - name: Build ugg-types and ugg-proxy
-        if: runner.os == 'Linux'
-        run: |
-          cargo build --locked --package ugg-types --release
-          cargo build --locked --package ugg-proxy --release
+      - name: Build
+        run: cargo build --locked

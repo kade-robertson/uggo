@@ -1,0 +1,14 @@
+{
+  "bootstrap-sha": "b6465b52dc460e389b1faf9b58ed142041317813",
+  "last-release-sha": "b6465b52dc460e389b1faf9b58ed142041317813",
+  "release-type": "rust",
+  "plugins": ["cargo-workspace"],
+  "bump-minor-pre-major": true,
+  "packages": {
+    "crates/config": {},
+    "crates/lol-client": {},
+    "crates/ugg-api": {},
+    "crates/ugg-types": {},
+    "crates/uggo": {}
+  }
+}
