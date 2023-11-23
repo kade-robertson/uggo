@@ -1,17 +1,36 @@
 on:
-  release:
-    types: [published]
+  push:
+    branches:
+      - master
 
-name: release
+permissions:
+  contents: write
+  pull-requests: write
 
 env:
   SCCACHE_GHA_ENABLED: true
   RUSTC_WRAPPER: sccache
 
 jobs:
+  release-please:
+    name: release-please
+    runs-on: ubuntu-latest
+    outputs:
+      did_release: ${{ steps.release.outputs.releases_created }}
+      packages: ${{ steps.release.outputs.paths_released }}
+    steps:
+      - uses: google-github-actions/release-please-action@v3
+        id: release
+        with:
+          release-type: rust
+          command: manifest
+          default-branch: master
+          package-name: premium-dl
+
   publish_to_crates_io:
     name: publish to crates.io
-    if: "!github.event.release.prerelease"
+    needs: release-please
+    if: ${{ needs.release-please.outputs.did_release }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -29,10 +48,11 @@ jobs:
 
   build_github_artifacts:
     name: build github artifacts
+    needs: release-please
+    if: ${{ needs.release-please.outputs.did_release && contains(fromJSON(needs.release-please.outputs.packages), 'crates/uggo') }}
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-    if: "!github.event.release.prerelease"
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
@@ -71,4 +91,4 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: artifacts/*
-          tag_name: "v${{ steps.vars.outputs.version }}"
+          tag_name: "uggo-v${{ steps.vars.outputs.version }}"

@@ -1,0 +1,16 @@
+[package]
+name = "uggo-config"
+version = "0.0.99"
+edition = "2021"
+rust-version = "1.74"
+license = "MIT"
+description = "uggo dependency -- shared config definition"
+homepage = "https://github.com/kade-robertson/uggo"
+repository = "https://github.com/kade-robertson/uggo"
+readme = "../../README.md"
+keywords = ["uggo"]
+categories = ["config"]
+
+[dependencies]
+config-better = "1.2.0"
+thiserror = "1.0.50"
