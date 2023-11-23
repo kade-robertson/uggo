@@ -183,6 +183,7 @@ impl AppContext<'_> {
         self.state = State::ChampSelected;
     }
 
+    #[cfg(debug_assertions)]
     pub fn set_render_duration(&mut self, duration: Duration) {
         self.last_render_duration = Some(duration);
     }

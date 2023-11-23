@@ -2,7 +2,7 @@
 
 [![version](https://img.shields.io/crates/v/uggo?style=flat-square)](https://crates.io/crates/uggo) [![downloads](https://img.shields.io/crates/d/uggo?style=flat-square)](https://crates.io/crates/uggo)
 
-CLI tool to pull builds from https://u.gg/.
+TUI to pull builds from https://u.gg/.
 
 ## Install
 
@@ -12,16 +12,10 @@ You can install from [crates.io](https://crates.io/crates/uggo):
 cargo install uggo
 ```
 
-Or, directly from the GitHub releases using `cargo-binstall`:
+Or, using `cargo-binstall`:
 
 ```zsh
 cargo binstall uggo
-```
-
-Or, by installing the GitHub repo directly:
-
-```zsh
-cargo install --git https://github.com/kade-robertson/uggo
 ```
 
 Finally, you can always find the latest release builds in the [Releases](https://github.com/kade-robertson/uggo/releases/latest) tab.
@@ -30,147 +24,8 @@ Finally, you can always find the latest release builds in the [Releases](https:/
 
 ### Interactive
 
-Just run the executable. If run with no options, you'll be presented with a prompt:
+Just run the program.
 
-```
-query>
-```
+![usage](assets/usage.webm)
 
-You can change the mode you want to retrieve builds from by using the `mode` command:
-
-```
-query> mode normal
-```
-
-A list of valid modes can be seen from using the `modes` command. If you want to see the currently active mode, use `mode` without any arguments. The default is `normal`.
-
-Once you have the mode you want selected, you can make queries in the form `<champion>[,<role>][,<region]`. If `<champion>` is the only item provided, `<role>` defaults to Automatic (whichever has the highest sample size), and `<region>` defaults to `World`. The champion field does it's best to match the intended champion, so an exact match isn't required. For more details on the optional fields, refer to [Roles](#roles) and [Regions](#regions).
-
-Here's some examples:
-
-```
-query> Lux
-query> Seraphine,mid
-query> Ornn,top,na1
-query> Sivir,kr
-```
-
-Here's an example output, which details runes, shards, spells, ability order, items and best/worst matchups:
-
-```
- --------------------------------
- Build for Ornn, playing Top lane
- --------------------------------
- Resolve                      Inspiration
- Grasp of the Undying  [●··]  Magical Footwear (Row 1)  [·●·]
- Demolish              [●··]  Biscuit Delivery (Row 2)  [··●]
- Conditioning          [●··]
- Overgrowth            [●··]
-
- Shards:
- - Offense: +10% Attack Speed
- - Flex: +6 Armor
- - Defense: +6 Armor
-
- Spells: Flash, Teleport
-
- Ability Order:
- Q | ●             ●   ●   ● ●
- W |   ●   ● ●   ●   ●
- E |     ●                     ● ●   ● ●
- R |           ●         ●         ●
-
- Starting:  Doran's Shield, Health Potion
-     Core:  Plated Steelcaps, Sunfire Aegis, Thornmail
-      4th:  Abyssal Mask, Warmog's Armor
-      5th:  Gargoyle Stoneplate, Warmog's Armor, Abyssal Mask
-      6th:  Gargoyle Stoneplate, Warmog's Armor, Anathema's Chains
-
-  Best Matchups:  Quinn, Malphite, Graves, Jayce, Volibear
- Worst Matchups:  Poppy, Warwick, Yone, Fiora, Rengar
-```
-
-For runes, the larger dots indicate the position in the particular row that option is in.
-
-By default, when `uggo` is first run it will attempt to connect to the Game Client API, and if able to enables automatically creating rune pages. For this to work, the following needs to be true:
-
-- League of Legends is already running,
-- You have at least one editable rune page, and
-- An editable rune page must be the current page.
-
-#### Roles
-
-`<role>` can be 1 of 7 options:
-
-- Jungle
-- Support
-- ADCarry
-- Top
-- Mid
-- None
-- Automatic
-
-`None` is only used for ARAM, and is the default in this case. Otherwise, `Automatic` is the default.
-
-#### Regions
-
-`<region>` can be 1 of 17 options:
-
-- NA1
-- EUW1
-- KR
-- EUN1
-- BR1
-- LA1
-- LA2
-- OC1
-- RU
-- TR1
-- JP1
-- World
-- PH2
-- SG2
-- TH2
-- TW2
-- VN2
-
-`World` is the default.
-
-### CLI
-
-You can optionally run `uggo` as a CLI. You can just specify the name, or add the same query options you would have in the interactive version.
-Run with `--help` for more info:
-
-```
-CLI tool to query builds from u.gg, for League of Legends.
-
-Usage: uggo [OPTIONS] [CHAMP]
-
-Arguments:
-  [CHAMP]
-          The name of the champion you want to match. A best effort will be made to find the champ if it's only a partial query.
-
-          If left blank, will open the interactive version of uggo.
-
-Options:
-  -v, --api-version <VERSION>
-          Override for the version used to query from ddragon. If in doubt, do not specify this option.
-
-  -m, --mode <MODE>
-          [default: Normal]
-          [possible values: normal, aram, one-for-all, urf]
-
-  -r, --role <ROLE>
-          [default: Automatic]
-          [possible values: jungle, support, ad-carry, top, mid, none, automatic]
-
-  -R, --region <REGION>
-          [default: World]
-          [possible values: na1, euw1, kr, eun1, br1, la1, la2, oc1, ru, tr1, jp1, world]
-
-  -h, --help
-          Print help information (use `-h` for a summary)
-
-  -V, --version
-          Print version information
-```
+Controls are listed at the bottom of the screen, or next to the title of the block that can be interacted with.

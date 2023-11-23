@@ -115,7 +115,7 @@ pub fn handle_events(ctx: &mut AppContext) -> anyhow::Result<bool> {
                     }
                     KeyCode::Down => {
                         if let Some(pos) = ctx.mode_scroll_pos {
-                            if pos < ctx.champ_list.len() - 1 {
+                            if pos < Mode::all().len() - 1 {
                                 ctx.mode_scroll_pos = Some(pos + 1);
                             }
                         }
@@ -145,7 +145,7 @@ pub fn handle_events(ctx: &mut AppContext) -> anyhow::Result<bool> {
                     }
                     KeyCode::Down => {
                         if let Some(pos) = ctx.version_scroll_pos {
-                            if pos < ctx.champ_list.len() - 1 {
+                            if pos < ctx.api.allowed_versions.len() - 1 {
                                 ctx.version_scroll_pos = Some(pos + 1);
                             }
                         }

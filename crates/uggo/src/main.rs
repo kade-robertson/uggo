@@ -13,7 +13,10 @@ use crossterm::{
     ExecutableCommand,
 };
 use ratatui::prelude::*;
-use std::{io::stdout, time::Instant};
+use std::io::stdout;
+
+#[cfg(debug_assertions)]
+use std::time::Instant;
 
 mod context;
 mod events;
