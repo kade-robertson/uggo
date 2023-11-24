@@ -28,7 +28,7 @@ const fn shard_text(id: i64) -> &'static str {
     }
 }
 
-pub fn make_shards_placeholder() -> impl Widget {
+pub fn make_placeholder() -> impl Widget {
     Block::default()
         .white()
         .title(" Shards ")
@@ -47,7 +47,7 @@ fn make_shard_row(name: &str, shard: i64) -> Row {
     ])
 }
 
-pub fn make_shards(shards: &[i64]) -> impl Widget {
+pub fn make(shards: &[i64]) -> impl Widget {
     Table::new(vec![
         make_shard_row("Offense", shards[0]),
         make_shard_row("Flex", shards[1]),

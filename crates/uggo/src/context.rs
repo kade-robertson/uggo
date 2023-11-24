@@ -123,11 +123,6 @@ impl AppContext<'_> {
         Ok(Self::create(api))
     }
 
-    pub fn replace(&mut self, version: &str) -> anyhow::Result<()> {
-        *self = Self::new_with_version(version)?;
-        Ok(())
-    }
-
     pub fn update_champ_list(&mut self) {
         (self.list_indices, self.champ_list) = self
             .champ_data
@@ -145,54 +140,6 @@ impl AppContext<'_> {
         self.state = State::Initial;
         if reset_champ_scroll {
             self.champ_scroll_pos = None;
-        }
-    }
-
-    pub fn next_champ(&mut self) {
-        if let Some(pos) = self.champ_scroll_pos {
-            if pos < self.champ_list.len() - 1 {
-                self.champ_scroll_pos = Some(pos + 1);
-            }
-        }
-    }
-
-    pub fn prev_champ(&mut self) {
-        if let Some(pos) = self.champ_scroll_pos {
-            if pos > 0 {
-                self.champ_scroll_pos = Some(pos - 1);
-            }
-        }
-    }
-
-    pub fn next_mode(&mut self) {
-        if let Some(pos) = self.mode_scroll_pos {
-            if pos < Mode::all().len() - 1 {
-                self.mode_scroll_pos = Some(pos + 1);
-            }
-        }
-    }
-
-    pub fn prev_mode(&mut self) {
-        if let Some(pos) = self.mode_scroll_pos {
-            if pos > 0 {
-                self.mode_scroll_pos = Some(pos - 1);
-            }
-        }
-    }
-
-    pub fn next_version(&mut self) {
-        if let Some(pos) = self.version_scroll_pos {
-            if pos < self.api.allowed_versions.len() - 1 {
-                self.version_scroll_pos = Some(pos + 1);
-            }
-        }
-    }
-
-    pub fn prev_version(&mut self) {
-        if let Some(pos) = self.version_scroll_pos {
-            if pos > 0 {
-                self.version_scroll_pos = Some(pos - 1);
-            }
         }
     }
 

@@ -18,6 +18,7 @@ use std::io::stdout;
 #[cfg(debug_assertions)]
 use std::time::Instant;
 
+mod components;
 mod context;
 mod events;
 mod ui;

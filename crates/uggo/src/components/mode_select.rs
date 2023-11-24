@@ -5,10 +5,10 @@ use ratatui::{
 };
 use ugg_types::mappings::Mode;
 
-use crate::context::AppContext;
+use crate::context::{AppContext, State};
 
 #[allow(clippy::cast_possible_truncation)]
-pub fn make_mode_select<'a>(ctx: &AppContext) -> (List<'a>, ListState, Rect) {
+pub fn make<'a>(ctx: &AppContext) -> (List<'a>, ListState, Rect) {
     let mode_list = List::new(
         Mode::all()
             .iter()
@@ -46,4 +46,33 @@ pub fn make_mode_select<'a>(ctx: &AppContext) -> (List<'a>, ListState, Rect) {
             Mode::all().len() as u16 + 2,
         ),
     )
+}
+
+impl AppContext<'_> {
+    pub fn next_mode(&mut self) {
+        if let Some(pos) = self.mode_scroll_pos {
+            if pos < Mode::all().len() - 1 {
+                self.mode_scroll_pos = Some(pos + 1);
+            }
+        }
+    }
+
+    pub fn prev_mode(&mut self) {
+        if let Some(pos) = self.mode_scroll_pos {
+            if pos > 0 {
+                self.mode_scroll_pos = Some(pos - 1);
+            }
+        }
+    }
+
+    pub fn select_mode(&mut self) {
+        if let Some(mode) = self.mode_scroll_pos.and_then(|p| Mode::all().get(p)) {
+            self.mode = *mode;
+            self.state = State::Initial;
+            if let Some(champ) = self.selected_champ.clone() {
+                self.select_champion(&champ);
+                self.state = State::ChampSelected;
+            }
+        }
+    }
 }
