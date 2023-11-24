@@ -1,7 +1,7 @@
 {
   "crates/config": "0.1.0",
-  "crates/lol-client": "0.1.0",
-  "crates/ugg-api": "0.1.0",
-  "crates/ugg-types": "0.4.0",
-  "crates/uggo": "0.11.0"
+  "crates/lol-client": "0.1.1",
+  "crates/ugg-api": "0.1.1",
+  "crates/ugg-types": "0.4.1",
+  "crates/uggo": "0.11.1"
 }
