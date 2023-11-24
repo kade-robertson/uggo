@@ -99,9 +99,24 @@ pub fn render(frame: &mut Frame, ctx: &AppContext) {
 
     if let Some(overview) = &ctx.selected_champ_overview {
         if let Some(selected) = &ctx.selected_champ {
+            let champ_name = selected.name.clone();
+            let (selected_text, color) = if overview.low_sample_size {
+                (
+                    format!(
+                        " Selected: {champ_name}, Role: {} (Warning: Low Sample Size)",
+                        ctx.role
+                    ),
+                    Color::Yellow,
+                )
+            } else {
+                (
+                    format!(" Selected: {champ_name}, Role: {}", ctx.role),
+                    Color::Green,
+                )
+            };
+
             frame.render_widget(
-                Paragraph::new(format!(" Selected: {}", selected.name.clone()))
-                    .style(Style::default().fg(Color::Green).bold()),
+                Paragraph::new(selected_text).style(Style::default().fg(color).bold()),
                 overview_layout[0],
             );
         }
