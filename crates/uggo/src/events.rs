@@ -7,9 +7,8 @@ use crate::context::{AppContext, State};
 pub fn handle_events(ctx: &mut AppContext) -> anyhow::Result<bool> {
     if event::poll(std::time::Duration::from_millis(50))? {
         if let Event::Key(key) = event::read()? {
-            // Ignore release events to fix Windows input issues.
+            // Ignore release events to fix undesired double-input issues.
             // https://github.com/ratatui-org/ratatui/issues/347
-            #[cfg(windows)]
             if key.kind == event::KeyEventKind::Release {
                 return Ok(false);
             }
