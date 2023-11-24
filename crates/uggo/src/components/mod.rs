@@ -5,6 +5,8 @@ pub mod help_menu;
 pub mod items;
 pub mod matchups;
 pub mod mode_select;
+pub mod region_select;
+pub mod role_select;
 pub mod rune_path;
 pub mod search;
 pub mod shards;

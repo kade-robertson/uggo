@@ -3,14 +3,14 @@ use ratatui::{
     style::{Color, Modifier, Style, Stylize},
     widgets::{Block, Borders, List, ListItem, ListState},
 };
-use ugg_types::mappings::Mode;
+use ugg_types::mappings::Region;
 
 use crate::context::{AppContext, State};
 
 #[allow(clippy::cast_possible_truncation)]
 pub fn make<'a>(ctx: &AppContext) -> (List<'a>, ListState, Rect) {
-    let mode_list = List::new(
-        Mode::all()
+    let region_list = List::new(
+        Region::all()
             .iter()
             .map(|m| ListItem::new(m.to_string()).style(Style::default().fg(Color::White)))
             .collect::<Vec<_>>(),
@@ -24,55 +24,59 @@ pub fn make<'a>(ctx: &AppContext) -> (List<'a>, ListState, Rect) {
     .highlight_symbol("> ")
     .block(
         Block::default()
-            .title(" Game Mode ")
+            .title(" Region ")
             .title_style(Style::default().bold())
             .borders(Borders::ALL),
     );
 
-    let mode_list_state = ListState::default().with_selected(ctx.mode_scroll_pos);
+    let mode_list_state = ListState::default().with_selected(ctx.region_scroll_pos);
 
     (
-        mode_list,
+        region_list,
         mode_list_state,
         Rect::new(
             0,
             0,
-            Mode::all()
+            Region::all()
                 .iter()
                 .map(|s| s.to_string().len())
                 .max()
                 .unwrap_or_default() as u16
                 + 5,
-            Mode::all().len() as u16 + 1,
+            Region::all().len() as u16 + 2,
         ),
     )
 }
 
 impl AppContext<'_> {
-    pub fn next_mode(&mut self) {
-        if let Some(pos) = self.mode_scroll_pos {
-            if pos < Mode::all().len() - 1 {
-                self.mode_scroll_pos = Some(pos + 1);
+    pub fn next_region(&mut self) {
+        if let Some(pos) = self.region_scroll_pos {
+            if pos < Region::all().len() - 1 {
+                self.region_scroll_pos = Some(pos + 1);
             }
         }
     }
 
-    pub fn prev_mode(&mut self) {
-        if let Some(pos) = self.mode_scroll_pos {
+    pub fn prev_region(&mut self) {
+        if let Some(pos) = self.region_scroll_pos {
             if pos > 0 {
-                self.mode_scroll_pos = Some(pos - 1);
+                self.region_scroll_pos = Some(pos - 1);
             }
         }
     }
 
-    pub fn select_mode(&mut self) {
-        if let Some(mode) = self.mode_scroll_pos.and_then(|p| Mode::all().get(p)) {
-            self.mode = *mode;
+    pub fn select_region(&mut self) {
+        if let Some(region) = self.region_scroll_pos.and_then(|p| Region::all().get(p)) {
+            self.region = *region;
             self.state = State::Initial;
             if let Some(champ) = self.selected_champ.clone() {
                 self.select_champion(&champ);
                 self.state = State::ChampSelected;
             }
         }
+    }
+
+    pub fn match_pos_to_region(&mut self) {
+        self.region_scroll_pos = Region::all().iter().position(|r| r == &self.region);
     }
 }

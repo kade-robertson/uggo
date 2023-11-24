@@ -17,13 +17,15 @@ macro_rules! right_cell {
     };
 }
 
-const CELLS: [[&str; 2]; 8] = [
+const CELLS: [[&str; 2]; 10] = [
     ["Search", "s"],
     ["Champ Select", "c"],
     ["Mode Select", "m"],
+    ["Role Select", "r"],
     ["Version Select", "v"],
+    ["Region Select", "w"],
     ["Back", "Esc"],
-    ["Enter", "Send"],
+    ["Send", "Enter"],
     ["Quit", "Ctrl+Q"],
     ["Help", "?"],
 ];

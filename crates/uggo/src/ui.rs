@@ -172,6 +172,38 @@ pub fn render(frame: &mut Frame, ctx: &AppContext) {
         );
     }
 
+    if ctx.state == State::RegionSelect {
+        let (region_list, mut region_list_state, minimum_area) =
+            crate::components::region_select::make(ctx);
+        let safe_area = main_layout[1].inner(&Margin::new(
+            (main_layout[1].width - minimum_area.width) / 2 - 1,
+            (main_layout[1].height - minimum_area.height) / 2 - 1,
+        ));
+        frame.render_widget(Block::new().bg(Color::Black), main_layout[1]);
+        frame.render_widget(Clear, safe_area);
+        frame.render_stateful_widget(
+            region_list,
+            safe_area.inner(&Margin::new(1, 1)),
+            &mut region_list_state,
+        );
+    }
+
+    if ctx.state == State::RoleSelect {
+        let (role_list, mut role_list_state, minimum_area) =
+            crate::components::role_select::make(ctx);
+        let safe_area = main_layout[1].inner(&Margin::new(
+            (main_layout[1].width - minimum_area.width) / 2 - 1,
+            (main_layout[1].height - minimum_area.height) / 2 - 1,
+        ));
+        frame.render_widget(Block::new().bg(Color::Black), main_layout[1]);
+        frame.render_widget(Clear, safe_area);
+        frame.render_stateful_widget(
+            role_list,
+            safe_area.inner(&Margin::new(1, 1)),
+            &mut role_list_state,
+        );
+    }
+
     if ctx.state == State::HelpMenu {
         let (help_menu, minimum_area) = crate::components::help_menu::make();
         let safe_area = main_layout[1].inner(&Margin::new(

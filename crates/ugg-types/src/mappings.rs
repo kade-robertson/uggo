@@ -179,6 +179,28 @@ impl Region {
         })
         .to_string()
     }
+
+    pub fn all() -> &'static [Region; 17] {
+        &[
+            Region::NA1,
+            Region::EUW1,
+            Region::KR,
+            Region::EUN1,
+            Region::BR1,
+            Region::LA1,
+            Region::LA2,
+            Region::OC1,
+            Region::RU,
+            Region::TR1,
+            Region::JP1,
+            Region::World,
+            Region::PH2,
+            Region::SG2,
+            Region::TH2,
+            Region::TW2,
+            Region::VN2,
+        ]
+    }
 }
 
 impl Default for Region {
@@ -277,6 +299,20 @@ pub enum Role {
 impl Default for Role {
     fn default() -> Self {
         Self::Automatic
+    }
+}
+
+impl Role {
+    pub fn all() -> &'static [Role; 7] {
+        &[
+            Role::Jungle,
+            Role::Support,
+            Role::ADCarry,
+            Role::Top,
+            Role::Mid,
+            Role::None,
+            Role::Automatic,
+        ]
     }
 }
 

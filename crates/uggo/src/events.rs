@@ -37,6 +37,14 @@ pub fn handle_events(ctx: &mut AppContext) -> anyhow::Result<bool> {
                         ctx.state = State::VersionSelect;
                         ctx.version_scroll_pos = Some(ctx.version_scroll_pos.unwrap_or_default());
                     }
+                    KeyCode::Char('w') => {
+                        ctx.state = State::RegionSelect;
+                        ctx.match_pos_to_region();
+                    }
+                    KeyCode::Char('r') => {
+                        ctx.state = State::RoleSelect;
+                        ctx.match_pos_to_role();
+                    }
                     KeyCode::Char('?') => {
                         ctx.state = State::HelpMenu;
                     }
@@ -68,6 +76,20 @@ pub fn handle_events(ctx: &mut AppContext) -> anyhow::Result<bool> {
                     KeyCode::Up => ctx.prev_version(),
                     KeyCode::Down => ctx.next_version(),
                     KeyCode::Enter => ctx.select_version()?,
+                    _ => {}
+                },
+                State::RegionSelect => match key.code {
+                    KeyCode::Esc => ctx.return_to_initial(false),
+                    KeyCode::Up => ctx.prev_region(),
+                    KeyCode::Down => ctx.next_region(),
+                    KeyCode::Enter => ctx.select_region(),
+                    _ => {}
+                },
+                State::RoleSelect => match key.code {
+                    KeyCode::Esc => ctx.return_to_initial(false),
+                    KeyCode::Up => ctx.prev_role(),
+                    KeyCode::Down => ctx.next_role(),
+                    KeyCode::Enter => ctx.select_role(),
                     _ => {}
                 },
                 State::HelpMenu => {
