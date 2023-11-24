@@ -10,7 +10,7 @@ pub fn make<'a>(ctx: &'a AppContext) -> (List<'a>, ListState) {
         List::new(ctx.champ_list.clone())
             .block(
                 Block::default()
-                    .title(" Champions [c] ")
+                    .title(" Champions ")
                     .style(Style::default().fg(Color::White).bold())
                     .borders(Borders::ALL),
             )
