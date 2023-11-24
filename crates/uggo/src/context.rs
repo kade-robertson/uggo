@@ -141,6 +141,61 @@ impl AppContext<'_> {
             .unzip();
     }
 
+    pub fn return_to_initial(&mut self, reset_champ_scroll: bool) {
+        self.state = State::Initial;
+        if reset_champ_scroll {
+            self.champ_scroll_pos = None;
+        }
+    }
+
+    pub fn next_champ(&mut self) {
+        if let Some(pos) = self.champ_scroll_pos {
+            if pos < self.champ_list.len() - 1 {
+                self.champ_scroll_pos = Some(pos + 1);
+            }
+        }
+    }
+
+    pub fn prev_champ(&mut self) {
+        if let Some(pos) = self.champ_scroll_pos {
+            if pos > 0 {
+                self.champ_scroll_pos = Some(pos - 1);
+            }
+        }
+    }
+
+    pub fn next_mode(&mut self) {
+        if let Some(pos) = self.mode_scroll_pos {
+            if pos < Mode::all().len() - 1 {
+                self.mode_scroll_pos = Some(pos + 1);
+            }
+        }
+    }
+
+    pub fn prev_mode(&mut self) {
+        if let Some(pos) = self.mode_scroll_pos {
+            if pos > 0 {
+                self.mode_scroll_pos = Some(pos - 1);
+            }
+        }
+    }
+
+    pub fn next_version(&mut self) {
+        if let Some(pos) = self.version_scroll_pos {
+            if pos < self.api.allowed_versions.len() - 1 {
+                self.version_scroll_pos = Some(pos + 1);
+            }
+        }
+    }
+
+    pub fn prev_version(&mut self) {
+        if let Some(pos) = self.version_scroll_pos {
+            if pos > 0 {
+                self.version_scroll_pos = Some(pos - 1);
+            }
+        }
+    }
+
     pub fn select_champion(&mut self, champ: &ChampionShort) {
         self.champ_scroll_pos = None;
         self.selected_champ = Some(champ.clone());
