@@ -99,9 +99,24 @@ pub fn render(frame: &mut Frame, ctx: &AppContext) {
 
     if let Some(overview) = &ctx.selected_champ_overview {
         if let Some(selected) = &ctx.selected_champ {
+            let champ_name = selected.name.clone();
+            let (selected_text, color) = if overview.low_sample_size {
+                (
+                    format!(
+                        " Selected: {champ_name}, Role: {} (Warning: Low Sample Size)",
+                        ctx.role
+                    ),
+                    Color::Yellow,
+                )
+            } else {
+                (
+                    format!(" Selected: {champ_name}, Role: {}", ctx.role),
+                    Color::Green,
+                )
+            };
+
             frame.render_widget(
-                Paragraph::new(format!(" Selected: {}", selected.name.clone()))
-                    .style(Style::default().fg(Color::Green).bold()),
+                Paragraph::new(selected_text).style(Style::default().fg(color).bold()),
                 overview_layout[0],
             );
         }
@@ -169,6 +184,38 @@ pub fn render(frame: &mut Frame, ctx: &AppContext) {
             version_list,
             safe_area.inner(&Margin::new(1, 1)),
             &mut version_list_state,
+        );
+    }
+
+    if ctx.state == State::RegionSelect {
+        let (region_list, mut region_list_state, minimum_area) =
+            crate::components::region_select::make(ctx);
+        let safe_area = main_layout[1].inner(&Margin::new(
+            (main_layout[1].width - minimum_area.width) / 2 - 1,
+            (main_layout[1].height - minimum_area.height) / 2 - 1,
+        ));
+        frame.render_widget(Block::new().bg(Color::Black), main_layout[1]);
+        frame.render_widget(Clear, safe_area);
+        frame.render_stateful_widget(
+            region_list,
+            safe_area.inner(&Margin::new(1, 1)),
+            &mut region_list_state,
+        );
+    }
+
+    if ctx.state == State::RoleSelect {
+        let (role_list, mut role_list_state, minimum_area) =
+            crate::components::role_select::make(ctx);
+        let safe_area = main_layout[1].inner(&Margin::new(
+            (main_layout[1].width - minimum_area.width) / 2 - 1,
+            (main_layout[1].height - minimum_area.height) / 2 - 1,
+        ));
+        frame.render_widget(Block::new().bg(Color::Black), main_layout[1]);
+        frame.render_widget(Clear, safe_area);
+        frame.render_stateful_widget(
+            role_list,
+            safe_area.inner(&Margin::new(1, 1)),
+            &mut role_list_state,
         );
     }
 

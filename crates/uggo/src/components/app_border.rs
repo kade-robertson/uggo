@@ -13,9 +13,10 @@ use crate::context::AppContext;
 #[cfg(debug_assertions)]
 fn make_bottom_right_title<'a>(ctx: &'a AppContext) -> Title<'a> {
     Title::from(format!(
-        " [Game Version: {}] [Mode: {}] [Render: {:.2}ms] ",
-        ctx.version,
+        " [Mode: {}] [Patch: {}] [Region: {}] [Render: {:.2}ms] ",
         ctx.mode,
+        ctx.version,
+        ctx.region,
         ctx.last_render_duration
             .map_or(0.0, |d| d.as_micros() as f64 / 1000.0)
     ))
@@ -27,8 +28,8 @@ fn make_bottom_right_title<'a>(ctx: &'a AppContext) -> Title<'a> {
 #[cfg(not(debug_assertions))]
 fn make_bottom_right_title<'a>(ctx: &'a AppContext) -> Title<'a> {
     Title::from(format!(
-        " [Game Version: {}] [Mode: {}] ",
-        ctx.version, ctx.mode
+        " [Mode: {}] [Patch: {}] [Region: {}] ",
+        ctx.mode, ctx.version, ctx.region
     ))
     .position(Position::Bottom)
     .alignment(Alignment::Right)

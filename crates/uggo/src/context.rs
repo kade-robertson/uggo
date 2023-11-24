@@ -23,6 +23,8 @@ pub enum State {
     ChampSelected,
     ModeSelect,
     VersionSelect,
+    RegionSelect,
+    RoleSelect,
     HelpMenu,
 }
 
@@ -45,6 +47,10 @@ pub struct AppContext<'a> {
     pub mode_scroll_pos: Option<usize>,
     pub version: String,
     pub version_scroll_pos: Option<usize>,
+    pub region: Region,
+    pub region_scroll_pos: Option<usize>,
+    pub role: Role,
+    pub role_scroll_pos: Option<usize>,
     pub last_render_duration: Option<Duration>,
 }
 
@@ -102,6 +108,10 @@ impl AppContext<'_> {
             mode_scroll_pos: None,
             version,
             version_scroll_pos: version_index,
+            region: Region::World,
+            region_scroll_pos: Region::all().iter().position(|r| r == &Region::World),
+            role: Role::Automatic,
+            role_scroll_pos: Role::all().iter().position(|r| r == &Role::Automatic),
             last_render_duration: None,
         };
         app_context.update_champ_list();
@@ -149,7 +159,7 @@ impl AppContext<'_> {
         self.selected_champ = Some(champ.clone());
         self.selected_champ_overview = self
             .api
-            .get_stats(champ, Role::Automatic, Region::World, self.mode)
+            .get_stats(champ, self.role, self.region, self.mode)
             .map(|v| *v)
             .ok();
         if self.mode == Mode::ARAM {
@@ -157,7 +167,7 @@ impl AppContext<'_> {
         } else {
             self.selected_champ_matchups = self
                 .api
-                .get_matchups(champ, Role::Automatic, Region::World, self.mode)
+                .get_matchups(champ, self.role, self.region, self.mode)
                 .map(|v| *v)
                 .ok();
         }
