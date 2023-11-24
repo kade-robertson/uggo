@@ -1,6 +1,6 @@
 [package]
 name = "uggo-lol-client"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 rust-version = "1.74"
 license = "MIT"
@@ -17,4 +17,4 @@ native-tls = "0.2.11"
 serde = "1.0.193"
 thiserror = "1.0.50"
 ureq = { version = "2.9.0", features = ["native-tls", "brotli", "json"] }
-ugg-types = { version = "0.4.0", path = "../ugg-types" }
+ugg-types = { version = "0.4.1", path = "../ugg-types" }
