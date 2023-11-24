@@ -42,7 +42,7 @@ pub fn make<'a>(ctx: &'a AppContext) -> impl Widget + 'a {
                 .alignment(Alignment::Center),
         )
         .title(
-            Title::from(" [Esc: Back] [Enter: Send] [m: Mode] [v: Version] [Ctrl+q: Exit] ")
+            Title::from(" [Help: ?] ")
                 .position(Position::Bottom)
                 .alignment(Alignment::Left),
         )

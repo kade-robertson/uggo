@@ -28,4 +28,4 @@ Just run the program.
 
 ![usage](assets/usage.gif)
 
-Controls are listed at the bottom of the screen, or next to the title of the block that can be interacted with.
+App controls can be found by pressing ?.

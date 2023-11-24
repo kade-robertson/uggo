@@ -16,7 +16,7 @@ pub fn make<'a>(ctx: &'a AppContext) -> impl Widget + 'a {
         .block(
             Block::default()
                 .borders(Borders::ALL)
-                .title(" Search [s] ")
+                .title(" Search ")
                 .title_style(Style::default().fg(Color::White).bold()),
         )
 }

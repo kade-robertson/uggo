@@ -1,6 +1,7 @@
 pub mod ability_order;
 pub mod app_border;
 pub mod champ_list;
+pub mod help_menu;
 pub mod items;
 pub mod matchups;
 pub mod mode_select;

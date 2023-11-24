@@ -37,6 +37,9 @@ pub fn handle_events(ctx: &mut AppContext) -> anyhow::Result<bool> {
                         ctx.state = State::VersionSelect;
                         ctx.version_scroll_pos = Some(ctx.version_scroll_pos.unwrap_or_default());
                     }
+                    KeyCode::Char('?') => {
+                        ctx.state = State::HelpMenu;
+                    }
                     _ => {}
                 },
                 State::TextInput => match key.code {
@@ -67,6 +70,11 @@ pub fn handle_events(ctx: &mut AppContext) -> anyhow::Result<bool> {
                     KeyCode::Enter => ctx.select_version()?,
                     _ => {}
                 },
+                State::HelpMenu => {
+                    if let KeyCode::Esc = key.code {
+                        ctx.return_to_initial(false);
+                    }
+                }
             }
         }
     }

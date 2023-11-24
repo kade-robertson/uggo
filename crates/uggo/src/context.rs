@@ -23,6 +23,7 @@ pub enum State {
     ChampSelected,
     ModeSelect,
     VersionSelect,
+    HelpMenu,
 }
 
 pub struct AppContext<'a> {
