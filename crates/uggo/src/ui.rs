@@ -1,29 +1,20 @@
-mod ability_order;
-mod app_border;
-mod items;
-mod matchups;
-mod mode_select;
-mod rune_path;
-mod shards;
-mod version_select;
-
 use ratatui::{
     layout::{Constraint, Direction, Layout, Margin, Rect},
-    style::{Color, Modifier, Style, Stylize},
-    widgets::{Block, Borders, Clear, List, ListState, Paragraph},
+    style::{Color, Style, Stylize},
+    widgets::{Block, Clear, Paragraph},
     Frame,
 };
 
-use ability_order::{make_ability_order, make_ability_order_placeholder};
-use app_border::make_app_border;
-use items::{make_item_lists, make_items_placeholder};
-use matchups::make_matchups;
-use rune_path::{make_rune_paths, make_rune_paths_placeholder};
-use shards::{make_shards, make_shards_placeholder};
+use crate::components::items;
+use crate::components::matchups;
+use crate::components::mode_select;
+use crate::components::rune_path;
+use crate::components::shards;
+use crate::components::version_select;
+use crate::components::{ability_order, champ_list};
+use crate::components::{app_border, search};
 
 use crate::context::{AppContext, State};
-
-use self::{mode_select::make_mode_select, version_select::make_version_select};
 
 const TOO_SMALL_MESSAGE: &str = "Please resize the window to at least 105x28! Ctrl+Q to exit.";
 #[allow(clippy::cast_possible_truncation)]
@@ -37,7 +28,7 @@ pub fn render(frame: &mut Frame, ctx: &AppContext) {
         .constraints([Constraint::Percentage(100)])
         .split(frame_size);
 
-    frame.render_widget(make_app_border(ctx), app_border[0]);
+    frame.render_widget(app_border::make(ctx), app_border[0]);
 
     if frame_size.width <= 105 || frame_size.height <= 28 {
         frame.render_widget(
@@ -61,24 +52,8 @@ pub fn render(frame: &mut Frame, ctx: &AppContext) {
         .constraints([Constraint::Length(3), Constraint::Min(0)])
         .split(main_layout[0]);
 
-    frame.render_stateful_widget(
-        List::new(ctx.champ_list.clone())
-            .block(
-                Block::default()
-                    .title(" Champions [c] ")
-                    .style(Style::default().fg(Color::White).bold())
-                    .borders(Borders::ALL),
-            )
-            .style(Style::default().fg(Color::White).not_bold())
-            .highlight_style(
-                Style::default()
-                    .fg(Color::Green)
-                    .add_modifier(Modifier::ITALIC),
-            )
-            .highlight_symbol("> "),
-        champion_search_layout[1],
-        &mut ListState::default().with_selected(ctx.champ_scroll_pos),
-    );
+    let (champ_list, mut champ_list_state) = champ_list::make(ctx);
+    frame.render_stateful_widget(champ_list, champion_search_layout[1], &mut champ_list_state);
 
     if ctx.champ_list.is_empty() {
         let text = "No results :(";
@@ -93,20 +68,7 @@ pub fn render(frame: &mut Frame, ctx: &AppContext) {
         frame.render_widget(no_results_text, no_results_offset);
     }
 
-    frame.render_widget(
-        Paragraph::new(ctx.input.value())
-            .style(match ctx.state {
-                State::TextInput => Style::default().fg(Color::Green),
-                _ => Style::default().fg(Color::White),
-            })
-            .block(
-                Block::default()
-                    .borders(Borders::ALL)
-                    .title(" Search [s] ")
-                    .title_style(Style::default().fg(Color::White).bold()),
-            ),
-        champion_search_layout[0],
-    );
+    frame.render_widget(search::make(ctx), champion_search_layout[0]);
 
     let overview_layout = Layout::default()
         .direction(Direction::Vertical)
@@ -129,11 +91,11 @@ pub fn render(frame: &mut Frame, ctx: &AppContext) {
         .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
         .split(overview_layout[2]);
 
-    frame.render_widget(make_rune_paths_placeholder(), rune_split[0]);
-    frame.render_widget(make_rune_paths_placeholder(), rune_split[1]);
-    frame.render_widget(make_shards_placeholder(), shard_ability_split[0]);
-    frame.render_widget(make_ability_order_placeholder(), shard_ability_split[1]);
-    frame.render_widget(make_items_placeholder(), overview_layout[3]);
+    frame.render_widget(rune_path::make_placeholder(), rune_split[1]);
+    frame.render_widget(rune_path::make_placeholder(), rune_split[0]);
+    frame.render_widget(shards::make_placeholder(), shard_ability_split[0]);
+    frame.render_widget(ability_order::make_placeholder(), shard_ability_split[1]);
+    frame.render_widget(items::make_placeholder(), overview_layout[3]);
 
     if let Some(overview) = &ctx.selected_champ_overview {
         if let Some(selected) = &ctx.selected_champ {
@@ -145,15 +107,15 @@ pub fn render(frame: &mut Frame, ctx: &AppContext) {
         }
 
         frame.render_widget(
-            make_shards(&overview.shards.shard_ids),
+            shards::make(&overview.shards.shard_ids),
             shard_ability_split[0].inner(&Margin::new(1, 1)),
         );
 
-        make_ability_order(shard_ability_split[1].inner(&Margin::new(1, 1)), overview)
+        ability_order::make(shard_ability_split[1].inner(&Margin::new(1, 1)), overview)
             .into_iter()
             .for_each(|(w, r)| frame.render_widget(w, r));
 
-        make_rune_paths(overview, &ctx.api.runes)
+        rune_path::make(overview, &ctx.api.runes)
             .into_iter()
             .zip(rune_split.iter())
             .for_each(|(w, r)| frame.render_widget(w, *r));
@@ -168,20 +130,20 @@ pub fn render(frame: &mut Frame, ctx: &AppContext) {
             ])
             .split(overview_layout[3]);
 
-        make_item_lists(overview, &ctx.api.items)
+        items::make(overview, &ctx.api.items)
             .into_iter()
             .zip(item_columns.iter())
             .for_each(|(w, r)| frame.render_widget(w, *r));
     }
 
     if let Some(matchups) = &ctx.selected_champ_matchups {
-        let [best, worst] = make_matchups(matchups, &ctx.champ_by_key);
+        let [best, worst] = matchups::make(matchups, &ctx.champ_by_key);
         frame.render_widget(best, overview_layout[4]);
         frame.render_widget(worst, overview_layout[5]);
     }
 
     if ctx.state == State::ModeSelect {
-        let (mode_list, mut mode_list_state, minimum_area) = make_mode_select(ctx);
+        let (mode_list, mut mode_list_state, minimum_area) = mode_select::make(ctx);
         let safe_area = main_layout[1].inner(&Margin::new(
             (main_layout[1].width - minimum_area.width) / 2 - 1,
             (main_layout[1].height - minimum_area.height) / 2 - 1,
@@ -196,7 +158,7 @@ pub fn render(frame: &mut Frame, ctx: &AppContext) {
     }
 
     if ctx.state == State::VersionSelect {
-        let (version_list, mut version_list_state, minimum_area) = make_version_select(ctx);
+        let (version_list, mut version_list_state, minimum_area) = version_select::make(ctx);
         let safe_area = main_layout[1].inner(&Margin::new(
             (main_layout[1].width - minimum_area.width) / 2 - 1,
             (main_layout[1].height - minimum_area.height) / 2 - 1,

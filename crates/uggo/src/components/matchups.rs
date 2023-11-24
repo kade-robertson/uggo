@@ -32,7 +32,7 @@ pub fn make_matchup_row<'a>(
     ))
 }
 
-pub fn make_matchups<'a>(
+pub fn make<'a>(
     matchups: &'a MatchupData,
     champ_data: &'a HashMap<String, ChampionShort>,
 ) -> [impl Widget + 'a; 2] {

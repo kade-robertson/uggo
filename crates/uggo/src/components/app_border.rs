@@ -34,7 +34,7 @@ fn make_bottom_right_title<'a>(ctx: &'a AppContext) -> Title<'a> {
     .alignment(Alignment::Right)
 }
 
-pub fn make_app_border<'a>(ctx: &'a AppContext) -> impl Widget + 'a {
+pub fn make<'a>(ctx: &'a AppContext) -> impl Widget + 'a {
     let app_border = Block::default()
         .title(
             Title::from(format!(" uggo v{} ", env!("CARGO_PKG_VERSION")))

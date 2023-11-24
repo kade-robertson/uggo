@@ -15,7 +15,7 @@ fn make_item_block<'a>(title: &str) -> Block<'a> {
         .borders(Borders::ALL)
 }
 
-pub fn make_items_placeholder() -> impl Widget {
+pub fn make_placeholder() -> impl Widget {
     make_item_block("Items")
 }
 
@@ -55,7 +55,7 @@ fn make_list_from_item_ids<'a>(
     .block(make_item_block(name))
 }
 
-pub fn make_item_lists(overview: &OverviewData, items: &HashMap<String, Item>) -> [impl Widget; 4] {
+pub fn make(overview: &OverviewData, items: &HashMap<String, Item>) -> [impl Widget; 4] {
     [
         make_list_from_item_ids("Starting Items", &overview.starting_items.item_ids, items),
         make_list_from_lateitems("4th Items", &overview.item_4_options, items),

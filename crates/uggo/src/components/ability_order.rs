@@ -23,7 +23,7 @@ fn format_ability_level_order(ability_order: &[char], ability: char) -> String {
 const ABILITY_LEFT_OFFSET: u16 = 4;
 const ABILITY_WIDTH: u16 = (5 /* Q */ + 5 /* W */ + 5 /* E */ + 3 /* R */) * 2 /* spaces */;
 
-pub fn make_ability_order_placeholder() -> impl Widget {
+pub fn make_placeholder() -> impl Widget {
     Block::default()
         .white()
         .title(" Ability Order ")
@@ -31,7 +31,7 @@ pub fn make_ability_order_placeholder() -> impl Widget {
         .borders(Borders::ALL)
 }
 
-pub fn make_ability_order(bounds: Rect, overview: &OverviewData) -> Vec<(impl Widget, Rect)> {
+pub fn make(bounds: Rect, overview: &OverviewData) -> Vec<(impl Widget, Rect)> {
     vec![
         // Draw Q |
         (

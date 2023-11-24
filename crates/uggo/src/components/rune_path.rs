@@ -38,7 +38,7 @@ fn rune_color(name: &str) -> Color {
     }
 }
 
-pub fn make_rune_paths_placeholder() -> impl Widget {
+pub fn make_placeholder() -> impl Widget {
     Block::default()
         .white()
         .title(" Rune Paths ")
@@ -66,7 +66,7 @@ fn make_single_rune_path(grouped_runes: &(String, Vec<&RuneExtended<RuneElement>
     secondary_rune_table
 }
 
-pub fn make_rune_paths(
+pub fn make(
     overview: &OverviewData,
     runes: &HashMap<i64, RuneExtended<RuneElement>>,
 ) -> [impl Widget; 2] {
