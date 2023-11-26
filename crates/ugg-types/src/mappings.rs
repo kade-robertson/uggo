@@ -289,11 +289,16 @@ pub enum Role {
     #[serde(rename = "5")]
     Mid,
 
+    /// Only used for ARAM.
     #[serde(rename = "6")]
     None,
 
     #[serde(rename = "7")]
     Automatic,
+
+    /// Only used for Nexus Blitz.
+    #[serde(rename = "8")]
+    Lane,
 }
 
 impl Default for Role {
@@ -303,7 +308,7 @@ impl Default for Role {
 }
 
 impl Role {
-    pub fn all() -> &'static [Role; 7] {
+    pub fn all() -> &'static [Role; 8] {
         &[
             Role::Jungle,
             Role::Support,
@@ -312,6 +317,7 @@ impl Role {
             Role::Mid,
             Role::None,
             Role::Automatic,
+            Role::Lane,
         ]
     }
 }
@@ -326,6 +332,7 @@ impl Display for Role {
             Role::Mid => "Mid",
             Role::None => "None",
             Role::Automatic => "Automatic",
+            Role::Lane => "Lane",
         };
         write!(f, "{role_str}")
     }
@@ -341,6 +348,8 @@ impl TryFrom<i32> for Role {
             4 => Ok(Self::Top),
             5 => Ok(Self::Mid),
             6 => Ok(Self::None),
+            7 => Ok(Self::Automatic),
+            8 => Ok(Self::Lane),
             _ => Err(()),
         }
     }
@@ -355,6 +364,7 @@ pub fn get_role(role: &str) -> Role {
         Role::Mid,
         Role::None,
         Role::Automatic,
+        Role::Lane,
     ] {
         let role_str = enum_role.to_string().to_lowercase();
         if role_str.contains(&role.to_lowercase()) {
