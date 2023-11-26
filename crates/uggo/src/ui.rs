@@ -110,7 +110,10 @@ pub fn render(frame: &mut Frame, ctx: &AppContext) {
                 )
             } else {
                 (
-                    format!(" Selected: {champ_name}, Role: {}", ctx.role),
+                    format!(
+                        " Selected: {champ_name}, Role: {}",
+                        ctx.selected_champ_role.unwrap_or(ctx.role)
+                    ),
                     Color::Green,
                 )
             };

@@ -13,6 +13,7 @@ use uggo_config::Config;
 use uggo_lol_client::LOLClientAPI;
 use uggo_ugg_api::{UggApi, UggApiBuilder};
 
+use crate::transpose::Transposable;
 use crate::util;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -39,6 +40,7 @@ pub struct AppContext<'a> {
     pub champ_list: Vec<ListItem<'a>>,
     pub selected_champ: Option<ChampionShort>,
     pub selected_champ_overview: Option<OverviewData>,
+    pub selected_champ_role: Option<Role>,
     pub selected_champ_matchups: Option<MatchupData>,
     pub max_item_length: usize,
     pub items: Vec<String>,
@@ -101,6 +103,7 @@ impl AppContext<'_> {
             input: Input::default(),
             selected_champ: None,
             selected_champ_overview: None,
+            selected_champ_role: None,
             selected_champ_matchups: None,
             max_item_length,
             items: ordered_item_names,
@@ -157,18 +160,18 @@ impl AppContext<'_> {
     pub fn select_champion(&mut self, champ: &ChampionShort) {
         self.champ_scroll_pos = None;
         self.selected_champ = Some(champ.clone());
-        self.selected_champ_overview = self
+        (self.selected_champ_overview, self.selected_champ_role) = self
             .api
             .get_stats(champ, self.role, self.region, self.mode)
-            .map(|v| *v)
-            .ok();
+            .ok()
+            .transpose();
         if self.mode == Mode::ARAM {
             self.selected_champ_matchups = None;
         } else {
             self.selected_champ_matchups = self
                 .api
                 .get_matchups(champ, self.role, self.region, self.mode)
-                .map(|v| *v)
+                .map(|v| v.0)
                 .ok();
         }
 

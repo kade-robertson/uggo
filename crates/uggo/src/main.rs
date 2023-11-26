@@ -21,6 +21,7 @@ use std::time::Instant;
 mod components;
 mod context;
 mod events;
+mod transpose;
 mod ui;
 mod util;
 
