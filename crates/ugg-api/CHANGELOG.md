@@ -1,5 +1,30 @@
 # Changelog
 
+## [0.2.0](https://github.com/kade-robertson/uggo/compare/uggo-ugg-api-v0.1.1...uggo-ugg-api-v0.2.0) (2023-11-26)
+
+
+### ⚠ BREAKING CHANGES
+
+* support alternative builds ([#273](https://github.com/kade-robertson/uggo/issues/273))
+* return true role alongside data ([#271](https://github.com/kade-robertson/uggo/issues/271))
+
+### Features
+
+* return true role alongside data ([#271](https://github.com/kade-robertson/uggo/issues/271)) ([cfb067b](https://github.com/kade-robertson/uggo/commit/cfb067bae6bdf28a0895f52e099d7b4946a5b2b5))
+* support alternative builds ([#273](https://github.com/kade-robertson/uggo/issues/273)) ([c5d4db3](https://github.com/kade-robertson/uggo/commit/c5d4db3c55994aa6b221b720b0132c9ac02462bd))
+
+
+### Bug Fixes
+
+* **deps:** bump dependencies ([#276](https://github.com/kade-robertson/uggo/issues/276)) ([512e589](https://github.com/kade-robertson/uggo/commit/512e589571e51e093e5eb401b75dd4d0faee0da4))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * ugg-types bumped from 0.4.1 to 0.5.0
+
 ## [0.1.1](https://github.com/kade-robertson/uggo/compare/uggo-ugg-api-v0.1.0...uggo-ugg-api-v0.1.1) (2023-11-24)
 
 

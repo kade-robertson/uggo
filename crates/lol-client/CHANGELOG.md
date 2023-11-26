@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.2.0](https://github.com/kade-robertson/uggo/compare/uggo-lol-client-v0.1.1...uggo-lol-client-v0.2.0) (2023-11-26)
+
+
+### ⚠ BREAKING CHANGES
+
+* remove unecessary box-ing ([#272](https://github.com/kade-robertson/uggo/issues/272))
+
+### Bug Fixes
+
+* **deps:** bump dependencies ([#276](https://github.com/kade-robertson/uggo/issues/276)) ([512e589](https://github.com/kade-robertson/uggo/commit/512e589571e51e093e5eb401b75dd4d0faee0da4))
+* remove unecessary box-ing ([#272](https://github.com/kade-robertson/uggo/issues/272)) ([4a34223](https://github.com/kade-robertson/uggo/commit/4a3422394f42177cf3572fbe5495fb60fbfe9b59))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * ugg-types bumped from 0.4.1 to 0.5.0
+
 ## [0.1.1](https://github.com/kade-robertson/uggo/compare/uggo-lol-client-v0.1.0...uggo-lol-client-v0.1.1) (2023-11-24)
 
 
