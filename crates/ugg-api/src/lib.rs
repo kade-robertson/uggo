@@ -153,7 +153,7 @@ impl DataApi {
         region: mappings::Region,
         mode: mappings::Mode,
         api_versions: &HashMap<String, HashMap<String, String>>,
-    ) -> Result<Box<OverviewData>, UggError> {
+    ) -> Result<(OverviewData, mappings::Role), UggError> {
         let api_version =
             if api_versions.contains_key(patch) && api_versions[patch].contains_key("overview") {
                 api_versions[patch]["overview"].as_str()
@@ -196,15 +196,15 @@ impl DataApi {
             .ok_or(UggError::MissingRegionOrRank)?;
 
         data_by_role
-            .get(&role)
+            .get_key_value(&role)
             .or_else(|| {
                 data_by_role
                     .iter()
                     .max_by_key(|(_, data)| data.data.matches)
                     .map(|(role, _)| role)
-                    .and_then(|r| data_by_role.get(r))
+                    .and_then(|r| data_by_role.get_key_value(r))
             })
-            .map(|d| Box::new(d.data.clone()))
+            .map(|(role, data)| (data.data.clone(), *role))
             .ok_or(UggError::MissingRole)
     }
 
@@ -216,7 +216,7 @@ impl DataApi {
         region: mappings::Region,
         mode: mappings::Mode,
         api_versions: &HashMap<String, HashMap<String, String>>,
-    ) -> Result<Box<MatchupData>, UggError> {
+    ) -> Result<(MatchupData, mappings::Role), UggError> {
         let api_version =
             if api_versions.contains_key(patch) && api_versions[patch].contains_key("matchups") {
                 api_versions[patch]["matchups"].as_str()
@@ -255,15 +255,15 @@ impl DataApi {
             .ok_or(UggError::MissingRegionOrRank)?;
 
         data_by_role
-            .get(&role)
+            .get_key_value(&role)
             .or_else(|| {
                 data_by_role
                     .iter()
                     .max_by_key(|(_, data)| data.data.total_matches)
                     .map(|(role, _)| role)
-                    .and_then(|r| data_by_role.get(r))
+                    .and_then(|r| data_by_role.get_key_value(r))
             })
-            .map(|d| Box::new(d.data.clone()))
+            .map(|(role, data)| (data.data.clone(), *role))
             .ok_or(UggError::MissingRole)
     }
 }
@@ -354,7 +354,7 @@ impl UggApi {
         role: mappings::Role,
         region: mappings::Region,
         mode: mappings::Mode,
-    ) -> Result<Box<OverviewData>, UggError> {
+    ) -> Result<(OverviewData, mappings::Role), UggError> {
         self.api.get_stats(
             &self.patch_version,
             champ,
@@ -371,7 +371,7 @@ impl UggApi {
         role: mappings::Role,
         region: mappings::Region,
         mode: mappings::Mode,
-    ) -> Result<Box<MatchupData>, UggError> {
+    ) -> Result<(MatchupData, mappings::Role), UggError> {
         self.api.get_matchups(
             &self.patch_version,
             champ,
