@@ -470,6 +470,100 @@ impl Default for Mode {
     }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Build {
+    Recommended,
+    OnHit,
+    Crit,
+    Lethality,
+    AD,
+    AP,
+    Tank,
+}
+
+impl Default for Build {
+    fn default() -> Self {
+        Self::Recommended
+    }
+}
+
+impl From<&str> for Build {
+    fn from(kind_str: &str) -> Self {
+        match kind_str.to_lowercase().as_str() {
+            "recommended" | "overview" => Self::Recommended,
+            "onhit" | "onhit-overview" => Self::OnHit,
+            "crit" | "crit-overview" => Self::Crit,
+            "lethality" | "lethality-overview" => Self::Lethality,
+            "ad" | "ad-overview" => Self::AD,
+            "ap" | "ap-overview" => Self::AP,
+            "tank" | "tank-overview" => Self::Tank,
+            _ => Self::Recommended,
+        }
+    }
+}
+
+impl FromStr for Build {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(Build::from(s))
+    }
+}
+
+impl Display for Build {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let kind_str = match self {
+            Self::Recommended => "Recommended",
+            Self::OnHit => "On-Hit",
+            Self::Crit => "Crit",
+            Self::Lethality => "Lethality",
+            Self::AD => "AD",
+            Self::AP => "AP",
+            Self::Tank => "Tank",
+        };
+        write!(f, "{kind_str}")
+    }
+}
+
+impl Build {
+    pub fn all() -> &'static [Build; 7] {
+        &[
+            Build::Recommended,
+            Build::OnHit,
+            Build::Crit,
+            Build::Lethality,
+            Build::AD,
+            Build::AP,
+            Build::Tank,
+        ]
+    }
+
+    pub fn to_api_string(&self) -> &'static str {
+        match self {
+            Build::Recommended => "overview",
+            Build::OnHit => "onhit-overview",
+            Build::Crit => "crit-overview",
+            Build::Lethality => "lethality-overview",
+            Build::AD => "ad-overview",
+            Build::AP => "ap-overview",
+            Build::Tank => "tank-overview",
+        }
+    }
+
+    pub fn from_api_string(s: &str) -> Self {
+        match s.to_lowercase().as_str() {
+            "overview" => Self::Recommended,
+            "onhit-overview" => Self::OnHit,
+            "crit-overview" => Self::Crit,
+            "lethality-overview" => Self::Lethality,
+            "ad-overview" => Self::AD,
+            "ap-overview" => Self::AP,
+            "tank-overview" => Self::Tank,
+            _ => Self::Recommended,
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
 

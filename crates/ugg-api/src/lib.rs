@@ -145,6 +145,7 @@ impl DataApi {
         self.get_data::<UggAPIVersions>("https://static.bigbrain.gg/assets/lol/riot_patch_update/prod/ugg/ugg-api-versions.json")
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn get_stats(
         &self,
         patch: &str,
@@ -152,6 +153,7 @@ impl DataApi {
         role: mappings::Role,
         region: mappings::Region,
         mode: mappings::Mode,
+        build: mappings::Build,
         api_versions: &HashMap<String, HashMap<String, String>>,
     ) -> Result<(OverviewData, mappings::Role), UggError> {
         let api_version =
@@ -161,7 +163,8 @@ impl DataApi {
                 "1.5.0"
             };
         let data_path = &format!(
-            "{}/{}/{}/{}",
+            "{}/{}/{}/{}/{}",
+            build.to_api_string(),
             patch,
             mode.to_api_string(),
             champ.key.as_str(),
@@ -177,9 +180,7 @@ impl DataApi {
         {
             Ok(data)
         } else {
-            self.get_data::<ChampOverview>(&format!(
-                "https://stats2.u.gg/lol/1.5/overview/{data_path}.json"
-            ))
+            self.get_data::<ChampOverview>(&format!("https://stats2.u.gg/lol/1.5/{data_path}.json"))
         }?;
 
         if let Ok(mut c) = self.overview_cache.try_borrow_mut() {
@@ -354,6 +355,7 @@ impl UggApi {
         role: mappings::Role,
         region: mappings::Region,
         mode: mappings::Mode,
+        build: mappings::Build,
     ) -> Result<(OverviewData, mappings::Role), UggError> {
         self.api.get_stats(
             &self.patch_version,
@@ -361,6 +363,7 @@ impl UggApi {
             role,
             region,
             mode,
+            build,
             &self.ugg_api_versions,
         )
     }

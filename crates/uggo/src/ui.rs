@@ -5,20 +5,29 @@ use ratatui::{
     Frame,
 };
 
-use crate::components::items;
-use crate::components::matchups;
-use crate::components::mode_select;
-use crate::components::rune_path;
-use crate::components::shards;
-use crate::components::version_select;
-use crate::components::{ability_order, champ_list};
-use crate::components::{app_border, search};
+use crate::components::{
+    ability_order, app_border, build_select, champ_list, items, matchups, mode_select,
+    region_select, role_select, rune_path, search, shards, version_select,
+};
 
 use crate::context::{AppContext, State};
 
 const TOO_SMALL_MESSAGE: &str = "Please resize the window to at least 105x28! Ctrl+Q to exit.";
 #[allow(clippy::cast_possible_truncation)]
 const TOO_SMALL_MESSAGE_LENGTH: u16 = TOO_SMALL_MESSAGE.len() as u16;
+
+macro_rules! show_list_popup {
+    ($frame:expr,$ui:expr,$layout:expr) => {
+        let (list, mut list_state, minimum_area) = $ui;
+        let safe_area = $layout.inner(&Margin::new(
+            ($layout.width - minimum_area.width) / 2 - 1,
+            ($layout.height - minimum_area.height) / 2 - 1,
+        ));
+        $frame.render_widget(Block::new().bg(Color::Black), $layout);
+        $frame.render_widget(Clear, safe_area);
+        $frame.render_stateful_widget(list, safe_area.inner(&Margin::new(1, 1)), &mut list_state);
+    };
+}
 
 pub fn render(frame: &mut Frame, ctx: &AppContext) {
     let frame_size = frame.size();
@@ -103,16 +112,18 @@ pub fn render(frame: &mut Frame, ctx: &AppContext) {
             let (selected_text, color) = if overview.low_sample_size {
                 (
                     format!(
-                        " Selected: {champ_name}, Role: {} (Warning: Low Sample Size)",
-                        ctx.role
+                        " Selected: {champ_name}, Role: {}, Build: {}\n ⚠️ Warning: Low Sample Size",
+                        ctx.selected_champ_role.unwrap_or(ctx.role),
+                        ctx.build
                     ),
                     Color::Yellow,
                 )
             } else {
                 (
                     format!(
-                        " Selected: {champ_name}, Role: {}",
-                        ctx.selected_champ_role.unwrap_or(ctx.role)
+                        " Selected: {champ_name}, Role: {}, Build: {}",
+                        ctx.selected_champ_role.unwrap_or(ctx.role),
+                        ctx.build
                     ),
                     Color::Green,
                 )
@@ -161,65 +172,23 @@ pub fn render(frame: &mut Frame, ctx: &AppContext) {
     }
 
     if ctx.state == State::ModeSelect {
-        let (mode_list, mut mode_list_state, minimum_area) = mode_select::make(ctx);
-        let safe_area = main_layout[1].inner(&Margin::new(
-            (main_layout[1].width - minimum_area.width) / 2 - 1,
-            (main_layout[1].height - minimum_area.height) / 2 - 1,
-        ));
-        frame.render_widget(Block::new().bg(Color::Black), main_layout[1]);
-        frame.render_widget(Clear, safe_area);
-        frame.render_stateful_widget(
-            mode_list,
-            safe_area.inner(&Margin::new(1, 1)),
-            &mut mode_list_state,
-        );
+        show_list_popup!(frame, mode_select::make(ctx), main_layout[1]);
     }
 
     if ctx.state == State::VersionSelect {
-        let (version_list, mut version_list_state, minimum_area) = version_select::make(ctx);
-        let safe_area = main_layout[1].inner(&Margin::new(
-            (main_layout[1].width - minimum_area.width) / 2 - 1,
-            (main_layout[1].height - minimum_area.height) / 2 - 1,
-        ));
-        frame.render_widget(Block::new().bg(Color::Black), main_layout[1]);
-        frame.render_widget(Clear, safe_area);
-        frame.render_stateful_widget(
-            version_list,
-            safe_area.inner(&Margin::new(1, 1)),
-            &mut version_list_state,
-        );
+        show_list_popup!(frame, version_select::make(ctx), main_layout[1]);
     }
 
     if ctx.state == State::RegionSelect {
-        let (region_list, mut region_list_state, minimum_area) =
-            crate::components::region_select::make(ctx);
-        let safe_area = main_layout[1].inner(&Margin::new(
-            (main_layout[1].width - minimum_area.width) / 2 - 1,
-            (main_layout[1].height - minimum_area.height) / 2 - 1,
-        ));
-        frame.render_widget(Block::new().bg(Color::Black), main_layout[1]);
-        frame.render_widget(Clear, safe_area);
-        frame.render_stateful_widget(
-            region_list,
-            safe_area.inner(&Margin::new(1, 1)),
-            &mut region_list_state,
-        );
+        show_list_popup!(frame, region_select::make(ctx), main_layout[1]);
     }
 
     if ctx.state == State::RoleSelect {
-        let (role_list, mut role_list_state, minimum_area) =
-            crate::components::role_select::make(ctx);
-        let safe_area = main_layout[1].inner(&Margin::new(
-            (main_layout[1].width - minimum_area.width) / 2 - 1,
-            (main_layout[1].height - minimum_area.height) / 2 - 1,
-        ));
-        frame.render_widget(Block::new().bg(Color::Black), main_layout[1]);
-        frame.render_widget(Clear, safe_area);
-        frame.render_stateful_widget(
-            role_list,
-            safe_area.inner(&Margin::new(1, 1)),
-            &mut role_list_state,
-        );
+        show_list_popup!(frame, role_select::make(ctx), main_layout[1]);
+    }
+
+    if ctx.state == State::BuildSelect {
+        show_list_popup!(frame, build_select::make(ctx), main_layout[1]);
     }
 
     if ctx.state == State::HelpMenu {

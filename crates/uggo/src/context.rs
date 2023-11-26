@@ -5,7 +5,7 @@ use ratatui::widgets::ListItem;
 use tui_input::Input;
 use ugg_types::{
     client_runepage::NewRunePage,
-    mappings::{Mode, Region, Role},
+    mappings::{Build, Mode, Region, Role},
     matchups::MatchupData,
     overview::OverviewData,
 };
@@ -26,6 +26,7 @@ pub enum State {
     VersionSelect,
     RegionSelect,
     RoleSelect,
+    BuildSelect,
     HelpMenu,
 }
 
@@ -53,6 +54,8 @@ pub struct AppContext<'a> {
     pub region_scroll_pos: Option<usize>,
     pub role: Role,
     pub role_scroll_pos: Option<usize>,
+    pub build: Build,
+    pub build_scroll_pos: Option<usize>,
     pub last_render_duration: Option<Duration>,
 }
 
@@ -115,6 +118,8 @@ impl AppContext<'_> {
             region_scroll_pos: Region::all().iter().position(|r| r == &Region::World),
             role: Role::Automatic,
             role_scroll_pos: Role::all().iter().position(|r| r == &Role::Automatic),
+            build: Build::Recommended,
+            build_scroll_pos: Build::all().iter().position(|r| r == &Build::Recommended),
             last_render_duration: None,
         };
         app_context.update_champ_list();
@@ -162,7 +167,7 @@ impl AppContext<'_> {
         self.selected_champ = Some(champ.clone());
         (self.selected_champ_overview, self.selected_champ_role) = self
             .api
-            .get_stats(champ, self.role, self.region, self.mode)
+            .get_stats(champ, self.role, self.region, self.mode, self.build)
             .ok()
             .transpose();
         if self.mode == Mode::ARAM {

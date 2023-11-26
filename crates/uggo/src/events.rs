@@ -45,6 +45,10 @@ pub fn handle_events(ctx: &mut AppContext) -> anyhow::Result<bool> {
                         ctx.state = State::RoleSelect;
                         ctx.match_pos_to_role();
                     }
+                    KeyCode::Char('b') => {
+                        ctx.state = State::BuildSelect;
+                        ctx.build_scroll_pos = Some(ctx.build_scroll_pos.unwrap_or_default());
+                    }
                     KeyCode::Char('?') => {
                         ctx.state = State::HelpMenu;
                     }
@@ -90,6 +94,13 @@ pub fn handle_events(ctx: &mut AppContext) -> anyhow::Result<bool> {
                     KeyCode::Up => ctx.prev_role(),
                     KeyCode::Down => ctx.next_role(),
                     KeyCode::Enter => ctx.select_role(),
+                    _ => {}
+                },
+                State::BuildSelect => match key.code {
+                    KeyCode::Esc => ctx.return_to_initial(false),
+                    KeyCode::Up => ctx.prev_build(),
+                    KeyCode::Down => ctx.next_build(),
+                    KeyCode::Enter => ctx.select_build(),
                     _ => {}
                 },
                 State::HelpMenu => {
