@@ -55,9 +55,10 @@ fn make_list_from_item_ids<'a>(
     .block(make_item_block(name))
 }
 
-pub fn make(overview: &OverviewData, items: &HashMap<String, Item>) -> [impl Widget; 4] {
+pub fn make(overview: &OverviewData, items: &HashMap<String, Item>) -> [impl Widget; 5] {
     [
         make_list_from_item_ids("Starting Items", &overview.starting_items.item_ids, items),
+        make_list_from_item_ids("Core Items", &overview.core_items.item_ids, items),
         make_list_from_lateitems("4th Items", &overview.item_4_options, items),
         make_list_from_lateitems("5th Items", &overview.item_5_options, items),
         make_list_from_lateitems("6th Items", &overview.item_6_options, items),

@@ -11,4 +11,5 @@ pub mod role_select;
 pub mod rune_path;
 pub mod search;
 pub mod shards;
+pub mod spells;
 pub mod version_select;

@@ -7,7 +7,7 @@ use ratatui::{
 
 use crate::components::{
     ability_order, app_border, build_select, champ_list, items, matchups, mode_select,
-    region_select, role_select, rune_path, search, shards, version_select,
+    region_select, role_select, rune_path, search, shards, spells, version_select,
 };
 
 use crate::context::{AppContext, State};
@@ -140,6 +140,16 @@ pub fn render(frame: &mut Frame, ctx: &AppContext) {
             shard_ability_split[0].inner(&Margin::new(1, 1)),
         );
 
+        frame.render_widget(
+            Paragraph::new(spells::make(ctx, &overview.summoner_spells.spell_ids)),
+            Rect::new(
+                shard_ability_split[0].x + 1,
+                shard_ability_split[0].y + 4,
+                shard_ability_split[0].width - 1,
+                1,
+            ),
+        );
+
         ability_order::make(shard_ability_split[1].inner(&Margin::new(1, 1)), overview)
             .into_iter()
             .for_each(|(w, r)| frame.render_widget(w, r));
@@ -152,10 +162,11 @@ pub fn render(frame: &mut Frame, ctx: &AppContext) {
         let item_columns = Layout::default()
             .direction(Direction::Horizontal)
             .constraints([
-                Constraint::Percentage(25),
-                Constraint::Percentage(25),
-                Constraint::Percentage(25),
-                Constraint::Percentage(25),
+                Constraint::Percentage(20),
+                Constraint::Percentage(20),
+                Constraint::Percentage(20),
+                Constraint::Percentage(20),
+                Constraint::Percentage(20),
             ])
             .split(overview_layout[3]);
 
