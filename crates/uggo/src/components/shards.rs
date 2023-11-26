@@ -31,7 +31,7 @@ const fn shard_text(id: i64) -> &'static str {
 pub fn make_placeholder() -> impl Widget {
     Block::default()
         .white()
-        .title(" Shards ")
+        .title(" Shards & Spells ")
         .title_style(Style::default().bold())
         .borders(Borders::ALL)
 }
