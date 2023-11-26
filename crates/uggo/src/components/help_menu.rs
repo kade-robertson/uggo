@@ -16,14 +16,28 @@ macro_rules! right_cell {
         Cell::from(Line::from($text).alignment(Alignment::Right))
     };
 }
+#[cfg(not(target_os = "macos"))]
+macro_rules! alt_keypress {
+    ($key:literal) => {
+        concat!("Alt+", $key)
+    };
+}
 
-const CELLS: [[&str; 2]; 10] = [
-    ["Search", "s"],
-    ["Champ Select", "c"],
-    ["Mode Select", "m"],
-    ["Role Select", "r"],
-    ["Version Select", "v"],
-    ["Region Select", "w"],
+#[cfg(target_os = "macos")]
+macro_rules! alt_keypress {
+    ($key:literal) => {
+        concat!("Opt+", $key)
+    };
+}
+
+const CELLS: [[&str; 2]; 11] = [
+    ["Search", alt_keypress!("s")],
+    ["Champ Select", alt_keypress!("c")],
+    ["Mode Select", alt_keypress!("m")],
+    ["Role Select", alt_keypress!("r")],
+    ["Version Select", alt_keypress!("v")],
+    ["Region Select", alt_keypress!("w")],
+    ["Build Select", alt_keypress!("b")],
     ["Back", "Esc"],
     ["Send", "Enter"],
     ["Quit", "Ctrl+Q"],
