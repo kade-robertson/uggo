@@ -94,15 +94,14 @@ impl LOLClientAPI {
         }
     }
 
-    pub fn get_summoner_info(&self) -> Option<Box<ClientSummoner>> {
+    pub fn get_summoner_info(&self) -> Option<ClientSummoner> {
         self.get_data::<ClientSummoner>(&format!(
             "https://127.0.0.1:{}/lol-summoner/v1/current-summoner",
             self.lockfile.port
         ))
-        .map(Box::new)
     }
 
-    pub fn get_current_rune_page(&self) -> Option<Box<RunePage>> {
+    pub fn get_current_rune_page(&self) -> Option<RunePage> {
         match self.get_data::<RunePages>(&format!(
             "https://127.0.0.1:{}/lol-perks/v1/pages",
             self.lockfile.port
@@ -110,12 +109,12 @@ impl LOLClientAPI {
             Some(data) => {
                 for page in &data {
                     if page.name.starts_with("uggo:") && page.is_deletable {
-                        return Some(Box::new(page.clone()));
+                        return Some(page.clone());
                     }
                 }
                 for page in &data {
                     if page.current && page.is_deletable {
-                        return Some(Box::new(page.clone()));
+                        return Some(page.clone());
                     }
                 }
                 None
