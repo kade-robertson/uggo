@@ -19,41 +19,55 @@ pub fn handle_events(ctx: &mut AppContext) -> anyhow::Result<bool> {
             }
 
             match ctx.state {
-                State::ChampSelected | State::Initial => match key.code {
-                    KeyCode::Char('s') => {
-                        ctx.state = State::TextInput;
-                    }
-                    KeyCode::Char('c') => {
-                        ctx.state = State::ChampScroll;
-                        if !ctx.champ_list.is_empty() {
-                            ctx.champ_scroll_pos = Some(0);
+                State::ChampSelected | State::Initial => {
+                    if key.modifiers.contains(KeyModifiers::ALT) {
+                        match key.code {
+                            KeyCode::Char('s') => {
+                                ctx.state = State::TextInput;
+                            }
+                            KeyCode::Char('c') => {
+                                ctx.state = State::ChampScroll;
+                                if !ctx.champ_list.is_empty() {
+                                    ctx.champ_scroll_pos = Some(0);
+                                }
+                            }
+                            KeyCode::Char('m') => {
+                                ctx.state = State::ModeSelect;
+                                ctx.mode_scroll_pos = Some(ctx.mode_scroll_pos.unwrap_or_default());
+                            }
+                            KeyCode::Char('v') => {
+                                ctx.state = State::VersionSelect;
+                                ctx.version_scroll_pos =
+                                    Some(ctx.version_scroll_pos.unwrap_or_default());
+                            }
+                            KeyCode::Char('w') => {
+                                ctx.state = State::RegionSelect;
+                                ctx.match_pos_to_region();
+                            }
+                            KeyCode::Char('r') => {
+                                ctx.state = State::RoleSelect;
+                                ctx.match_pos_to_role();
+                            }
+                            KeyCode::Char('b') => {
+                                ctx.state = State::BuildSelect;
+                                ctx.build_scroll_pos =
+                                    Some(ctx.build_scroll_pos.unwrap_or_default());
+                            }
+                            _ => {}
+                        }
+                    } else {
+                        match key.code {
+                            KeyCode::Char('?') => {
+                                ctx.state = State::HelpMenu;
+                            }
+                            KeyCode::Esc | KeyCode::Enter => {}
+                            _ => {
+                                ctx.state = State::TextInput;
+                                ctx.on_search_keypress(key);
+                            }
                         }
                     }
-                    KeyCode::Char('m') => {
-                        ctx.state = State::ModeSelect;
-                        ctx.mode_scroll_pos = Some(ctx.mode_scroll_pos.unwrap_or_default());
-                    }
-                    KeyCode::Char('v') => {
-                        ctx.state = State::VersionSelect;
-                        ctx.version_scroll_pos = Some(ctx.version_scroll_pos.unwrap_or_default());
-                    }
-                    KeyCode::Char('w') => {
-                        ctx.state = State::RegionSelect;
-                        ctx.match_pos_to_region();
-                    }
-                    KeyCode::Char('r') => {
-                        ctx.state = State::RoleSelect;
-                        ctx.match_pos_to_role();
-                    }
-                    KeyCode::Char('b') => {
-                        ctx.state = State::BuildSelect;
-                        ctx.build_scroll_pos = Some(ctx.build_scroll_pos.unwrap_or_default());
-                    }
-                    KeyCode::Char('?') => {
-                        ctx.state = State::HelpMenu;
-                    }
-                    _ => {}
-                },
+                }
                 State::TextInput => match key.code {
                     KeyCode::Esc => ctx.return_to_initial(true),
                     KeyCode::Enter => ctx.on_search_submit(),
