@@ -52,15 +52,17 @@ fn make_shard_row(name: &str, shard: i64) -> Row {
 }
 
 pub fn make(shards: &[i64]) -> impl Widget {
-    Table::new(vec![
-        make_shard_row("Offense", shards[0]),
-        make_shard_row("Flex", shards[1]),
-        make_shard_row("Defense", shards[2]),
-    ])
+    Table::new(
+        vec![
+            make_shard_row("Offense", shards[0]),
+            make_shard_row("Flex", shards[1]),
+            make_shard_row("Defense", shards[2]),
+        ],
+        [
+            Constraint::Length(7),
+            Constraint::Length(1),
+            Constraint::Length(20),
+        ],
+    )
     .column_spacing(1)
-    .widths(&[
-        Constraint::Length(7),
-        Constraint::Length(1),
-        Constraint::Length(20),
-    ])
 }
