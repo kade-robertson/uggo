@@ -7,15 +7,12 @@ use ratatui::{
 
 const fn shard_color(shard: i64) -> Color {
     match shard {
-        5001 => Color::Green,
+        5001 | 5011 => Color::Green,
         5002 => Color::Red,
-        5003 => Color::Magenta,
+        5003 | 5013 => Color::Magenta,
         5005 => Color::Yellow,
-        5007 => Color::Gray,
         5008 => Color::Blue,
         5010 => Color::White,
-        5011 => Color::Green,
-        5013 => Color::Magenta,
         _ => Color::Gray,
     }
 }
