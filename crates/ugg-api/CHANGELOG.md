@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.2.1](https://github.com/kade-robertson/uggo/compare/uggo-ugg-api-v0.2.0...uggo-ugg-api-v0.2.1) (2024-01-25)
+
+
+### Bug Fixes
+
+* **deps:** bump serde from 1.0.193 to 1.0.194 ([#285](https://github.com/kade-robertson/uggo/issues/285)) ([de7f42b](https://github.com/kade-robertson/uggo/commit/de7f42bbe9f09490bd57888d681ea4a24b7bdc6a))
+* **deps:** bump serde from 1.0.194 to 1.0.195 ([#290](https://github.com/kade-robertson/uggo/issues/290)) ([6fd9ee1](https://github.com/kade-robertson/uggo/commit/6fd9ee11aa47db8d0931926a78d66901819c0e14))
+* **deps:** bump simd-json from 0.13.4 to 0.13.7 ([#291](https://github.com/kade-robertson/uggo/issues/291)) ([3358968](https://github.com/kade-robertson/uggo/commit/3358968604a9bc342d7f45f192f7e1d995942721))
+* **deps:** bump simd-json from 0.13.7 to 0.13.8 ([#292](https://github.com/kade-robertson/uggo/issues/292)) ([5ac1104](https://github.com/kade-robertson/uggo/commit/5ac1104b8e5a46727fdcc2a68b839e8352431626))
+* **deps:** bump thiserror from 1.0.50 to 1.0.56 ([#286](https://github.com/kade-robertson/uggo/issues/286)) ([5084787](https://github.com/kade-robertson/uggo/commit/50847875f6a52c1350cef2c477ef70377c15140c))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * ugg-types bumped from 0.5.0 to 0.5.1
+
 ## [0.2.0](https://github.com/kade-robertson/uggo/compare/uggo-ugg-api-v0.1.1...uggo-ugg-api-v0.2.0) (2023-11-26)
 
 

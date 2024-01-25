@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.5.1](https://github.com/kade-robertson/uggo/compare/ugg-types-v0.5.0...ugg-types-v0.5.1) (2024-01-25)
+
+
+### Bug Fixes
+
+* **deps:** bump serde from 1.0.193 to 1.0.194 ([#285](https://github.com/kade-robertson/uggo/issues/285)) ([de7f42b](https://github.com/kade-robertson/uggo/commit/de7f42bbe9f09490bd57888d681ea4a24b7bdc6a))
+* **deps:** bump serde from 1.0.194 to 1.0.195 ([#290](https://github.com/kade-robertson/uggo/issues/290)) ([6fd9ee1](https://github.com/kade-robertson/uggo/commit/6fd9ee11aa47db8d0931926a78d66901819c0e14))
+
 ## [0.5.0](https://github.com/kade-robertson/uggo/compare/ugg-types-v0.4.1...ugg-types-v0.5.0) (2023-11-26)
 
 
