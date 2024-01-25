@@ -88,9 +88,9 @@ pub fn make() -> (impl Widget, Rect) {
             CELLS
                 .iter()
                 .map(|row| Row::new(vec![left_cell!(row[0]), right_cell!(row[1])])),
+            CONSTRAINTS,
         )
         .column_spacing(2)
-        .widths(&CONSTRAINTS)
         .block(
             Block::default()
                 .title(" Help ")
