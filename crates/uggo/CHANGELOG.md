@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.12.1](https://github.com/kade-robertson/uggo/compare/uggo-v0.12.0...uggo-v0.12.1) (2024-01-25)
+
+
+### Bug Fixes
+
+* **deps:** bump anyhow from 1.0.75 to 1.0.79 ([#287](https://github.com/kade-robertson/uggo/issues/287)) ([bd36cbf](https://github.com/kade-robertson/uggo/commit/bd36cbf1eef4dc4b05ecd48ff70d3fb3d9bc5452))
+* **deps:** bump ratatui from 0.24.0 to 0.25.0 ([#294](https://github.com/kade-robertson/uggo/issues/294)) ([d119602](https://github.com/kade-robertson/uggo/commit/d11960236200e631b599e77876ff666890cca96f))
+* **deps:** bump serde from 1.0.193 to 1.0.194 ([#285](https://github.com/kade-robertson/uggo/issues/285)) ([de7f42b](https://github.com/kade-robertson/uggo/commit/de7f42bbe9f09490bd57888d681ea4a24b7bdc6a))
+* **deps:** bump serde from 1.0.194 to 1.0.195 ([#290](https://github.com/kade-robertson/uggo/issues/290)) ([6fd9ee1](https://github.com/kade-robertson/uggo/commit/6fd9ee11aa47db8d0931926a78d66901819c0e14))
+* support new shards in 14.2.1 ([#293](https://github.com/kade-robertson/uggo/issues/293)) ([6b84c28](https://github.com/kade-robertson/uggo/commit/6b84c28c0332639dfbbc1846e16964cbb139a63b))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * ugg-types bumped from 0.5.0 to 0.5.1
+    * uggo-config bumped from 0.1.0 to 0.1.1
+    * uggo-lol-client bumped from 0.2.0 to 0.2.1
+    * uggo-ugg-api bumped from 0.2.0 to 0.2.1
+
 ## [0.12.0](https://github.com/kade-robertson/uggo/compare/uggo-v0.11.1...uggo-v0.12.0) (2023-11-26)
 
 

@@ -1,6 +1,6 @@
 [package]
 name = "uggo"
-version = "0.12.0"
+version = "0.12.1"
 edition = "2021"
 rust-version = "1.74"
 license = "MIT"
@@ -19,10 +19,10 @@ ddragon = "0.8.1"
 mimalloc = "0.1.39"
 serde = "1.0.195"
 ureq = { version = "2.9.1", features = ["native-tls", "brotli"] }
-ugg-types = { version = "0.5.0", path = "../ugg-types" }
-uggo-config = { version = "0.1.0", path = "../config" }
-uggo-lol-client = { version = "0.2.0", path = "../lol-client" }
-uggo-ugg-api = { version = "0.2.0", path = "../ugg-api", default-features = false }
+ugg-types = { version = "0.5.1", path = "../ugg-types" }
+uggo-config = { version = "0.1.1", path = "../config" }
+uggo-lol-client = { version = "0.2.1", path = "../lol-client" }
+uggo-ugg-api = { version = "0.2.1", path = "../ugg-api", default-features = false }
 crossterm = "0.27.0"
 ratatui = "0.25.0"
 tui-input = "0.8.0"
