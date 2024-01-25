@@ -11,19 +11,26 @@ const fn shard_color(shard: i64) -> Color {
         5002 => Color::Red,
         5003 => Color::Magenta,
         5005 => Color::Yellow,
+        5007 => Color::Grey,
         5008 => Color::Blue,
+        5010 => Color::White,
+        5011 => Color::Green,
+        5013 => Color::Magenta,
         _ => Color::Gray,
     }
 }
 
 const fn shard_text(id: i64) -> &'static str {
     match id {
-        5001 => "+15-90 Health",
+        5001 => "+10-180 Health",
         5002 => "+6 Armor",
         5003 => "+8 Magic Resist",
         5005 => "+10% Attack Speed",
         5007 => "+8 Ability Haste",
         5008 => "+9 Adaptive Force",
+        5010 => "+2% Move Speed",
+        5011 => "65 Health",
+        5013 => "+10% Tenacity and Slow Resist"
         _ => "Unknown",
     }
 }
