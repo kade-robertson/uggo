@@ -14,7 +14,7 @@ categories = ["api-bindings"]
 [dependencies]
 league-client-connector = "0.1.2"
 native-tls = "0.2.11"
-serde = "1.0.195"
+serde = "1.0.196"
 thiserror = "1.0.56"
 ureq = { version = "2.9.1", features = ["native-tls", "brotli", "json"] }
 ugg-types = { version = "0.5.1", path = "../ugg-types" }
