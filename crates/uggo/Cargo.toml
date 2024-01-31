@@ -18,7 +18,7 @@ anyhow = "1.0.79"
 ddragon = "0.8.1"
 mimalloc = "0.1.39"
 serde = "1.0.195"
-ureq = { version = "2.9.1", features = ["native-tls", "brotli"] }
+ureq = { version = "2.9.4", features = ["native-tls", "brotli"] }
 ugg-types = { version = "0.5.1", path = "../ugg-types" }
 uggo-config = { version = "0.1.1", path = "../config" }
 uggo-lol-client = { version = "0.2.1", path = "../lol-client" }
