@@ -6,8 +6,15 @@ use std::sync::Arc;
 use thiserror::Error;
 use ureq::{Agent, AgentBuilder};
 
+mod champ_select_session;
+mod client_summoner;
+mod lobby;
+
+pub use champ_select_session::ChampSelectSession;
+pub use client_summoner::ClientSummoner;
+pub use lobby::{Lobby, QueueID};
+
 use ugg_types::client_runepage::{NewRunePage, RunePage, RunePages};
-use ugg_types::client_summoner::ClientSummoner;
 
 #[derive(Error, Debug)]
 pub enum LOLClientError {
@@ -99,6 +106,27 @@ impl LOLClientAPI {
             "https://127.0.0.1:{}/lol-summoner/v1/current-summoner",
             self.lockfile.port
         ))
+    }
+
+    pub fn get_current_champion_id(&self, summoner_id: i64) -> Option<i64> {
+        self.get_data::<ChampSelectSession>(&format!(
+            "https://127.0.0.1:{}/lol-champ-select/v1/session",
+            self.lockfile.port
+        ))
+        .and_then(|css| {
+            css.my_team
+                .into_iter()
+                .find(|p| p.summoner_id == summoner_id)
+                .map(|p| p.champion_id)
+        })
+    }
+
+    pub fn get_current_queue_id(&self) -> Option<QueueID> {
+        self.get_data::<Lobby>(&format!(
+            "https://127.0.0.1:{}/lol-game-queues/v1/queues",
+            self.lockfile.port
+        ))
+        .map(|l| l.game_config.queue_id)
     }
 
     pub fn get_current_rune_page(&self) -> Option<RunePage> {

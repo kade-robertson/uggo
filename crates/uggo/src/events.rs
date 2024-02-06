@@ -124,6 +124,9 @@ pub fn handle_events(ctx: &mut AppContext) -> anyhow::Result<bool> {
                 }
             }
         }
+    } else {
+        ctx.poll_summoner_id();
+        ctx.poll_current_champ();
     }
     Ok(false)
 }

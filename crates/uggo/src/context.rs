@@ -1,4 +1,7 @@
-use std::{collections::HashMap, time::Duration};
+use std::{
+    collections::HashMap,
+    time::{Duration, Instant},
+};
 
 use ddragon::models::champions::ChampionShort;
 use ratatui::widgets::ListItem;
@@ -30,6 +33,9 @@ pub enum State {
     HelpMenu,
 }
 
+const SUMMONER_POLL_INTERVAL: u64 = 60000;
+const CHAMP_POLL_INTERVAL: u64 = 1000;
+
 pub struct AppContext<'a> {
     pub api: UggApi,
     pub client_api: Option<LOLClientAPI>,
@@ -57,6 +63,9 @@ pub struct AppContext<'a> {
     pub build: Build,
     pub build_scroll_pos: Option<usize>,
     pub last_render_duration: Option<Duration>,
+    pub summoner_id: Option<i64>,
+    pub last_summoner_poll: Option<Instant>,
+    pub last_champ_poll: Option<Instant>,
 }
 
 impl AppContext<'_> {
@@ -121,6 +130,9 @@ impl AppContext<'_> {
             build: Build::Recommended,
             build_scroll_pos: Build::all().iter().position(|r| r == &Build::Recommended),
             last_render_duration: None,
+            summoner_id: None,
+            last_champ_poll: None,
+            last_summoner_poll: None,
         };
         app_context.update_champ_list();
 
@@ -159,6 +171,50 @@ impl AppContext<'_> {
         self.state = State::Initial;
         if reset_champ_scroll {
             self.champ_scroll_pos = None;
+        }
+    }
+
+    pub fn poll_summoner_id(&mut self) {
+        if let Some(last_poll) = self.last_summoner_poll {
+            if last_poll.elapsed().as_millis() > SUMMONER_POLL_INTERVAL.into() {
+                return;
+            }
+        }
+
+        if let Some(ref api) = self.client_api {
+            if let Some(ref summoner) = api.get_summoner_info() {
+                self.summoner_id = Some(summoner.summoner_id);
+                self.last_summoner_poll = Some(Instant::now());
+            }
+        }
+    }
+
+    pub fn poll_current_champ(&mut self) {
+        if let Some(last_poll) = self.last_champ_poll {
+            if last_poll.elapsed().as_millis() > CHAMP_POLL_INTERVAL.into() {
+                return;
+            }
+        }
+
+        // todo: don't clone?
+        let champs = self.champ_by_key.clone();
+        let prev_champ = self.selected_champ.clone();
+
+        if let Some((api, ref summoner_id)) = self.client_api.as_ref().zip(self.summoner_id) {
+            if let Some(ref new_mode) = api.get_current_queue_id().and_then(|q| q.into_mode()) {
+                self.mode = *new_mode;
+                self.mode_scroll_pos = Mode::all().iter().position(|m| m == new_mode);
+            }
+            if let Some(current_champ) = api
+                .get_current_champion_id(*summoner_id)
+                .map(|c| c.to_string())
+                .and_then(|c| champs.get(&c))
+            {
+                if prev_champ.is_some_and(|c| c.key != current_champ.key) {
+                    self.select_champion(current_champ);
+                }
+            }
+            self.last_champ_poll = Some(Instant::now());
         }
     }
 
