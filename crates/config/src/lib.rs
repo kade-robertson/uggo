@@ -29,3 +29,17 @@ impl Config {
         &self.inner.cache.path
     }
 }
+
+#[cfg(any(feature = "async", feature = "async-tokio"))]
+impl Config {
+    pub async fn new_async() -> Result<Self, ConfigError> {
+        let config = CBConfig::new("uggo");
+
+        config
+            .create_all_async()
+            .await
+            .map_err(|_| ConfigError::CouldNotMakeDirs)?;
+
+        Ok(Self { inner: config })
+    }
+}

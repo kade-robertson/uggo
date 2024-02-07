@@ -14,3 +14,7 @@ categories = ["config"]
 [dependencies]
 config-better = "1.2.0"
 thiserror = "1.0.56"
+
+[features]
+async = ["config-better/async"]
+async-tokio = ["config-better/async-tokio"]
