@@ -24,7 +24,7 @@ uggo-config = { version = "0.1.1", path = "../config" }
 uggo-lol-client = { version = "0.2.1", path = "../lol-client" }
 uggo-ugg-api = { version = "0.2.1", path = "../ugg-api", default-features = false }
 crossterm = "0.27.0"
-ratatui = "0.25.0"
+ratatui = "0.26.1"
 tui-input = "0.8.0"
 
 [features]
