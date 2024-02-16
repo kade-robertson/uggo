@@ -9,6 +9,9 @@ use ureq::{Agent, AgentBuilder};
 use ugg_types::client_runepage::{NewRunePage, RunePage, RunePages};
 use ugg_types::client_summoner::ClientSummoner;
 
+#[cfg(feature = "async")]
+mod async_impl;
+
 #[derive(Error, Debug)]
 pub enum LOLClientError {
     #[error("Unable to create TLS connector for League client")]
