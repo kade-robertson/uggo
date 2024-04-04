@@ -15,7 +15,7 @@ categories = ["api-bindings"]
 ddragon = "0.8.1"
 hex = "0.4.3"
 levenshtein = "1.0.5"
-lru = "0.12.1"
+lru = "0.12.3"
 native-tls = "0.2.11"
 serde = "1.0.195"
 simd-json = { version = "0.13.8", default-features = false, features = ["serde_impl", "swar-number-parsing"] }
