@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.12.2](https://github.com/kade-robertson/uggo/compare/uggo-v0.12.1...uggo-v0.12.2) (2024-04-05)
+
+
+### Bug Fixes
+
+* **deps:** bump anyhow from 1.0.79 to 1.0.81 ([#308](https://github.com/kade-robertson/uggo/issues/308)) ([ee782fb](https://github.com/kade-robertson/uggo/commit/ee782fb5cad79ef199598c0f2d76fc9e95fea8d7))
+* **deps:** bump ddragon from 0.8.1 to 0.8.2 ([#310](https://github.com/kade-robertson/uggo/issues/310)) ([c8c73da](https://github.com/kade-robertson/uggo/commit/c8c73da8bbc14d2c80db4796e50c31ea465d7cd0))
+* **deps:** bump ratatui from 0.25.0 to 0.26.1 ([#300](https://github.com/kade-robertson/uggo/issues/300)) ([0beb408](https://github.com/kade-robertson/uggo/commit/0beb4089cc44372d0b0a2b5f0dc616e4e18dcecf))
+* **deps:** bump serde from 1.0.195 to 1.0.197 ([#303](https://github.com/kade-robertson/uggo/issues/303)) ([79ccfe6](https://github.com/kade-robertson/uggo/commit/79ccfe67af0538de81e9a75c556bf4d13112f17d))
+* **deps:** bump ureq from 2.9.1 to 2.9.6 ([#302](https://github.com/kade-robertson/uggo/issues/302)) ([546ff66](https://github.com/kade-robertson/uggo/commit/546ff66a0f50d6221a77a36715b4daa28d56522c))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * ugg-types bumped from 0.5.1 to 0.5.2
+    * uggo-config bumped from 0.1.1 to 0.1.2
+    * uggo-lol-client bumped from 0.2.1 to 0.2.2
+    * uggo-ugg-api bumped from 0.2.1 to 0.2.2
+
 ## [0.12.1](https://github.com/kade-robertson/uggo/compare/uggo-v0.12.0...uggo-v0.12.1) (2024-01-25)
 
 
