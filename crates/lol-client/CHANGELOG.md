@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.2.2](https://github.com/kade-robertson/uggo/compare/uggo-lol-client-v0.2.1...uggo-lol-client-v0.2.2) (2024-04-05)
+
+
+### Bug Fixes
+
+* **deps:** bump serde from 1.0.195 to 1.0.197 ([#303](https://github.com/kade-robertson/uggo/issues/303)) ([79ccfe6](https://github.com/kade-robertson/uggo/commit/79ccfe67af0538de81e9a75c556bf4d13112f17d))
+* **deps:** bump thiserror from 1.0.56 to 1.0.58 ([#306](https://github.com/kade-robertson/uggo/issues/306)) ([f96ab18](https://github.com/kade-robertson/uggo/commit/f96ab18d88070de5c42f1630b10d3142522a53bf))
+* **deps:** bump ureq from 2.9.1 to 2.9.6 ([#302](https://github.com/kade-robertson/uggo/issues/302)) ([546ff66](https://github.com/kade-robertson/uggo/commit/546ff66a0f50d6221a77a36715b4daa28d56522c))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * ugg-types bumped from 0.5.1 to 0.5.2
+
 ## [0.2.1](https://github.com/kade-robertson/uggo/compare/uggo-lol-client-v0.2.0...uggo-lol-client-v0.2.1) (2024-01-25)
 
 

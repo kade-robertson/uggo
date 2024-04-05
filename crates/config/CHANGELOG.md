@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/kade-robertson/uggo/compare/uggo-config-v0.1.1...uggo-config-v0.1.2) (2024-04-05)
+
+
+### Bug Fixes
+
+* **deps:** bump thiserror from 1.0.56 to 1.0.58 ([#306](https://github.com/kade-robertson/uggo/issues/306)) ([f96ab18](https://github.com/kade-robertson/uggo/commit/f96ab18d88070de5c42f1630b10d3142522a53bf))
+
 ## [0.1.1](https://github.com/kade-robertson/uggo/compare/uggo-config-v0.1.0...uggo-config-v0.1.1) (2024-01-25)
 
 

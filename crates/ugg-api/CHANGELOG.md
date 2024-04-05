@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.2.2](https://github.com/kade-robertson/uggo/compare/uggo-ugg-api-v0.2.1...uggo-ugg-api-v0.2.2) (2024-04-05)
+
+
+### Bug Fixes
+
+* **deps:** bump ddragon from 0.8.1 to 0.8.2 ([#310](https://github.com/kade-robertson/uggo/issues/310)) ([c8c73da](https://github.com/kade-robertson/uggo/commit/c8c73da8bbc14d2c80db4796e50c31ea465d7cd0))
+* **deps:** bump lru from 0.12.1 to 0.12.3 ([#304](https://github.com/kade-robertson/uggo/issues/304)) ([da3b33d](https://github.com/kade-robertson/uggo/commit/da3b33db7748385075f285ae7c85e9b44c2c339e))
+* **deps:** bump serde from 1.0.195 to 1.0.197 ([#303](https://github.com/kade-robertson/uggo/issues/303)) ([79ccfe6](https://github.com/kade-robertson/uggo/commit/79ccfe67af0538de81e9a75c556bf4d13112f17d))
+* **deps:** bump simd-json from 0.13.8 to 0.13.9 ([#309](https://github.com/kade-robertson/uggo/issues/309)) ([fab7a24](https://github.com/kade-robertson/uggo/commit/fab7a24c6ae9f95664666247a9dcf66af8fd00b1))
+* **deps:** bump thiserror from 1.0.56 to 1.0.58 ([#306](https://github.com/kade-robertson/uggo/issues/306)) ([f96ab18](https://github.com/kade-robertson/uggo/commit/f96ab18d88070de5c42f1630b10d3142522a53bf))
+* **deps:** bump ureq from 2.9.1 to 2.9.6 ([#302](https://github.com/kade-robertson/uggo/issues/302)) ([546ff66](https://github.com/kade-robertson/uggo/commit/546ff66a0f50d6221a77a36715b4daa28d56522c))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * ugg-types bumped from 0.5.1 to 0.5.2
+
 ## [0.2.1](https://github.com/kade-robertson/uggo/compare/uggo-ugg-api-v0.2.0...uggo-ugg-api-v0.2.1) (2024-01-25)
 
 
