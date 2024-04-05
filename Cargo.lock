@@ -291,9 +291,9 @@ dependencies = [
 
 [[package]]
 name = "ddragon"
-version = "0.8.1"
+version = "0.8.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2c5cf2df0ae110c4f71afd28bcdec26424cb2f21f987226ea8c998ef48fdcd06"
+checksum = "ae58702a4f38b737fbffaf125e498eef54bc77874ade3e59f02e5c39ad272502"
 dependencies = [
  "cacache",
  "serde",

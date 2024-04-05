@@ -15,7 +15,7 @@ categories = ["command-line-utilities", "games"]
 
 [dependencies]
 anyhow = "1.0.81"
-ddragon = "0.8.1"
+ddragon = "0.8.2"
 mimalloc = "0.1.39"
 serde = "1.0.197"
 ureq = { version = "2.9.6", features = ["native-tls", "brotli"] }
