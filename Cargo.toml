@@ -8,6 +8,13 @@ members = [
     "crates/lol-client"
 ]
 
+[workspace.dependencies]
+ddragon = "0.8.2"
+native-tls = "0.2.11"
+serde = "1.0.197"
+thiserror = "1.0.58"
+ureq = { version = "2.9.6", features = ["native-tls", "brotli"] }
+
 [profile.release]
 opt-level = 3
 strip = true
