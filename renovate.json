@@ -9,6 +9,10 @@
       "semanticCommitType": "fix"
     },
     {
+      "matchPackageNames": ["serde"],
+      "semanticCommitType": "fix"
+    },
+    {
       "matchCategories": ["rust"],
       "matchDepTypes": ["dev-dependencies"],
       "semanticCommitType": "chore"
