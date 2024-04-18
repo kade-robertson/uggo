@@ -4,6 +4,10 @@
   "ignorePresets": ["group:monorepos"],
   "packageRules": [
     {
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "automerge": true
+    },
+    {
       "matchCategories": ["rust"],
       "matchDepTypes": ["dependencies"],
       "semanticCommitType": "fix"
