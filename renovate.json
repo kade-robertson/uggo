@@ -4,14 +4,14 @@
   "ignorePresets": ["group:monorepos"],
   "packageRules": [
     {
-      "groupName": ["depencencies"],
-      "groupSlug": "deps",
-      "matchCategories": ["rust"]
+      "matchCategories": ["rust"],
+      "matchDepTypes": ["dependencies"],
+      "semanticCommitType": "fix"
     },
     {
-      "groupName": ["ci"],
-      "groupSlug": "ci",
-      "matchCategories": ["ci"]
+      "matchCategories": ["rust"],
+      "matchDepTypes": ["dev-dependencies"],
+      "semanticCommitType": "chore"
     }
   ]
 }
