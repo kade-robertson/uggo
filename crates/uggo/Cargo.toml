@@ -15,10 +15,10 @@ categories = ["command-line-utilities", "games"]
 
 [dependencies]
 anyhow = "1.0.81"
-ddragon = "0.8.2"
+ddragon = { workspace = true }
 mimalloc = "0.1.39"
-serde = "1.0.197"
-ureq = { version = "2.9.6", features = ["native-tls", "brotli"] }
+serde = { workspace = true }
+ureq = { workspace = true }
 ugg-types = { version = "0.5.2", path = "../ugg-types" }
 uggo-config = { version = "0.1.2", path = "../config" }
 uggo-lol-client = { version = "0.2.2", path = "../lol-client" }
