@@ -1,0 +1,21 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "ignorePresets": ["group:monorepos"],
+  "packageRules": [
+    {
+      "matchCategories": ["rust"],
+      "matchDepTypes": ["dependencies"],
+      "semanticCommitType": "fix"
+    },
+    {
+      "matchPackageNames": ["serde"],
+      "semanticCommitType": "fix"
+    },
+    {
+      "matchCategories": ["rust"],
+      "matchDepTypes": ["dev-dependencies"],
+      "semanticCommitType": "chore"
+    }
+  ]
+}
