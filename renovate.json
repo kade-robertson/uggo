@@ -1,5 +1,17 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended"],
-  "ignorePresets": ["group:monorepos"]
+  "ignorePresets": ["group:monorepos"],
+  "packageRules": [
+    {
+      "groupName": ["depencencies"],
+      "groupSlug": "deps",
+      "matchCategories": ["rust"]
+    },
+    {
+      "groupName": ["ci"],
+      "groupSlug": "ci",
+      "matchCategories": ["ci"]
+    }
+  ]
 }
