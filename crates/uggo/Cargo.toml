@@ -14,7 +14,7 @@ categories = ["command-line-utilities", "games"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-anyhow = "1.0.81"
+anyhow = "1.0.82"
 ddragon = { workspace = true }
 mimalloc = "0.1.39"
 serde = { workspace = true }
