@@ -19,8 +19,11 @@ jobs:
       did_release: ${{ steps.release.outputs.releases_created }}
       packages: ${{ steps.release.outputs.paths_released }}
     steps:
-      - uses: google-github-actions/release-please-action@v4
+      - uses: google-github-actions/release-please-action@v3
         id: release
+        with:
+          release-type: rust
+          command: manifest
 
   publish_to_crates_io:
     name: publish to crates.io
