@@ -17,7 +17,7 @@ categories = ["command-line-utilities", "games"]
 anyhow = "1.0.82"
 ddragon = "0.8.2"
 mimalloc = "0.1.41"
-serde = "1.0.198"
+serde = "1.0.199"
 ureq = { version = "2.9.7", features = ["native-tls", "brotli"] }
 ugg-types = { version = "0.5.2", path = "../ugg-types" }
 uggo-config = { version = "0.1.2", path = "../config" }

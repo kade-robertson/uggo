@@ -10,4 +10,4 @@ repository = "https://github.com/kade-robertson/uggo"
 keywords = ["ugg", "league", "of", "legends"]
 
 [dependencies]
-serde = { version = "1.0.198", features = ["derive"] }
+serde = { version = "1.0.199", features = ["derive"] }
