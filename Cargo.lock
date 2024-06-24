@@ -1508,7 +1508,6 @@ name = "uggo"
 version = "0.12.2"
 dependencies = [
  "anyhow",
- "crossterm",
  "ddragon",
  "mimalloc",
  "ratatui",

@@ -43,8 +43,6 @@ pub struct AppContext<'a> {
     pub selected_champ_overview: Option<OverviewData>,
     pub selected_champ_role: Option<Role>,
     pub selected_champ_matchups: Option<MatchupData>,
-    pub max_item_length: usize,
-    pub items: Vec<String>,
     pub input: Input,
     pub mode: Mode,
     pub mode_scroll_pos: Option<usize>,
@@ -75,19 +73,6 @@ impl AppContext<'_> {
             .collect::<Vec<_>>();
         ordered_champ_data.sort_by(|(_, a), (_, b)| a.name.cmp(&b.name));
 
-        let mut ordered_item_names = api
-            .items
-            .values()
-            .map(|i| i.name.clone())
-            .collect::<Vec<_>>();
-        ordered_item_names.sort_by_key(std::string::String::len);
-        ordered_item_names.reverse();
-
-        let max_item_length = ordered_item_names
-            .first()
-            .map(std::string::String::len)
-            .unwrap_or_default();
-
         let champ_by_key = api
             .champ_data
             .values()
@@ -108,8 +93,6 @@ impl AppContext<'_> {
             selected_champ_overview: None,
             selected_champ_role: None,
             selected_champ_matchups: None,
-            max_item_length,
-            items: ordered_item_names,
             mode: Mode::Normal,
             mode_scroll_pos: None,
             version,
