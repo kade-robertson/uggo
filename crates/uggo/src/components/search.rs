@@ -1,5 +1,5 @@
-use crossterm::event::{Event, KeyEvent};
 use ratatui::{
+    crossterm::event::{Event, KeyEvent},
     style::{Color, Style, Stylize},
     widgets::{Block, Borders, Paragraph, Widget},
 };

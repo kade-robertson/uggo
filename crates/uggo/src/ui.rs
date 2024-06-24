@@ -19,13 +19,13 @@ const TOO_SMALL_MESSAGE_LENGTH: u16 = TOO_SMALL_MESSAGE.len() as u16;
 macro_rules! show_list_popup {
     ($frame:expr,$ui:expr,$layout:expr) => {
         let (list, mut list_state, minimum_area) = $ui;
-        let safe_area = $layout.inner(&Margin::new(
+        let safe_area = $layout.inner(Margin::new(
             ($layout.width - minimum_area.width) / 2 - 1,
             ($layout.height - minimum_area.height) / 2 - 1,
         ));
         $frame.render_widget(Block::new().bg(Color::Black), $layout);
         $frame.render_widget(Clear, safe_area);
-        $frame.render_stateful_widget(list, safe_area.inner(&Margin::new(1, 1)), &mut list_state);
+        $frame.render_stateful_widget(list, safe_area.inner(Margin::new(1, 1)), &mut list_state);
     };
 }
 
@@ -42,7 +42,7 @@ pub fn render(frame: &mut Frame, ctx: &AppContext) {
     if frame_size.width <= 105 || frame_size.height <= 28 {
         frame.render_widget(
             Paragraph::new(TOO_SMALL_MESSAGE).style(Style::default().fg(Color::Red).bold()),
-            app_border[0].inner(&Margin::new(
+            app_border[0].inner(Margin::new(
                 (frame_size.width - TOO_SMALL_MESSAGE_LENGTH) / 2,
                 frame_size.height / 2 - 1,
             )),
@@ -54,7 +54,7 @@ pub fn render(frame: &mut Frame, ctx: &AppContext) {
         .direction(Direction::Horizontal)
         .constraints([Constraint::Length(19), Constraint::Min(0)])
         .margin(1)
-        .split(app_border[0].inner(&Margin::new(1, 1)));
+        .split(app_border[0].inner(Margin::new(1, 1)));
 
     let champion_search_layout = Layout::default()
         .direction(Direction::Vertical)
@@ -137,7 +137,7 @@ pub fn render(frame: &mut Frame, ctx: &AppContext) {
 
         frame.render_widget(
             shards::make(&overview.shards.shard_ids),
-            shard_ability_split[0].inner(&Margin::new(1, 1)),
+            shard_ability_split[0].inner(Margin::new(1, 1)),
         );
 
         frame.render_widget(
@@ -150,7 +150,7 @@ pub fn render(frame: &mut Frame, ctx: &AppContext) {
             ),
         );
 
-        ability_order::make(shard_ability_split[1].inner(&Margin::new(1, 1)), overview)
+        ability_order::make(shard_ability_split[1].inner(Margin::new(1, 1)), overview)
             .into_iter()
             .for_each(|(w, r)| frame.render_widget(w, r));
 
@@ -204,12 +204,12 @@ pub fn render(frame: &mut Frame, ctx: &AppContext) {
 
     if ctx.state == State::HelpMenu {
         let (help_menu, minimum_area) = crate::components::help_menu::make();
-        let safe_area = main_layout[1].inner(&Margin::new(
+        let safe_area = main_layout[1].inner(Margin::new(
             (main_layout[1].width - minimum_area.width) / 2 - 1,
             (main_layout[1].height - minimum_area.height) / 2 - 1,
         ));
         frame.render_widget(Block::new().bg(Color::Black), main_layout[1]);
         frame.render_widget(Clear, safe_area);
-        frame.render_widget(help_menu, safe_area.inner(&Margin::new(1, 1)));
+        frame.render_widget(help_menu, safe_area.inner(Margin::new(1, 1)));
     }
 }
