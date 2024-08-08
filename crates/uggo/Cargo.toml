@@ -23,7 +23,7 @@ ugg-types = { version = "0.5.2", path = "../ugg-types" }
 uggo-config = { version = "0.1.2", path = "../config" }
 uggo-lol-client = { version = "0.2.2", path = "../lol-client" }
 uggo-ugg-api = { version = "0.2.2", path = "../ugg-api", default-features = false }
-ratatui = "0.27.0"
+ratatui = "0.28.0"
 tui-input = "0.9.0"
 
 [features]
