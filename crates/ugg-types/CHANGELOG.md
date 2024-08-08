@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.5.3](https://github.com/kade-robertson/uggo/compare/ugg-types-v0.5.2...ugg-types-v0.5.3) (2024-08-08)
+
+
+### Bug Fixes
+
+* **deps:** update rust crate serde to 1.0.199 ([#337](https://github.com/kade-robertson/uggo/issues/337)) ([3ea2fa1](https://github.com/kade-robertson/uggo/commit/3ea2fa1f2a43d9bb0c508f7fae5d07556a352d07))
+* **deps:** update rust crate serde to 1.0.200 ([#338](https://github.com/kade-robertson/uggo/issues/338)) ([f2724cb](https://github.com/kade-robertson/uggo/commit/f2724cb2585203449183dc5866b47a762220402b))
+
 ## [0.5.2](https://github.com/kade-robertson/uggo/compare/ugg-types-v0.5.1...ugg-types-v0.5.2) (2024-04-05)
 
 
