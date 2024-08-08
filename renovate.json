@@ -21,6 +21,12 @@
       "matchCategories": ["rust"],
       "matchDepTypes": ["dev-dependencies"],
       "semanticCommitType": "chore"
+    },
+    {
+      "groupName": "ratatui",
+      "groupSlug": "ratatui",
+      "matchDatasources": ["crate"],
+      "matchPackageNames": ["ratatui", "tui-input"]
     }
   ]
 }
