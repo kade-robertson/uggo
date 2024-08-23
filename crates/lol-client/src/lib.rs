@@ -94,6 +94,7 @@ impl LOLClientAPI {
         }
     }
 
+    #[must_use]
     pub fn get_summoner_info(&self) -> Option<ClientSummoner> {
         self.get_data::<ClientSummoner>(&format!(
             "https://127.0.0.1:{}/lol-summoner/v1/current-summoner",
@@ -101,6 +102,7 @@ impl LOLClientAPI {
         ))
     }
 
+    #[must_use]
     pub fn get_current_rune_page(&self) -> Option<RunePage> {
         match self.get_data::<RunePages>(&format!(
             "https://127.0.0.1:{}/lol-perks/v1/pages",

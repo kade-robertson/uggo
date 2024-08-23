@@ -75,11 +75,12 @@ impl DataApi {
             client_builder = client_builder.cache(dir);
         }
 
+        let cache_size = NonZeroUsize::new(50).unwrap_or(NonZeroUsize::MIN);
         Ok(Self {
             agent: Agent::new(),
             ddragon: client_builder.build()?,
-            overview_cache: RefCell::new(LruCache::new(NonZeroUsize::new(50).unwrap())),
-            matchup_cache: RefCell::new(LruCache::new(NonZeroUsize::new(50).unwrap())),
+            overview_cache: RefCell::new(LruCache::new(cache_size)),
+            matchup_cache: RefCell::new(LruCache::new(cache_size)),
         })
     }
 
@@ -392,6 +393,7 @@ pub struct UggApiBuilder {
 }
 
 impl UggApiBuilder {
+    #[must_use]
     pub fn new() -> Self {
         Self {
             version: None,
@@ -399,11 +401,13 @@ impl UggApiBuilder {
         }
     }
 
+    #[must_use]
     pub fn version(mut self, version: &str) -> Self {
         self.version = Some(version.to_owned());
         self
     }
 
+    #[must_use]
     pub fn cache_dir(mut self, cache_dir: &Path) -> Self {
         self.cache_dir = Some(cache_dir.to_path_buf());
         self

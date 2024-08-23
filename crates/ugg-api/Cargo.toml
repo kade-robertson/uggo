@@ -11,6 +11,9 @@ readme = "../../README.md"
 keywords = ["uggo"]
 categories = ["api-bindings"]
 
+[lints]
+workspace = true
+
 [dependencies]
 ddragon = "0.8.2"
 hex = "0.4.3"
@@ -27,7 +30,3 @@ ugg-types = { version = "0.5.3", path = "../ugg-types" }
 [features]
 json-runtime-detection = ["simd-json/runtime-detection"]
 default = ["json-runtime-detection"]
-
-[package.metadata.binstall]
-pkg-url = "{ repo }/releases/download/v{ version }/{ name }-{version}-{ target }{ archive-suffix }"
-pkg-fmt = "bin"

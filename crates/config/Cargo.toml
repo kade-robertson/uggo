@@ -11,6 +11,9 @@ readme = "../../README.md"
 keywords = ["uggo"]
 categories = ["config"]
 
+[lints]
+workspace = true
+
 [dependencies]
 config-better = "1.2.0"
 thiserror = "1.0.59"

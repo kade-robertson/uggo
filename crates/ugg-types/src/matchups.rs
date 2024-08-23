@@ -51,14 +51,14 @@ impl<'de> Deserialize<'de> for WrappedMatchupData {
 pub struct MatchupData {
     pub best_matchups: Vec<Matchup>,
     pub worst_matchups: Vec<Matchup>,
-    pub total_matches: i64,
+    pub total_matches: i32,
 }
 
 #[derive(Debug, Clone, Serialize)]
 pub struct Matchup {
     pub champion_id: i64,
-    pub wins: i64,
-    pub matches: i64,
+    pub wins: i32,
+    pub matches: i32,
     pub winrate: f64,
 }
 
@@ -81,20 +81,20 @@ impl<'de> Deserialize<'de> for MatchupData {
                 V: SeqAccess<'de>,
             {
                 let mut all_matchups: Vec<Matchup> = vec![];
-                let mut total_matches: i64 = 0;
+                let mut total_matches: i32 = 0;
 
-                while let Ok(data_opt) = visitor.next_element::<Vec<i64>>() {
+                while let Ok(data_opt) = visitor.next_element::<(i64, i32, i32)>() {
                     match data_opt {
                         Some(data) => {
-                            let wins = data[2] - data[1];
-                            let winrate = wins as f64 / data[2] as f64;
+                            let wins = data.2 - data.1;
+                            let winrate = f64::from(wins) / f64::from(data.2);
                             all_matchups.push(Matchup {
-                                champion_id: data[0],
+                                champion_id: data.0,
                                 wins,
-                                matches: data[2],
+                                matches: data.2,
                                 winrate,
                             });
-                            total_matches += data[2];
+                            total_matches += data.2;
                         }
                         None => {
                             break;
@@ -105,7 +105,7 @@ impl<'de> Deserialize<'de> for MatchupData {
                 // Only consider matchups that represent at least a 0.5% possibility of showing up
                 all_matchups = all_matchups
                     .into_iter()
-                    .filter(|a| a.matches as f64 >= (total_matches as f64 / 200.0))
+                    .filter(|a| f64::from(a.matches) >= (f64::from(total_matches) / 200.0))
                     .collect::<Vec<Matchup>>();
                 all_matchups.sort_by(|a, b| b.winrate.partial_cmp(&a.winrate).unwrap());
 

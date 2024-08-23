@@ -9,5 +9,8 @@ homepage = "https://github.com/kade-robertson/uggo"
 repository = "https://github.com/kade-robertson/uggo"
 keywords = ["ugg", "league", "of", "legends"]
 
+[lints]
+workspace = true
+
 [dependencies]
 serde = { version = "1.0.200", features = ["derive"] }
