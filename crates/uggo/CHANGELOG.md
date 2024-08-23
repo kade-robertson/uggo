@@ -1,5 +1,30 @@
 # Changelog
 
+## [0.12.3](https://github.com/kade-robertson/uggo/compare/uggo-v0.12.2...uggo-v0.12.3) (2024-08-22)
+
+
+### Bug Fixes
+
+* **deps:** update ratatui ([#364](https://github.com/kade-robertson/uggo/issues/364)) ([2ff52e5](https://github.com/kade-robertson/uggo/commit/2ff52e5c180ea90e28c128161f921cca429a0359))
+* **deps:** update rust crate anyhow to 1.0.82 ([#318](https://github.com/kade-robertson/uggo/issues/318)) ([b082f8d](https://github.com/kade-robertson/uggo/commit/b082f8de5b06b2676184c5acc23d9d27258fdee1))
+* **deps:** update rust crate mimalloc to 0.1.41 ([#335](https://github.com/kade-robertson/uggo/issues/335)) ([76c7917](https://github.com/kade-robertson/uggo/commit/76c79178da382bfb8077ac3537b388f3c784457d))
+* **deps:** update rust crate ratatui to 0.26.2 ([#322](https://github.com/kade-robertson/uggo/issues/322)) ([d5abe49](https://github.com/kade-robertson/uggo/commit/d5abe49492afc0e17c84d77772b3fce5d47ba7b2))
+* **deps:** update rust crate ratatui to 0.27.0 ([#352](https://github.com/kade-robertson/uggo/issues/352)) ([6ad3961](https://github.com/kade-robertson/uggo/commit/6ad3961bbb30f33939da8334cd3deb88a325838e))
+* **deps:** update rust crate serde to 1.0.199 ([#337](https://github.com/kade-robertson/uggo/issues/337)) ([3ea2fa1](https://github.com/kade-robertson/uggo/commit/3ea2fa1f2a43d9bb0c508f7fae5d07556a352d07))
+* **deps:** update rust crate serde to 1.0.200 ([#338](https://github.com/kade-robertson/uggo/issues/338)) ([f2724cb](https://github.com/kade-robertson/uggo/commit/f2724cb2585203449183dc5866b47a762220402b))
+* **deps:** update rust crate tui-input to 0.9.0 ([#354](https://github.com/kade-robertson/uggo/issues/354)) ([5aa1f58](https://github.com/kade-robertson/uggo/commit/5aa1f58cbda42541ca66aa3906ec1d3149f80f89))
+* **deps:** update rust crate ureq to 2.9.7 ([#336](https://github.com/kade-robertson/uggo/issues/336)) ([2082a30](https://github.com/kade-robertson/uggo/commit/2082a30991703b354854af2cf11bfafef15a9fa8))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * ugg-types bumped from 0.5.2 to 0.5.3
+    * uggo-config bumped from 0.1.2 to 0.1.3
+    * uggo-lol-client bumped from 0.2.2 to 0.2.3
+    * uggo-ugg-api bumped from 0.2.2 to 0.2.3
+
 ## [0.12.2](https://github.com/kade-robertson/uggo/compare/uggo-v0.12.1...uggo-v0.12.2) (2024-04-05)
 
 

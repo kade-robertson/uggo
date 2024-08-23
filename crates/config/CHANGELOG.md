@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.3](https://github.com/kade-robertson/uggo/compare/uggo-config-v0.1.2...uggo-config-v0.1.3) (2024-08-22)
+
+
+### Bug Fixes
+
+* **deps:** update rust crate thiserror to 1.0.59 ([#334](https://github.com/kade-robertson/uggo/issues/334)) ([fc07341](https://github.com/kade-robertson/uggo/commit/fc07341bcaa0e0a9bda64a2985967b04ed5c64de))
+
 ## [0.1.2](https://github.com/kade-robertson/uggo/compare/uggo-config-v0.1.1...uggo-config-v0.1.2) (2024-04-05)
 
 

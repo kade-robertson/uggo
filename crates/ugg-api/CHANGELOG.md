@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.2.3](https://github.com/kade-robertson/uggo/compare/uggo-ugg-api-v0.2.2...uggo-ugg-api-v0.2.3) (2024-08-22)
+
+
+### Bug Fixes
+
+* **deps:** update rust crate serde to 1.0.199 ([#337](https://github.com/kade-robertson/uggo/issues/337)) ([3ea2fa1](https://github.com/kade-robertson/uggo/commit/3ea2fa1f2a43d9bb0c508f7fae5d07556a352d07))
+* **deps:** update rust crate serde to 1.0.200 ([#338](https://github.com/kade-robertson/uggo/issues/338)) ([f2724cb](https://github.com/kade-robertson/uggo/commit/f2724cb2585203449183dc5866b47a762220402b))
+* **deps:** update rust crate simd-json to 0.13.10 ([#324](https://github.com/kade-robertson/uggo/issues/324)) ([b2f4c95](https://github.com/kade-robertson/uggo/commit/b2f4c956ec6b1778ed22c754d127b714ed129cc8))
+* **deps:** update rust crate thiserror to 1.0.59 ([#334](https://github.com/kade-robertson/uggo/issues/334)) ([fc07341](https://github.com/kade-robertson/uggo/commit/fc07341bcaa0e0a9bda64a2985967b04ed5c64de))
+* **deps:** update rust crate ureq to 2.9.7 ([#336](https://github.com/kade-robertson/uggo/issues/336)) ([2082a30](https://github.com/kade-robertson/uggo/commit/2082a30991703b354854af2cf11bfafef15a9fa8))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * ugg-types bumped from 0.5.2 to 0.5.3
+
 ## [0.2.2](https://github.com/kade-robertson/uggo/compare/uggo-ugg-api-v0.2.1...uggo-ugg-api-v0.2.2) (2024-04-05)
 
 
