@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 
 pub type RunePages = Vec<RunePage>;
 
+#[allow(clippy::struct_excessive_bools)]
 #[derive(Default, Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RunePage {

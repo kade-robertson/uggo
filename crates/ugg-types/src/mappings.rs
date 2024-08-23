@@ -78,7 +78,8 @@ impl Display for Rank {
 }
 
 impl Rank {
-    pub fn preferred_order() -> [Rank; 16] {
+    #[must_use]
+    pub const fn preferred_order() -> [Rank; 16] {
         // Prefer Platinum+, then overall, the plus ranks from lowest to highest,
         // and finally individual ranks.
         [
@@ -160,6 +161,7 @@ pub enum Region {
 }
 
 impl Region {
+    #[must_use]
     pub fn to_api_string(self) -> String {
         (match self {
             Region::NA1 => 1,
@@ -184,7 +186,8 @@ impl Region {
         .to_string()
     }
 
-    pub fn all() -> &'static [Region; 18] {
+    #[must_use]
+    pub const fn all() -> &'static [Region; 18] {
         &[
             Region::NA1,
             Region::EUW1,
@@ -240,27 +243,9 @@ impl Display for Region {
     }
 }
 
+#[must_use]
 pub fn get_region(region: &str) -> Region {
-    for enum_region in &[
-        Region::NA1,
-        Region::EUW1,
-        Region::KR,
-        Region::EUN1,
-        Region::BR1,
-        Region::LA1,
-        Region::LA2,
-        Region::OC1,
-        Region::RU,
-        Region::TR1,
-        Region::JP1,
-        Region::World,
-        Region::PH2,
-        Region::SG2,
-        Region::TH2,
-        Region::TW2,
-        Region::VN2,
-        Region::ME1,
-    ] {
+    for enum_region in Region::all() {
         let region_str = enum_region.to_string().to_lowercase();
         if region.to_lowercase() == region_str
             || region_str.contains(&region.to_lowercase()[..region.len() - 1])
@@ -315,7 +300,8 @@ impl Default for Role {
 }
 
 impl Role {
-    pub fn all() -> &'static [Role; 8] {
+    #[must_use]
+    pub const fn all() -> &'static [Role; 8] {
         &[
             Role::Jungle,
             Role::Support,
@@ -362,17 +348,9 @@ impl TryFrom<i32> for Role {
     }
 }
 
+#[must_use]
 pub fn get_role(role: &str) -> Role {
-    for enum_role in &[
-        Role::Jungle,
-        Role::Support,
-        Role::ADCarry,
-        Role::Top,
-        Role::Mid,
-        Role::None,
-        Role::Automatic,
-        Role::Lane,
-    ] {
+    for enum_role in Role::all() {
         let role_str = enum_role.to_string().to_lowercase();
         if role_str.contains(&role.to_lowercase()) {
             return *enum_role;
@@ -401,6 +379,7 @@ pub enum Mode {
 }
 
 impl Mode {
+    #[must_use]
     pub fn to_api_string(self) -> String {
         (match self {
             Self::Normal => "ranked_solo_5x5",
@@ -413,6 +392,7 @@ impl Mode {
         .to_string()
     }
 
+    #[must_use]
     pub fn from_api_string(s: &str) -> Self {
         match s.to_lowercase().as_str() {
             "normal_aram" => Self::ARAM,
@@ -424,7 +404,8 @@ impl Mode {
         }
     }
 
-    pub fn all() -> &'static [Mode; 6] {
+    #[must_use]
+    pub const fn all() -> &'static [Mode; 6] {
         &[
             Mode::Normal,
             Mode::ARAM,
@@ -497,7 +478,6 @@ impl Default for Build {
 impl From<&str> for Build {
     fn from(kind_str: &str) -> Self {
         match kind_str.to_lowercase().as_str() {
-            "recommended" | "overview" => Self::Recommended,
             "onhit" | "onhit-overview" => Self::OnHit,
             "crit" | "crit-overview" => Self::Crit,
             "lethality" | "lethality-overview" => Self::Lethality,
@@ -533,7 +513,8 @@ impl Display for Build {
 }
 
 impl Build {
-    pub fn all() -> &'static [Build; 7] {
+    #[must_use]
+    pub const fn all() -> &'static [Build; 7] {
         &[
             Build::Recommended,
             Build::OnHit,
@@ -545,6 +526,7 @@ impl Build {
         ]
     }
 
+    #[must_use]
     pub fn to_api_string(&self) -> &'static str {
         match self {
             Build::Recommended => "overview",
@@ -557,9 +539,9 @@ impl Build {
         }
     }
 
+    #[must_use]
     pub fn from_api_string(s: &str) -> Self {
         match s.to_lowercase().as_str() {
-            "overview" => Self::Recommended,
             "onhit-overview" => Self::OnHit,
             "crit-overview" => Self::Crit,
             "lethality-overview" => Self::Lethality,

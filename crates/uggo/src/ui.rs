@@ -30,7 +30,7 @@ macro_rules! show_list_popup {
 }
 
 pub fn render(frame: &mut Frame, ctx: &AppContext) {
-    let frame_size = frame.size();
+    let frame_size = frame.area();
 
     let app_border = Layout::default()
         .direction(Direction::Vertical)

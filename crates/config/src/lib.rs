@@ -25,6 +25,7 @@ impl Config {
         Ok(Self { inner: config })
     }
 
+    #[must_use]
     pub fn cache(&self) -> &PathBuf {
         &self.inner.cache.path
     }
