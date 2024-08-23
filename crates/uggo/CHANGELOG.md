@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.13.0](https://github.com/kade-robertson/uggo/compare/uggo-v0.12.3...uggo-v0.13.0) (2024-08-23)
+
+
+### ⚠ BREAKING CHANGES
+
+* bump msrv to 1.80, node to 20 ([#371](https://github.com/kade-robertson/uggo/issues/371))
+
+### Build System
+
+* bump msrv to 1.80, node to 20 ([#371](https://github.com/kade-robertson/uggo/issues/371)) ([6c161cc](https://github.com/kade-robertson/uggo/commit/6c161cc626f7030726a6b168b780ade9b9866eb5))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * ugg-types bumped from 0.5.3 to 0.6.0
+    * uggo-config bumped from 0.1.3 to 0.2.0
+    * uggo-lol-client bumped from 0.2.3 to 0.3.0
+    * uggo-ugg-api bumped from 0.2.3 to 0.3.0
+
 ## [0.12.3](https://github.com/kade-robertson/uggo/compare/uggo-v0.12.2...uggo-v0.12.3) (2024-08-22)
 
 

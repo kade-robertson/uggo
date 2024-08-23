@@ -1507,14 +1507,14 @@ checksum = "42ff0bf0c66b8238c6f3b578df37d0b7848e55df8577b3f74f92a69acceeb825"
 
 [[package]]
 name = "ugg-types"
-version = "0.5.3"
+version = "0.6.0"
 dependencies = [
  "serde",
 ]
 
 [[package]]
 name = "uggo"
-version = "0.12.3"
+version = "0.13.0"
 dependencies = [
  "anyhow",
  "ddragon",
@@ -1531,7 +1531,7 @@ dependencies = [
 
 [[package]]
 name = "uggo-config"
-version = "0.1.3"
+version = "0.2.0"
 dependencies = [
  "config-better",
  "thiserror",
@@ -1539,7 +1539,7 @@ dependencies = [
 
 [[package]]
 name = "uggo-lol-client"
-version = "0.2.3"
+version = "0.3.0"
 dependencies = [
  "league-client-connector",
  "native-tls",
@@ -1551,7 +1551,7 @@ dependencies = [
 
 [[package]]
 name = "uggo-ugg-api"
-version = "0.2.3"
+version = "0.3.0"
 dependencies = [
  "ddragon",
  "hex",

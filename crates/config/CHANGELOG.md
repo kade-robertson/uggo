@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.2.0](https://github.com/kade-robertson/uggo/compare/uggo-config-v0.1.3...uggo-config-v0.2.0) (2024-08-23)
+
+
+### ⚠ BREAKING CHANGES
+
+* bump msrv to 1.80, node to 20 ([#371](https://github.com/kade-robertson/uggo/issues/371))
+
+### Build System
+
+* bump msrv to 1.80, node to 20 ([#371](https://github.com/kade-robertson/uggo/issues/371)) ([6c161cc](https://github.com/kade-robertson/uggo/commit/6c161cc626f7030726a6b168b780ade9b9866eb5))
+
 ## [0.1.3](https://github.com/kade-robertson/uggo/compare/uggo-config-v0.1.2...uggo-config-v0.1.3) (2024-08-22)
 
 
