@@ -19,7 +19,7 @@ jobs:
 
       - id: toolchain
         name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@1.74.0
+        uses: dtolnay/rust-toolchain@1.80.0
         with:
           components: clippy
 
