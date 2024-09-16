@@ -13,4 +13,4 @@ keywords = ["ugg", "league", "of", "legends"]
 workspace = true
 
 [dependencies]
-serde = { version = "1.0.200", features = ["derive"] }
+serde = { version = "1.0.210", features = ["derive"] }
