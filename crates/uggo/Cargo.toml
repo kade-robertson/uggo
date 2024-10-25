@@ -24,8 +24,8 @@ ugg-types = { version = "0.6.0", path = "../ugg-types" }
 uggo-config = { version = "0.2.0", path = "../config" }
 uggo-lol-client = { version = "0.3.0", path = "../lol-client" }
 uggo-ugg-api = { version = "0.3.0", path = "../ugg-api", default-features = false }
-ratatui = "0.28.0"
-tui-input = "0.10.0"
+ratatui = "0.29.0"
+tui-input = "0.11.0"
 
 [features]
 json-runtime-detection = ["uggo-ugg-api/json-runtime-detection"]
