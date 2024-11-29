@@ -18,6 +18,6 @@ workspace = true
 league-client-connector = "0.1.2"
 native-tls = "0.2.11"
 serde = "1.0.200"
-thiserror = "1.0.59"
+thiserror = "2.0.0"
 ureq = { version = "2.9.7", features = ["native-tls", "brotli", "json"] }
 ugg-types = { version = "0.6.0", path = "../ugg-types" }
