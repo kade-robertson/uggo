@@ -3,6 +3,7 @@
   "extends": ["config:recommended"],
   "ignorePresets": ["group:monorepos"],
   "ignoreDeps": ["google-github-actions/release-please-action"],
+  "rangeStrategy": "update-lockfile",
   "packageRules": [
     {
       "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
