@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/kade-robertson/uggo/compare/uggo-lol-client-v0.3.0...uggo-lol-client-v0.3.1) (2024-12-12)
+
+
+### Bug Fixes
+
+* **deps:** update rust crate thiserror to v2 ([#402](https://github.com/kade-robertson/uggo/issues/402)) ([5ac4881](https://github.com/kade-robertson/uggo/commit/5ac4881543dec3af39deeb06217bb648ec4184f7))
+
 ## [0.3.0](https://github.com/kade-robertson/uggo/compare/uggo-lol-client-v0.2.3...uggo-lol-client-v0.3.0) (2024-08-23)
 
 
