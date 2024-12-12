@@ -24,7 +24,7 @@ jobs:
           components: clippy
 
       - name: Run sccache-cache
-        uses: mozilla-actions/sccache-action@v0.0.6
+        uses: mozilla-actions/sccache-action@v0.0.7
 
       - name: Test
         run: cargo test --locked
