@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.13.1](https://github.com/kade-robertson/uggo/compare/uggo-v0.13.0...uggo-v0.13.1) (2025-01-25)
+
+
+### Bug Fixes
+
+* **deps:** update ratatui ([#395](https://github.com/kade-robertson/uggo/issues/395)) ([590faf4](https://github.com/kade-robertson/uggo/commit/590faf43e990b73de84d5d51c2e7e3ebc8bb5bc1))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * uggo-config bumped from 0.2.0 to 0.2.1
+    * uggo-lol-client bumped from 0.3.0 to 0.3.1
+    * uggo-ugg-api bumped from 0.3.0 to 0.3.1
+
 ## [0.13.0](https://github.com/kade-robertson/uggo/compare/uggo-v0.12.3...uggo-v0.13.0) (2024-08-23)
 
 
