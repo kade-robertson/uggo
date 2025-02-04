@@ -1825,7 +1825,7 @@ dependencies = [
 
 [[package]]
 name = "uggo"
-version = "0.13.0"
+version = "0.13.1"
 dependencies = [
  "anyhow",
  "ddragon",
@@ -1842,7 +1842,7 @@ dependencies = [
 
 [[package]]
 name = "uggo-config"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "config-better",
  "thiserror 2.0.11",
@@ -1850,7 +1850,7 @@ dependencies = [
 
 [[package]]
 name = "uggo-lol-client"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "league-client-connector",
  "native-tls",
@@ -1862,7 +1862,7 @@ dependencies = [
 
 [[package]]
 name = "uggo-ugg-api"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "ddragon",
  "hex",
