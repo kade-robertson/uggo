@@ -1,4 +1,7 @@
-use std::{collections::HashMap, time::Duration};
+use std::collections::HashMap;
+
+#[cfg(debug_assertions)]
+use std::time::Duration;
 
 use ddragon::models::champions::ChampionShort;
 use ratatui::widgets::ListItem;
@@ -54,6 +57,7 @@ pub struct AppContext<'a> {
     pub role_scroll_pos: Option<usize>,
     pub build: Build,
     pub build_scroll_pos: Option<usize>,
+    #[cfg(debug_assertions)]
     pub last_render_duration: Option<Duration>,
 }
 
@@ -103,6 +107,7 @@ impl AppContext<'_> {
             role_scroll_pos: Role::all().iter().position(|r| r == &Role::Automatic),
             build: Build::Recommended,
             build_scroll_pos: Build::all().iter().position(|r| r == &Build::Recommended),
+            #[cfg(debug_assertions)]
             last_render_duration: None,
         };
         app_context.update_champ_list();
