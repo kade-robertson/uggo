@@ -1,8 +1,8 @@
 [package]
 name = "uggo-lol-client"
 version = "0.3.0"
-edition = "2021"
-rust-version = "1.80"
+edition = "2024"
+rust-version = "1.85"
 license = "MIT"
 description = "uggo dependency -- API bindings for the League of Legends client"
 homepage = "https://github.com/kade-robertson/uggo"
@@ -16,7 +16,7 @@ workspace = true
 
 [dependencies]
 league-client-connector = "0.1.2"
-serde = "1.0.200"
-thiserror = "2.0.0"
+serde = "1.0.218"
+thiserror = "2.0.11"
 ureq = { version = "3.0.6", features = ["native-tls", "brotli", "json"] }
 ugg-types = { version = "0.6.0", path = "../ugg-types" }

@@ -1,9 +1,9 @@
 [package]
 name = "ugg-types"
 version = "0.6.0"
-edition = "2021"
+edition = "2024"
 license = "MIT"
-rust-version = "1.80"
+rust-version = "1.85"
 description = "Types for the uggo CLI tool and ugg-proxy server."
 homepage = "https://github.com/kade-robertson/uggo"
 repository = "https://github.com/kade-robertson/uggo"
@@ -13,4 +13,4 @@ keywords = ["ugg", "league", "of", "legends"]
 workspace = true
 
 [dependencies]
-serde = { version = "1.0.200", features = ["derive"] }
+serde = { version = "1.0.218", features = ["derive"] }
