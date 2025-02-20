@@ -46,7 +46,9 @@ pub fn make_placeholder() -> impl Widget {
         .borders(Borders::ALL)
 }
 
-fn make_single_rune_path(grouped_runes: &(String, Vec<&RuneExtended<RuneElement>>)) -> impl Widget {
+fn make_single_rune_path(
+    grouped_runes: &(String, Vec<&RuneExtended<RuneElement>>),
+) -> impl Widget + use<> {
     let secondary_rune_table = Table::new(
         grouped_runes.1.iter().map(|rune| {
             Row::new(vec![
