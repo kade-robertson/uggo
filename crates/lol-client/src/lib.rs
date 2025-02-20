@@ -1,18 +1,15 @@
 use league_client_connector::{LeagueClientConnector, RiotLockFile};
-use native_tls::TlsConnector;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
-use std::sync::Arc;
 use thiserror::Error;
-use ureq::{Agent, AgentBuilder};
+use ureq::tls::TlsConfig;
+use ureq::Agent;
 
 use ugg_types::client_runepage::{NewRunePage, RunePage, RunePages};
 use ugg_types::client_summoner::ClientSummoner;
 
 #[derive(Error, Debug)]
 pub enum LOLClientError {
-    #[error("Unable to create TLS connector for League client")]
-    TlsInitError(#[from] native_tls::Error),
     #[error("Unable to read lockfile")]
     LockfileReadError(#[from] league_client_connector::LeagueConnectorError),
     #[error("Linux is not supported")]
@@ -30,13 +27,15 @@ impl LOLClientAPI {
             return Err(LOLClientError::LinuxNotSupported);
         }
         Ok(LOLClientAPI {
-            agent: AgentBuilder::new()
-                .tls_connector(Arc::new(
-                    TlsConnector::builder()
-                        .danger_accept_invalid_certs(true)
-                        .build()?,
-                ))
-                .build(),
+            agent: Agent::config_builder()
+                .tls_config(
+                    TlsConfig::builder()
+                        .provider(ureq::tls::TlsProvider::NativeTls)
+                        .disable_verification(true)
+                        .build(),
+                )
+                .build()
+                .into(),
             lockfile: LeagueClientConnector::parse_lockfile()?,
         })
     }
@@ -45,7 +44,7 @@ impl LOLClientAPI {
         match self
             .agent
             .get(url)
-            .set(
+            .header(
                 "Authorization",
                 &format!("Basic {}", self.lockfile.b64_auth),
             )
@@ -53,11 +52,7 @@ impl LOLClientAPI {
         {
             Ok(response) => {
                 if response.status() == 200 {
-                    let json_data = response.into_json::<T>();
-                    match json_data {
-                        Ok(json) => Some(json),
-                        Err(_) => None,
-                    }
+                    response.into_body().read_json::<T>().ok()
                 } else {
                     None
                 }
@@ -70,7 +65,7 @@ impl LOLClientAPI {
         match self
             .agent
             .delete(url)
-            .set(
+            .header(
                 "Authorization",
                 &format!("Basic {}", self.lockfile.b64_auth),
             )
@@ -84,7 +79,7 @@ impl LOLClientAPI {
         match self
             .agent
             .post(url)
-            .set(
+            .header(
                 "Authorization",
                 &format!("Basic {}", self.lockfile.b64_auth),
             )

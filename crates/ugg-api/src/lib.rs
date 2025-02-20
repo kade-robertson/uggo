@@ -8,7 +8,6 @@ use lru::LruCache;
 use serde::de::DeserializeOwned;
 use std::cell::RefCell;
 use std::collections::HashMap;
-use std::io::Read;
 use std::num::NonZeroUsize;
 use std::path::{Path, PathBuf};
 use thiserror::Error;
@@ -77,7 +76,7 @@ impl DataApi {
 
         let cache_size = NonZeroUsize::new(50).unwrap_or(NonZeroUsize::MIN);
         Ok(Self {
-            agent: Agent::new(),
+            agent: Agent::new_with_defaults(),
             ddragon: client_builder.build()?,
             overview_cache: RefCell::new(LruCache::new(cache_size)),
             matchup_cache: RefCell::new(LruCache::new(cache_size)),
@@ -85,8 +84,13 @@ impl DataApi {
     }
 
     fn get_data<T: DeserializeOwned>(&self, url: &str) -> Result<T, UggError> {
-        simd_json::serde::from_reader::<Box<dyn Read + Send + Sync>, T>(
-            self.agent.get(url).call().map_err(Box::new)?.into_reader(),
+        simd_json::serde::from_reader::<ureq::BodyReader<'_>, T>(
+            self.agent
+                .get(url)
+                .call()
+                .map_err(Box::new)?
+                .into_body()
+                .as_reader(),
         )
         .map_err(UggError::ParseError)
     }
