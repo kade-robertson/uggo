@@ -1,5 +1,34 @@
 # Changelog
 
+## [0.14.0](https://github.com/kade-robertson/uggo/compare/uggo-v0.13.0...uggo-v0.14.0) (2025-02-20)
+
+
+### ⚠ BREAKING CHANGES
+
+* bump msrv to 1.85, edition to 2024, refresh deps ([#437](https://github.com/kade-robertson/uggo/issues/437))
+
+### Bug Fixes
+
+* **deps:** bump ureq to 3.x ([#435](https://github.com/kade-robertson/uggo/issues/435)) ([7a27d84](https://github.com/kade-robertson/uggo/commit/7a27d8452720d6e05042dbb0a1519ec12fb58b60))
+* **deps:** update ratatui ([#395](https://github.com/kade-robertson/uggo/issues/395)) ([590faf4](https://github.com/kade-robertson/uggo/commit/590faf43e990b73de84d5d51c2e7e3ebc8bb5bc1))
+* **deps:** update rust crate ddragon to 0.9.0 ([#430](https://github.com/kade-robertson/uggo/issues/430)) ([f011697](https://github.com/kade-robertson/uggo/commit/f0116976486b0f22d85a4ab77fbe351570a3382d))
+* update deprecated ratatui methods ([#438](https://github.com/kade-robertson/uggo/issues/438)) ([6c81acf](https://github.com/kade-robertson/uggo/commit/6c81acf06a705c14e6ae015aaf480838e82f470c))
+
+
+### Code Refactoring
+
+* bump msrv to 1.85, edition to 2024, refresh deps ([#437](https://github.com/kade-robertson/uggo/issues/437)) ([284ef44](https://github.com/kade-robertson/uggo/commit/284ef44815879548a24b81b4ac64246208fbebae))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * ugg-types bumped from 0.6.0 to 0.7.0
+    * uggo-config bumped from 0.2.0 to 0.3.0
+    * uggo-lol-client bumped from 0.3.0 to 0.4.0
+    * uggo-ugg-api bumped from 0.3.0 to 0.4.0
+
 ## [0.13.0](https://github.com/kade-robertson/uggo/compare/uggo-v0.12.3...uggo-v0.13.0) (2024-08-23)
 
 
