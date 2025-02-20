@@ -18,7 +18,7 @@ workspace = true
 ddragon = "0.9.0"
 hex = "0.4.3"
 levenshtein = "1.0.5"
-lru = "0.12.3"
+lru = "0.13.0"
 native-tls = "0.2.11"
 serde = "1.0.200"
 simd-json = { version = "0.14.0", default-features = false, features = ["serde_impl", "swar-number-parsing"] }
