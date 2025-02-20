@@ -1,5 +1,32 @@
 # Changelog
 
+## [0.4.0](https://github.com/kade-robertson/uggo/compare/uggo-ugg-api-v0.3.0...uggo-ugg-api-v0.4.0) (2025-02-20)
+
+
+### ⚠ BREAKING CHANGES
+
+* bump msrv to 1.85, edition to 2024, refresh deps ([#437](https://github.com/kade-robertson/uggo/issues/437))
+
+### Bug Fixes
+
+* **deps:** bump lru to 0.13.0 ([#436](https://github.com/kade-robertson/uggo/issues/436)) ([f567054](https://github.com/kade-robertson/uggo/commit/f567054f38ed80aefa19a4246c3a39c2e979e473))
+* **deps:** bump ureq to 3.x ([#435](https://github.com/kade-robertson/uggo/issues/435)) ([7a27d84](https://github.com/kade-robertson/uggo/commit/7a27d8452720d6e05042dbb0a1519ec12fb58b60))
+* **deps:** update rust crate ddragon to 0.9.0 ([#430](https://github.com/kade-robertson/uggo/issues/430)) ([f011697](https://github.com/kade-robertson/uggo/commit/f0116976486b0f22d85a4ab77fbe351570a3382d))
+* **deps:** update rust crate simd-json to 0.14.0 ([#381](https://github.com/kade-robertson/uggo/issues/381)) ([16801c3](https://github.com/kade-robertson/uggo/commit/16801c37a8a3445312e31ea11903fe543d2dcf98))
+* **deps:** update rust crate thiserror to v2 ([#402](https://github.com/kade-robertson/uggo/issues/402)) ([5ac4881](https://github.com/kade-robertson/uggo/commit/5ac4881543dec3af39deeb06217bb648ec4184f7))
+
+
+### Code Refactoring
+
+* bump msrv to 1.85, edition to 2024, refresh deps ([#437](https://github.com/kade-robertson/uggo/issues/437)) ([284ef44](https://github.com/kade-robertson/uggo/commit/284ef44815879548a24b81b4ac64246208fbebae))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * ugg-types bumped from 0.6.0 to 0.7.0
+
 ## [0.3.0](https://github.com/kade-robertson/uggo/compare/uggo-ugg-api-v0.2.3...uggo-ugg-api-v0.3.0) (2024-08-23)
 
 

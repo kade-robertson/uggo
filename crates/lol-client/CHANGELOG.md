@@ -1,5 +1,30 @@
 # Changelog
 
+## [0.4.0](https://github.com/kade-robertson/uggo/compare/uggo-lol-client-v0.3.0...uggo-lol-client-v0.4.0) (2025-02-20)
+
+
+### ⚠ BREAKING CHANGES
+
+* bump msrv to 1.85, edition to 2024, refresh deps ([#437](https://github.com/kade-robertson/uggo/issues/437))
+
+### Bug Fixes
+
+* **deps:** bump ureq to 3.x ([#435](https://github.com/kade-robertson/uggo/issues/435)) ([7a27d84](https://github.com/kade-robertson/uggo/commit/7a27d8452720d6e05042dbb0a1519ec12fb58b60))
+* **deps:** update rust crate thiserror to v2 ([#402](https://github.com/kade-robertson/uggo/issues/402)) ([5ac4881](https://github.com/kade-robertson/uggo/commit/5ac4881543dec3af39deeb06217bb648ec4184f7))
+* use old ureq for client connector only ([#439](https://github.com/kade-robertson/uggo/issues/439)) ([79db95f](https://github.com/kade-robertson/uggo/commit/79db95f4df303a720428a25126c913ff9a0ec092))
+
+
+### Code Refactoring
+
+* bump msrv to 1.85, edition to 2024, refresh deps ([#437](https://github.com/kade-robertson/uggo/issues/437)) ([284ef44](https://github.com/kade-robertson/uggo/commit/284ef44815879548a24b81b4ac64246208fbebae))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * ugg-types bumped from 0.6.0 to 0.7.0
+
 ## [0.3.0](https://github.com/kade-robertson/uggo/compare/uggo-lol-client-v0.2.3...uggo-lol-client-v0.3.0) (2024-08-23)
 
 

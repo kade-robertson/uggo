@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.3.0](https://github.com/kade-robertson/uggo/compare/uggo-config-v0.2.0...uggo-config-v0.3.0) (2025-02-20)
+
+
+### ⚠ BREAKING CHANGES
+
+* bump msrv to 1.85, edition to 2024, refresh deps ([#437](https://github.com/kade-robertson/uggo/issues/437))
+
+### Bug Fixes
+
+* **deps:** update rust crate thiserror to v2 ([#402](https://github.com/kade-robertson/uggo/issues/402)) ([5ac4881](https://github.com/kade-robertson/uggo/commit/5ac4881543dec3af39deeb06217bb648ec4184f7))
+
+
+### Code Refactoring
+
+* bump msrv to 1.85, edition to 2024, refresh deps ([#437](https://github.com/kade-robertson/uggo/issues/437)) ([284ef44](https://github.com/kade-robertson/uggo/commit/284ef44815879548a24b81b4ac64246208fbebae))
+
 ## [0.2.0](https://github.com/kade-robertson/uggo/compare/uggo-config-v0.1.3...uggo-config-v0.2.0) (2024-08-23)
 
 
