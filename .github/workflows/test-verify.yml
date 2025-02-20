@@ -9,7 +9,7 @@ env:
 name: test
 jobs:
   test:
-    name: test (${{ matrix.os }})
+    name: test
     strategy:
       matrix:
         toolchain: [1.85.0, stable, beta, nightly]
