@@ -16,7 +16,8 @@ workspace = true
 
 [dependencies]
 league-client-connector = "0.1.2"
+native-tls = "0.2.14"
 serde = "1.0.218"
 thiserror = "2.0.11"
-ureq = { version = "3.0.6", features = ["native-tls", "brotli", "json"] }
+ureq = { version = "2.12.1", features = ["native-tls", "brotli", "json"] }
 ugg-types = { version = "0.6.0", path = "../ugg-types" }
