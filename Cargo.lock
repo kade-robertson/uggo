@@ -369,7 +369,7 @@ dependencies = [
  "cacache",
  "serde",
  "thiserror 2.0.11",
- "ureq 3.0.7",
+ "ureq 3.0.8",
  "url",
 ]
 
@@ -1911,7 +1911,7 @@ dependencies = [
  "simd-json",
  "thiserror 2.0.11",
  "ugg-types",
- "ureq 3.0.7",
+ "ureq 3.0.8",
 ]
 
 [[package]]
@@ -1977,9 +1977,9 @@ dependencies = [
 
 [[package]]
 name = "ureq"
-version = "3.0.7"
+version = "3.0.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2f85f9ee53e53fd3f65b73dc51c5a782785d1a6cc381a06652a1141649537ad8"
+checksum = "06f78313c985f2fba11100dd06d60dd402d0cabb458af4d94791b8e09c025323"
 dependencies = [
  "base64 0.22.1",
  "brotli-decompressor",
@@ -2002,9 +2002,9 @@ dependencies = [
 
 [[package]]
 name = "ureq-proto"
-version = "0.3.2"
+version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b8e8862e186de3ad6ea1505dd071d179ec27aa7d2cb0798196c83f94625c8e9a"
+checksum = "64adb55464bad1ab1aa9229133d0d59d2f679180f4d15f0d9debe616f541f25e"
 dependencies = [
  "base64 0.22.1",
  "http",
