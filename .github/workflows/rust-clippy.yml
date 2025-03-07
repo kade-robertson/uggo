@@ -39,7 +39,7 @@ jobs:
           components: clippy
 
       - name: Run sccache-cache
-        uses: mozilla-actions/sccache-action@v0.0.7
+        uses: mozilla-actions/sccache-action@v0.0.8
 
       - name: Setup cargo-binstall
         run: |
