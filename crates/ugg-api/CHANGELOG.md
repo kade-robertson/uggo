@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.1](https://github.com/kade-robertson/uggo/compare/uggo-ugg-api-v0.4.0...uggo-ugg-api-v0.4.1) (2025-03-20)
+
+
+### Bug Fixes
+
+* **deps:** update rust crate simd-json to 0.15.0 ([#451](https://github.com/kade-robertson/uggo/issues/451)) ([894ce3b](https://github.com/kade-robertson/uggo/commit/894ce3b544d6f53d5b6d9bfcee2821546a868ac7))
+
 ## [0.4.0](https://github.com/kade-robertson/uggo/compare/uggo-ugg-api-v0.3.0...uggo-ugg-api-v0.4.0) (2025-02-20)
 
 
