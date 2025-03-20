@@ -21,7 +21,7 @@ levenshtein = "1.0.5"
 lru = "0.13.0"
 native-tls = "0.2.14"
 serde = "1.0.218"
-simd-json = { version = "0.14.3", default-features = false, features = ["serde_impl", "swar-number-parsing"] }
+simd-json = { version = "0.15.0", default-features = false, features = ["serde_impl", "swar-number-parsing"] }
 sha2 = "0.10.8"
 thiserror = "2.0.11"
 ureq = { version = "3.0.6", features = ["native-tls", "brotli"] }
