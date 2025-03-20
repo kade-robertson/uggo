@@ -1,6 +1,6 @@
 [package]
 name = "uggo"
-version = "0.14.0"
+version = "0.14.1"
 edition = "2024"
 rust-version = "1.85"
 license = "MIT"
@@ -22,7 +22,7 @@ serde = "1.0.218"
 ugg-types = { version = "0.7.0", path = "../ugg-types" }
 uggo-config = { version = "0.3.0", path = "../config" }
 uggo-lol-client = { version = "0.4.0", path = "../lol-client" }
-uggo-ugg-api = { version = "0.4.0", path = "../ugg-api", default-features = false }
+uggo-ugg-api = { version = "0.4.1", path = "../ugg-api", default-features = false }
 ratatui = "0.29.0"
 tui-input = "0.11.1"
 

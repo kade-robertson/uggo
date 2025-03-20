@@ -1,5 +1,9 @@
 # Changelog
 
+* The following workspace dependencies were updated
+  * dependencies
+    * uggo-ugg-api bumped from 0.4.0 to 0.4.1
+
 ## [0.14.0](https://github.com/kade-robertson/uggo/compare/uggo-v0.13.0...uggo-v0.14.0) (2025-02-20)
 
 
