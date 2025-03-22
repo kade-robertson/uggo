@@ -4,7 +4,6 @@ use std::collections::HashMap;
 use std::time::Duration;
 
 use ddragon::models::champions::ChampionShort;
-use log::{error, trace};
 use ratatui::widgets::ListItem;
 use tui_input::Input;
 use tui_logger::TuiWidgetState;
@@ -40,6 +39,7 @@ pub struct AppContext<'a> {
     pub api: UggApi,
     pub client_api: Option<LOLClientAPI>,
     pub state: State,
+    pub show_left_pane: bool,
     pub champ_scroll_pos: Option<usize>,
     pub champ_data: Vec<(usize, ChampionShort)>,
     pub champ_by_key: HashMap<String, ChampionShort>,
@@ -91,6 +91,7 @@ impl AppContext<'_> {
             api,
             client_api: LOLClientAPI::new().ok(),
             state: State::Initial,
+            show_left_pane: true,
             champ_scroll_pos: None,
             champ_data: ordered_champ_data,
             champ_by_key,
@@ -161,7 +162,6 @@ impl AppContext<'_> {
         (self.selected_champ_overview, self.selected_champ_role) = self
             .api
             .get_stats(champ, self.role, self.region, self.mode, self.build)
-            .inspect_err(|e| error!("{:?}", e))
             .ok()
             .transpose();
         if self.mode == Mode::ARAM || self.mode == Mode::Arena {

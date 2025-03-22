@@ -30,7 +30,7 @@ macro_rules! alt_keypress {
     };
 }
 
-const CELLS: [[&str; 2]; 13] = [
+const CELLS: [[&str; 2]; 14] = [
     ["Search", alt_keypress!("s")],
     ["Champ Select", alt_keypress!("c")],
     ["Mode Select", alt_keypress!("m")],
@@ -38,6 +38,7 @@ const CELLS: [[&str; 2]; 13] = [
     ["Version Select", alt_keypress!("v")],
     ["Region Select", alt_keypress!("w")],
     ["Build Select", alt_keypress!("b")],
+    ["Hide Left Pane", alt_keypress!("h")],
     ["Log Viewer", alt_keypress!("l")],
     ["Exit Log Viewer", "Q"],
     ["Back", "Esc"],

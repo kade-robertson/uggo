@@ -42,9 +42,11 @@ pub fn handle_events(ctx: &mut AppContext) -> anyhow::Result<bool> {
                         match key.code {
                             KeyCode::Char('s') => {
                                 ctx.state = State::TextInput;
+                                ctx.show_left_pane = true;
                             }
                             KeyCode::Char('c') => {
                                 ctx.state = State::ChampScroll;
+                                ctx.show_left_pane = true;
                                 if !ctx.champ_list.is_empty() {
                                     ctx.champ_scroll_pos = Some(0);
                                 }
@@ -71,6 +73,9 @@ pub fn handle_events(ctx: &mut AppContext) -> anyhow::Result<bool> {
                                 ctx.build_scroll_pos =
                                     Some(ctx.build_scroll_pos.unwrap_or_default());
                             }
+                            KeyCode::Char('h') => {
+                                ctx.show_left_pane = !ctx.show_left_pane;
+                            }
                             KeyCode::Char('l') => {
                                 ctx.state = State::Logger;
                             }
@@ -84,6 +89,7 @@ pub fn handle_events(ctx: &mut AppContext) -> anyhow::Result<bool> {
                             KeyCode::Esc | KeyCode::Enter => {}
                             _ => {
                                 ctx.state = State::TextInput;
+                                ctx.show_left_pane = true;
                                 ctx.on_search_keypress(key);
                             }
                         }

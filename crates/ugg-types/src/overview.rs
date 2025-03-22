@@ -21,8 +21,8 @@ pub fn handle_unknown<T: Default, E>(result: Result<Option<T>, E>) -> T {
 #[derive(Debug, Clone, Serialize, DeserializeDerive)]
 #[serde(untagged)]
 pub enum Overview {
-    Arena(ArenaOverviewData),
     Default(OverviewData),
+    Arena(ArenaOverviewData),
 }
 
 impl Overview {

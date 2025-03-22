@@ -16,7 +16,7 @@ workspace = true
 
 [dependencies]
 anyhow = "1.0.96"
-ddragon = "0.9.1"
+ddragon = "0.9.2"
 log = "0.4.26"
 mimalloc = "0.1.43"
 ratatui = "0.29.0"

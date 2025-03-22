@@ -89,7 +89,7 @@ impl<'de> Deserialize<'de> for PrismaticItem {
 
 #[derive(Debug, Clone, Serialize, Eq, PartialEq)]
 pub struct ChampionSynergy {
-    id: i64,
+    pub id: i64,
     top_four: i64,
     picked: i64,
     first: i64,
@@ -159,7 +159,7 @@ impl<'de> Deserialize<'de> for ChampionSynergy {
 
 #[derive(Debug, Clone, Serialize, PartialEq, Eq)]
 pub struct Augment {
-    id: i64,
+    pub id: i64,
     wins: i64,
     matches: i64,
 }

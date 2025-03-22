@@ -18,8 +18,8 @@ fn make_item_block<'a>(title: &str) -> Block<'a> {
         .borders(Borders::ALL)
 }
 
-pub fn make_placeholder() -> impl Widget {
-    make_item_block("Items")
+pub fn make_placeholder(title: Option<&str>) -> impl Widget {
+    make_item_block(title.unwrap_or("Items"))
 }
 
 fn make_list_from_lateitems<'a>(
@@ -86,14 +86,14 @@ pub fn make_default(overview: &OverviewData, items: &HashMap<String, Item>) -> [
     ]
 }
 
-pub fn make_arena(overview: &ArenaOverviewData, items: &HashMap<String, Item>) -> [impl Widget; 7] {
+pub fn make_arena(overview: &ArenaOverviewData, items: &HashMap<String, Item>) -> [impl Widget; 5] {
     [
-        make_list_from_item_ids("Starting Items", &overview.starting_items.item_ids, items),
-        make_list_from_item_ids("2nd & 3rd Items", &overview.core_items.item_ids, items),
+        // make_list_from_item_ids("Starting Items", &overview.starting_items.item_ids, items),
+        make_list_from_item_ids("2nd/3rd Items", &overview.core_items.item_ids, items),
         make_list_from_lateitems("4th Items", &overview.item_4_options, items),
         make_list_from_lateitems("5th Items", &overview.item_5_options, items),
         make_list_from_lateitems("6th Items", &overview.item_6_options, items),
-        make_list_from_lateitems("Consumables", &overview.consumables, items),
+        // make_list_from_lateitems("Consumables", &overview.consumables, items),
         make_list_from_prismatic_items("Prismatic Items", &overview.prismatic_items, items),
     ]
 }

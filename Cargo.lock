@@ -383,12 +383,13 @@ dependencies = [
 
 [[package]]
 name = "ddragon"
-version = "0.9.1"
+version = "0.9.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0c0eca88e6a882794a1129f12262867e931114c7578e2924a230c732c0000376"
+checksum = "329ca7e75c74bc5046db754df0a6b86db86ea59f67c5430d001fe83a5eced804"
 dependencies = [
  "cacache",
  "serde",
+ "serde_repr",
  "thiserror 2.0.12",
  "ureq 3.0.10",
  "url",
@@ -1534,6 +1535,17 @@ dependencies = [
  "memchr",
  "ryu",
  "serde",
+]
+
+[[package]]
+name = "serde_repr"
+version = "0.1.20"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "175ee3e80ae9982737ca543e96133087cbd9a485eecc3bc4de9c1a37b47ea59c"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.98",
 ]
 
 [[package]]

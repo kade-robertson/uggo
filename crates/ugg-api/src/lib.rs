@@ -1,4 +1,5 @@
 use crate::util::sha256;
+use ddragon::models::Augment;
 use ddragon::models::champions::ChampionShort;
 use ddragon::models::items::Item;
 use ddragon::models::runes::RuneElement;
@@ -61,6 +62,7 @@ pub struct UggApi {
     pub items: HashMap<String, Item>,
     pub runes: HashMap<i64, RuneExtended<RuneElement>>,
     pub summoner_spells: HashMap<i64, String>,
+    pub arena_augments: HashMap<i64, Augment>,
 }
 
 impl DataApi {
@@ -142,6 +144,15 @@ impl DataApi {
                 spell_info.key.parse::<i64>().ok().unwrap_or(0),
                 spell_info.name,
             );
+        }
+        Ok(reduced_data)
+    }
+
+    pub fn get_arena_augments(&self) -> Result<HashMap<i64, Augment>, UggError> {
+        let augment_data = self.ddragon.arena_augments()?;
+        let mut reduced_data: HashMap<i64, Augment> = HashMap::new();
+        for augment in augment_data {
+            reduced_data.insert(augment.id, augment);
         }
         Ok(reduced_data)
     }
@@ -306,6 +317,7 @@ impl UggApi {
         let items = inner_api.get_items()?;
         let runes = inner_api.get_runes()?;
         let summoner_spells = inner_api.get_summoner_spells()?;
+        let arena_augments = inner_api.get_arena_augments()?;
 
         let mut patch_version_split = current_version.split('.').collect::<Vec<&str>>();
         patch_version_split.remove(patch_version_split.len() - 1);
@@ -321,6 +333,7 @@ impl UggApi {
             items,
             runes,
             summoner_spells,
+            arena_augments,
         })
     }
 

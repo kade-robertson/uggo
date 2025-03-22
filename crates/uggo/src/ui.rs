@@ -2,15 +2,15 @@ use ratatui::{
     Frame,
     layout::{Constraint, Direction, Layout, Margin, Rect},
     style::{Color, Style, Stylize},
-    widgets::{Block, Clear, Paragraph, Widget},
+    widgets::{Block, Clear, Paragraph},
 };
 
-use tui_logger;
 use ugg_types::{mappings::Mode, overview::Overview};
 
 use crate::components::{
-    ability_order, app_border, build_select, champ_list, champ_name, items, matchups, mode_select,
-    region_select, role_select, rune_path, search, shards, spells, version_select,
+    ability_order, app_border, augments, build_select, champ_list, champ_name, champ_synergy,
+    items, matchups, mode_select, region_select, role_select, rune_path, search, shards, spells,
+    version_select,
 };
 
 use crate::context::{AppContext, State};
@@ -62,7 +62,7 @@ fn render_default_overview(frame: &mut Frame, ctx: &AppContext, main_layout: Rec
     frame.render_widget(rune_path::make_placeholder(), rune_split[0]);
     frame.render_widget(shards::make_placeholder(), shard_ability_split[0]);
     frame.render_widget(ability_order::make_placeholder(), shard_ability_split[1]);
-    frame.render_widget(items::make_placeholder(), overview_layout[3]);
+    frame.render_widget(items::make_placeholder(None), overview_layout[3]);
 
     if let Some(overview) = &ctx.selected_champ_overview {
         if let Some(selected) = &ctx.selected_champ {
@@ -131,13 +131,38 @@ fn render_arena_overview(frame: &mut Frame, ctx: &AppContext, main_layout: Rect)
         .direction(Direction::Vertical)
         .constraints([
             Constraint::Length(2),  // champ name
+            Constraint::Length(8),  // augments
             Constraint::Length(5),  // non-prismatic items
-            Constraint::Length(12), // prismatic items
+            Constraint::Length(12), // prismatic items / champ synergies
             Constraint::Min(0),     // rest
         ])
         .split(main_layout);
 
-    frame.render_widget(items::make_placeholder(), overview_layout[1]);
+    let prismatic_synergies_layout = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints([
+            Constraint::Ratio(1, 4),
+            Constraint::Ratio(1, 4),
+            Constraint::Ratio(2, 4),
+        ])
+        .split(overview_layout[3]);
+
+    let ability_order_layout = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([Constraint::Length(6)])
+        .split(prismatic_synergies_layout[2]);
+
+    frame.render_widget(augments::make_placeholder(), overview_layout[1]);
+    frame.render_widget(items::make_placeholder(None), overview_layout[2]);
+    frame.render_widget(
+        items::make_placeholder(Some("Prismatic Items")),
+        prismatic_synergies_layout[0],
+    );
+    frame.render_widget(
+        champ_synergy::make_placeholder(),
+        prismatic_synergies_layout[1],
+    );
+    frame.render_widget(ability_order::make_placeholder(), ability_order_layout[0]);
 
     if let Some(overview) = &ctx.selected_champ_overview {
         if let Some(selected) = &ctx.selected_champ {
@@ -146,20 +171,33 @@ fn render_arena_overview(frame: &mut Frame, ctx: &AppContext, main_layout: Rect)
                 overview_layout[0],
             );
         }
+        let augment_columns = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints([
+                Constraint::Ratio(1, 3),
+                Constraint::Ratio(1, 3),
+                Constraint::Ratio(1, 3),
+            ])
+            .split(overview_layout[1]);
 
         let item_columns = Layout::default()
             .direction(Direction::Horizontal)
             .constraints([
-                Constraint::Ratio(1, 6),
-                Constraint::Ratio(1, 6),
-                Constraint::Ratio(1, 6),
-                Constraint::Ratio(1, 6),
-                Constraint::Ratio(1, 6),
-                Constraint::Ratio(1, 6),
+                Constraint::Ratio(1, 4),
+                Constraint::Ratio(1, 4),
+                Constraint::Ratio(1, 4),
+                Constraint::Ratio(1, 4),
             ])
-            .split(overview_layout[1]);
+            .split(overview_layout[2]);
 
         if let Overview::Arena(d) = overview {
+            let augments = augments::make(d, &ctx.api.arena_augments);
+
+            augments
+                .into_iter()
+                .zip(augment_columns.iter())
+                .for_each(|(w, r)| frame.render_widget(w, *r));
+
             let [regular @ .., prismatic] = items::make_arena(d, &ctx.api.items);
 
             regular
@@ -167,8 +205,16 @@ fn render_arena_overview(frame: &mut Frame, ctx: &AppContext, main_layout: Rect)
                 .zip(item_columns.iter())
                 .for_each(|(w, r)| frame.render_widget(w, *r));
 
-            frame.render_widget(prismatic, overview_layout[2]);
+            frame.render_widget(prismatic, prismatic_synergies_layout[0]);
+            frame.render_widget(
+                champ_synergy::make(d, &ctx.champ_by_key),
+                prismatic_synergies_layout[1],
+            );
         }
+
+        ability_order::make(ability_order_layout[0].inner(Margin::new(1, 1)), overview)
+            .into_iter()
+            .for_each(|(w, r)| frame.render_widget(w, r));
     }
 }
 
@@ -206,7 +252,10 @@ pub fn render(frame: &mut Frame, ctx: &AppContext) {
 
     let main_layout = Layout::default()
         .direction(Direction::Horizontal)
-        .constraints([Constraint::Length(19), Constraint::Min(0)])
+        .constraints([
+            Constraint::Length(if ctx.show_left_pane { 19 } else { 0 }),
+            Constraint::Min(0),
+        ])
         .margin(1)
         .split(app_border[0].inner(Margin::new(1, 1)));
 
