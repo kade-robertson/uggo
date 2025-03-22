@@ -3,7 +3,7 @@ use ratatui::{
     style::{Color, Style, Stylize},
     widgets::{Block, Borders, Paragraph, Widget},
 };
-use ugg_types::overview::OverviewData;
+use ugg_types::overview::Overview;
 
 fn format_ability_level_order(ability_order: &[char], ability: char) -> String {
     ability_order
@@ -31,7 +31,8 @@ pub fn make_placeholder() -> impl Widget {
         .borders(Borders::ALL)
 }
 
-pub fn make(bounds: Rect, overview: &OverviewData) -> Vec<(impl Widget, Rect)> {
+pub fn make(bounds: Rect, overview: &Overview) -> Vec<(impl Widget, Rect)> {
+    let abilities = overview.abilities();
     vec![
         // Draw Q |
         (
@@ -40,11 +41,8 @@ pub fn make(bounds: Rect, overview: &OverviewData) -> Vec<(impl Widget, Rect)> {
         ),
         // Draw Q abilities
         (
-            Paragraph::new(format_ability_level_order(
-                &overview.abilities.ability_order,
-                'Q',
-            ))
-            .style(Style::default().fg(Color::Cyan).bold()),
+            Paragraph::new(format_ability_level_order(&abilities.ability_order, 'Q'))
+                .style(Style::default().fg(Color::Cyan).bold()),
             Rect::new(bounds.left() + 3, bounds.top(), ABILITY_WIDTH, 1),
         ),
         // Draw W |
@@ -54,11 +52,8 @@ pub fn make(bounds: Rect, overview: &OverviewData) -> Vec<(impl Widget, Rect)> {
         ),
         // Draw W abilities
         (
-            Paragraph::new(format_ability_level_order(
-                &overview.abilities.ability_order,
-                'W',
-            ))
-            .style(Style::default().fg(Color::Yellow).bold()),
+            Paragraph::new(format_ability_level_order(&abilities.ability_order, 'W'))
+                .style(Style::default().fg(Color::Yellow).bold()),
             Rect::new(bounds.left() + 3, bounds.top() + 1, ABILITY_WIDTH, 1),
         ),
         // Draw E |
@@ -68,11 +63,8 @@ pub fn make(bounds: Rect, overview: &OverviewData) -> Vec<(impl Widget, Rect)> {
         ),
         // Draw E abilities
         (
-            Paragraph::new(format_ability_level_order(
-                &overview.abilities.ability_order,
-                'E',
-            ))
-            .style(Style::default().fg(Color::Green).bold()),
+            Paragraph::new(format_ability_level_order(&abilities.ability_order, 'E'))
+                .style(Style::default().fg(Color::Green).bold()),
             Rect::new(bounds.left() + 3, bounds.top() + 2, ABILITY_WIDTH, 1),
         ),
         // Draw R |
@@ -82,11 +74,8 @@ pub fn make(bounds: Rect, overview: &OverviewData) -> Vec<(impl Widget, Rect)> {
         ),
         // Draw R abilities
         (
-            Paragraph::new(format_ability_level_order(
-                &overview.abilities.ability_order,
-                'R',
-            ))
-            .style(Style::default().fg(Color::Red).bold()),
+            Paragraph::new(format_ability_level_order(&abilities.ability_order, 'R'))
+                .style(Style::default().fg(Color::Red).bold()),
             Rect::new(bounds.left() + 3, bounds.top() + 3, ABILITY_WIDTH, 1),
         ),
     ]

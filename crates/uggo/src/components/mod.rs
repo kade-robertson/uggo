@@ -2,6 +2,7 @@ pub mod ability_order;
 pub mod app_border;
 pub mod build_select;
 pub mod champ_list;
+pub mod champ_name;
 pub mod help_menu;
 pub mod items;
 pub mod matchups;

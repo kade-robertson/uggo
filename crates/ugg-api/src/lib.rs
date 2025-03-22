@@ -13,7 +13,7 @@ use std::path::{Path, PathBuf};
 use thiserror::Error;
 use ugg_types::mappings::{self, Rank};
 use ugg_types::matchups::{MatchupData, Matchups};
-use ugg_types::overview::{ChampOverview, OverviewData};
+use ugg_types::overview::{ChampOverview, Overview};
 use ugg_types::rune::RuneExtended;
 use ureq::Agent;
 
@@ -160,7 +160,7 @@ impl DataApi {
         mode: mappings::Mode,
         build: mappings::Build,
         api_versions: &HashMap<String, HashMap<String, String>>,
-    ) -> Result<(OverviewData, mappings::Role), UggError> {
+    ) -> Result<(Overview, mappings::Role), UggError> {
         let api_version =
             if api_versions.contains_key(patch) && api_versions[patch].contains_key("overview") {
                 api_versions[patch]["overview"].as_str()
@@ -206,7 +206,7 @@ impl DataApi {
             .or_else(|| {
                 data_by_role
                     .iter()
-                    .max_by_key(|(_, data)| data.data.matches)
+                    .max_by_key(|(_, data)| data.data.matches())
                     .map(|(role, _)| role)
                     .and_then(|r| data_by_role.get_key_value(r))
             })
@@ -361,7 +361,7 @@ impl UggApi {
         region: mappings::Region,
         mode: mappings::Mode,
         build: mappings::Build,
-    ) -> Result<(OverviewData, mappings::Role), UggError> {
+    ) -> Result<(Overview, mappings::Role), UggError> {
         self.api.get_stats(
             &self.patch_version,
             champ,

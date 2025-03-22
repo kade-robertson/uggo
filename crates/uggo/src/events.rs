@@ -2,6 +2,24 @@ use ratatui::crossterm::event::{self, Event, KeyCode, KeyModifiers};
 
 use crate::context::{AppContext, State};
 
+const fn keycode_to_logger_event(key: &event::KeyEvent) -> Option<tui_logger::TuiWidgetEvent> {
+    match key.code {
+        KeyCode::Char('h') => Some(tui_logger::TuiWidgetEvent::HideKey),
+        KeyCode::Char('f') => Some(tui_logger::TuiWidgetEvent::FocusKey),
+        KeyCode::Up => Some(tui_logger::TuiWidgetEvent::UpKey),
+        KeyCode::Down => Some(tui_logger::TuiWidgetEvent::DownKey),
+        KeyCode::Left => Some(tui_logger::TuiWidgetEvent::LeftKey),
+        KeyCode::Right => Some(tui_logger::TuiWidgetEvent::RightKey),
+        KeyCode::Char('-') => Some(tui_logger::TuiWidgetEvent::MinusKey),
+        KeyCode::Char('+') => Some(tui_logger::TuiWidgetEvent::PlusKey),
+        KeyCode::PageUp => Some(tui_logger::TuiWidgetEvent::PrevPageKey),
+        KeyCode::PageDown => Some(tui_logger::TuiWidgetEvent::NextPageKey),
+        KeyCode::Esc => Some(tui_logger::TuiWidgetEvent::EscapeKey),
+        KeyCode::Char(' ') => Some(tui_logger::TuiWidgetEvent::SpaceKey),
+        _ => None,
+    }
+}
+
 pub fn handle_events(ctx: &mut AppContext) -> anyhow::Result<bool> {
     if event::poll(std::time::Duration::from_millis(50))? {
         if let Event::Key(key) = event::read()? {
@@ -52,6 +70,9 @@ pub fn handle_events(ctx: &mut AppContext) -> anyhow::Result<bool> {
                                 ctx.state = State::BuildSelect;
                                 ctx.build_scroll_pos =
                                     Some(ctx.build_scroll_pos.unwrap_or_default());
+                            }
+                            KeyCode::Char('l') => {
+                                ctx.state = State::Logger;
                             }
                             _ => {}
                         }
@@ -122,6 +143,14 @@ pub fn handle_events(ctx: &mut AppContext) -> anyhow::Result<bool> {
                         ctx.return_to_initial(false);
                     }
                 }
+                State::Logger => match key.code {
+                    KeyCode::Char('q') => ctx.return_to_initial(false),
+                    _ => {
+                        if let Some(event) = keycode_to_logger_event(&key) {
+                            ctx.logger_state.transition(event);
+                        }
+                    }
+                },
             }
         }
     }

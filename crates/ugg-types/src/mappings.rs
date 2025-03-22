@@ -376,6 +376,7 @@ pub enum Mode {
     URF,
     ARURF,
     NexusBlitz,
+    Arena,
 }
 
 impl Mode {
@@ -388,6 +389,7 @@ impl Mode {
             Self::URF => "pick_urf",
             Self::ARURF => "urf",
             Self::NexusBlitz => "nexus_blitz",
+            Self::Arena => "arena",
         })
         .to_string()
     }
@@ -400,12 +402,13 @@ impl Mode {
             "pick_urf" => Self::URF,
             "urf" => Self::ARURF,
             "nexus_blitz" => Self::NexusBlitz,
+            "arena" => Self::Arena,
             _ => Self::Normal,
         }
     }
 
     #[must_use]
-    pub const fn all() -> &'static [Mode; 6] {
+    pub const fn all() -> &'static [Mode; 7] {
         &[
             Mode::Normal,
             Mode::ARAM,
@@ -413,6 +416,7 @@ impl Mode {
             Mode::URF,
             Mode::ARURF,
             Mode::NexusBlitz,
+            Mode::Arena,
         ]
     }
 }
@@ -426,6 +430,7 @@ impl Display for Mode {
             Self::URF => "URF",
             Self::ARURF => "ARURF",
             Self::NexusBlitz => "NexusBlitz",
+            Self::Arena => "Arena",
         };
         write!(f, "{mode_str}")
     }
@@ -439,6 +444,7 @@ impl From<&str> for Mode {
             "urf" | "ultra_rapid_fire" => Self::URF,
             "arurf" => Self::ARURF,
             "nexus_blitz" | "nexusblitz" => Self::NexusBlitz,
+            "arena" => Self::Arena,
             _ => Self::Normal,
         }
     }

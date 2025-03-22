@@ -30,7 +30,7 @@ macro_rules! alt_keypress {
     };
 }
 
-const CELLS: [[&str; 2]; 11] = [
+const CELLS: [[&str; 2]; 13] = [
     ["Search", alt_keypress!("s")],
     ["Champ Select", alt_keypress!("c")],
     ["Mode Select", alt_keypress!("m")],
@@ -38,6 +38,8 @@ const CELLS: [[&str; 2]; 11] = [
     ["Version Select", alt_keypress!("v")],
     ["Region Select", alt_keypress!("w")],
     ["Build Select", alt_keypress!("b")],
+    ["Log Viewer", alt_keypress!("l")],
+    ["Exit Log Viewer", "Q"],
     ["Back", "Esc"],
     ["Send", "Enter"],
     ["Quit", "Ctrl+Q"],
@@ -57,7 +59,7 @@ const fn left_size() -> u16 {
         idx += 1;
     }
 
-    max
+    max + 1
 }
 
 #[allow(clippy::cast_possible_truncation)]
