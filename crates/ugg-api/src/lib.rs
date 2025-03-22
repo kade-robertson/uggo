@@ -1,4 +1,5 @@
 use crate::util::sha256;
+use ddragon::models::Augment;
 use ddragon::models::champions::ChampionShort;
 use ddragon::models::items::Item;
 use ddragon::models::runes::RuneElement;
@@ -13,7 +14,7 @@ use std::path::{Path, PathBuf};
 use thiserror::Error;
 use ugg_types::mappings::{self, Rank};
 use ugg_types::matchups::{MatchupData, Matchups};
-use ugg_types::overview::{ChampOverview, OverviewData};
+use ugg_types::overview::{ChampOverview, Overview};
 use ugg_types::rune::RuneExtended;
 use ureq::Agent;
 
@@ -61,6 +62,7 @@ pub struct UggApi {
     pub items: HashMap<String, Item>,
     pub runes: HashMap<i64, RuneExtended<RuneElement>>,
     pub summoner_spells: HashMap<i64, String>,
+    pub arena_augments: HashMap<i64, Augment>,
 }
 
 impl DataApi {
@@ -146,6 +148,15 @@ impl DataApi {
         Ok(reduced_data)
     }
 
+    pub fn get_arena_augments(&self) -> Result<HashMap<i64, Augment>, UggError> {
+        let augment_data = self.ddragon.arena_augments()?;
+        let mut reduced_data: HashMap<i64, Augment> = HashMap::new();
+        for augment in augment_data {
+            reduced_data.insert(augment.id, augment);
+        }
+        Ok(reduced_data)
+    }
+
     pub fn get_ugg_api_versions(&self) -> Result<UggAPIVersions, UggError> {
         self.get_data::<UggAPIVersions>("https://static.bigbrain.gg/assets/lol/riot_patch_update/prod/ugg/ugg-api-versions.json")
     }
@@ -160,7 +171,7 @@ impl DataApi {
         mode: mappings::Mode,
         build: mappings::Build,
         api_versions: &HashMap<String, HashMap<String, String>>,
-    ) -> Result<(OverviewData, mappings::Role), UggError> {
+    ) -> Result<(Overview, mappings::Role), UggError> {
         let api_version =
             if api_versions.contains_key(patch) && api_versions[patch].contains_key("overview") {
                 api_versions[patch]["overview"].as_str()
@@ -206,7 +217,7 @@ impl DataApi {
             .or_else(|| {
                 data_by_role
                     .iter()
-                    .max_by_key(|(_, data)| data.data.matches)
+                    .max_by_key(|(_, data)| data.data.matches())
                     .map(|(role, _)| role)
                     .and_then(|r| data_by_role.get_key_value(r))
             })
@@ -306,6 +317,7 @@ impl UggApi {
         let items = inner_api.get_items()?;
         let runes = inner_api.get_runes()?;
         let summoner_spells = inner_api.get_summoner_spells()?;
+        let arena_augments = inner_api.get_arena_augments()?;
 
         let mut patch_version_split = current_version.split('.').collect::<Vec<&str>>();
         patch_version_split.remove(patch_version_split.len() - 1);
@@ -321,6 +333,7 @@ impl UggApi {
             items,
             runes,
             summoner_spells,
+            arena_augments,
         })
     }
 
@@ -361,7 +374,7 @@ impl UggApi {
         region: mappings::Region,
         mode: mappings::Mode,
         build: mappings::Build,
-    ) -> Result<(OverviewData, mappings::Role), UggError> {
+    ) -> Result<(Overview, mappings::Role), UggError> {
         self.api.get_stats(
             &self.patch_version,
             champ,

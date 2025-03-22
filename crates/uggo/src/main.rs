@@ -9,8 +9,8 @@ use mimalloc::MiMalloc;
 static GLOBAL: MiMalloc = MiMalloc;
 
 use ratatui::crossterm::{
-    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
     ExecutableCommand,
+    terminal::{EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode},
 };
 use ratatui::prelude::*;
 use std::io::stdout;
@@ -27,7 +27,29 @@ mod util;
 
 use context::AppContext;
 
+const HIDE_TARGETS: [&str; 13] = [
+    "mio::poll",
+    "rustls::client::client_conn",
+    "rustls::client::hs",
+    "rustls::client::tls13",
+    "rustls::conn",
+    "rustls::webpki::server_verifier",
+    "ureq::pool",
+    "ureq::tls::native_tls",
+    "ureq::tls::rustls",
+    "ureq::unversioned::resolver",
+    "ureq::unversioned::transport::tcp",
+    "ureq_proto::client::flow",
+    "ureq_proto::util",
+];
+
 fn main() -> anyhow::Result<()> {
+    tui_logger::init_logger(log::LevelFilter::Trace)?;
+    tui_logger::set_default_level(log::LevelFilter::Trace);
+    for target in HIDE_TARGETS {
+        tui_logger::set_level_for_target(target, log::LevelFilter::Error);
+    }
+
     enable_raw_mode()?;
     stdout().execute(EnterAlternateScreen)?;
     let mut terminal = Terminal::new(CrosstermBackend::new(stdout()))?;

@@ -16,15 +16,17 @@ workspace = true
 
 [dependencies]
 anyhow = "1.0.96"
-ddragon = "0.9.1"
+ddragon = "0.9.2"
+log = "0.4.26"
 mimalloc = "0.1.43"
+ratatui = "0.29.0"
 serde = "1.0.218"
+tui-input = "0.11.1"
+tui-logger = "0.17.0"
 ugg-types = { version = "0.7.0", path = "../ugg-types" }
 uggo-config = { version = "0.3.0", path = "../config" }
 uggo-lol-client = { version = "0.4.0", path = "../lol-client" }
 uggo-ugg-api = { version = "0.4.0", path = "../ugg-api", default-features = false }
-ratatui = "0.29.0"
-tui-input = "0.11.1"
 
 [features]
 json-runtime-detection = ["uggo-ugg-api/json-runtime-detection"]

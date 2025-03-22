@@ -6,11 +6,12 @@ use std::time::Duration;
 use ddragon::models::champions::ChampionShort;
 use ratatui::widgets::ListItem;
 use tui_input::Input;
+use tui_logger::TuiWidgetState;
 use ugg_types::{
     client_runepage::NewRunePage,
     mappings::{Build, Mode, Region, Role},
     matchups::MatchupData,
-    overview::OverviewData,
+    overview::Overview,
 };
 use uggo_config::Config;
 use uggo_lol_client::LOLClientAPI;
@@ -31,19 +32,21 @@ pub enum State {
     RoleSelect,
     BuildSelect,
     HelpMenu,
+    Logger,
 }
 
 pub struct AppContext<'a> {
     pub api: UggApi,
     pub client_api: Option<LOLClientAPI>,
     pub state: State,
+    pub show_left_pane: bool,
     pub champ_scroll_pos: Option<usize>,
     pub champ_data: Vec<(usize, ChampionShort)>,
     pub champ_by_key: HashMap<String, ChampionShort>,
     pub list_indices: Vec<usize>,
     pub champ_list: Vec<ListItem<'a>>,
     pub selected_champ: Option<ChampionShort>,
-    pub selected_champ_overview: Option<OverviewData>,
+    pub selected_champ_overview: Option<Overview>,
     pub selected_champ_role: Option<Role>,
     pub selected_champ_matchups: Option<MatchupData>,
     pub input: Input,
@@ -57,6 +60,7 @@ pub struct AppContext<'a> {
     pub role_scroll_pos: Option<usize>,
     pub build: Build,
     pub build_scroll_pos: Option<usize>,
+    pub logger_state: TuiWidgetState,
     #[cfg(debug_assertions)]
     pub last_render_duration: Option<Duration>,
 }
@@ -87,6 +91,7 @@ impl AppContext<'_> {
             api,
             client_api: LOLClientAPI::new().ok(),
             state: State::Initial,
+            show_left_pane: true,
             champ_scroll_pos: None,
             champ_data: ordered_champ_data,
             champ_by_key,
@@ -107,6 +112,7 @@ impl AppContext<'_> {
             role_scroll_pos: Role::all().iter().position(|r| r == &Role::Automatic),
             build: Build::Recommended,
             build_scroll_pos: Build::all().iter().position(|r| r == &Build::Recommended),
+            logger_state: TuiWidgetState::default(),
             #[cfg(debug_assertions)]
             last_render_duration: None,
         };
@@ -158,7 +164,7 @@ impl AppContext<'_> {
             .get_stats(champ, self.role, self.region, self.mode, self.build)
             .ok()
             .transpose();
-        if self.mode == Mode::ARAM {
+        if self.mode == Mode::ARAM || self.mode == Mode::Arena {
             self.selected_champ_matchups = None;
         } else {
             self.selected_champ_matchups = self
@@ -168,7 +174,7 @@ impl AppContext<'_> {
                 .ok();
         }
 
-        if let Some(ref overview) = self.selected_champ_overview {
+        if let Some(Overview::Default(ref overview)) = self.selected_champ_overview {
             if let Some(ref api) = self.client_api {
                 if let Some(data) = api.get_current_rune_page() {
                     let (primary_style_id, sub_style_id, selected_perk_ids) =

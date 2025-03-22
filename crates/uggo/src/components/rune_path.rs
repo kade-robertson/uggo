@@ -7,7 +7,7 @@ use ratatui::{
     text::Line,
     widgets::{Block, Borders, Cell, Row, Table, Widget},
 };
-use ugg_types::{overview::OverviewData, rune::RuneExtended};
+use ugg_types::{default_overview::OverviewData, rune::RuneExtended};
 
 use crate::util;
 
