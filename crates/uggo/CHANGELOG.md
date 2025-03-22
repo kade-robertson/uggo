@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.15.0](https://github.com/kade-robertson/uggo/compare/uggo-v0.14.0...uggo-v0.15.0) (2025-03-22)
+
+
+### ⚠ BREAKING CHANGES
+
+* initial arena mode support ([#454](https://github.com/kade-robertson/uggo/issues/454))
+
+### Features
+
+* initial arena mode support ([#454](https://github.com/kade-robertson/uggo/issues/454)) ([c737701](https://github.com/kade-robertson/uggo/commit/c73770130e08c396d97807f0bd00ce273ba6813b))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * ugg-types bumped from 0.7.0 to 0.8.0
+    * uggo-lol-client bumped from 0.4.0 to 0.4.1
+    * uggo-ugg-api bumped from 0.4.0 to 0.5.0
+
 ## [0.14.0](https://github.com/kade-robertson/uggo/compare/uggo-v0.13.0...uggo-v0.14.0) (2025-02-20)
 
 

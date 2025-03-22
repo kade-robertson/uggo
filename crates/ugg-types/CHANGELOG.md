@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.8.0](https://github.com/kade-robertson/uggo/compare/ugg-types-v0.7.0...ugg-types-v0.8.0) (2025-03-22)
+
+
+### ⚠ BREAKING CHANGES
+
+* initial arena mode support ([#454](https://github.com/kade-robertson/uggo/issues/454))
+
+### Features
+
+* initial arena mode support ([#454](https://github.com/kade-robertson/uggo/issues/454)) ([c737701](https://github.com/kade-robertson/uggo/commit/c73770130e08c396d97807f0bd00ce273ba6813b))
+
 ## [0.7.0](https://github.com/kade-robertson/uggo/compare/ugg-types-v0.6.0...ugg-types-v0.7.0) (2025-02-20)
 
 
