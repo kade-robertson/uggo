@@ -1,5 +1,9 @@
 # Changelog
 
+* The following workspace dependencies were updated
+  * dependencies
+    * ugg-types bumped from 0.8.0 to 0.8.1
+
 ## [0.5.0](https://github.com/kade-robertson/uggo/compare/uggo-ugg-api-v0.4.0...uggo-ugg-api-v0.5.0) (2025-03-22)
 
 

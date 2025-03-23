@@ -4,6 +4,10 @@
   * dependencies
     * ugg-types bumped from 0.7.0 to 0.8.0
 
+* The following workspace dependencies were updated
+  * dependencies
+    * ugg-types bumped from 0.8.0 to 0.8.1
+
 ## [0.4.0](https://github.com/kade-robertson/uggo/compare/uggo-lol-client-v0.3.0...uggo-lol-client-v0.4.0) (2025-02-20)
 
 
