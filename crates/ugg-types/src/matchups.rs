@@ -2,8 +2,8 @@
 // structure of the champ overview stats data.
 
 use crate::mappings;
-use serde::de::{Deserialize, Deserializer, IgnoredAny, SeqAccess, Visitor};
 use serde::Serialize;
+use serde::de::{Deserialize, Deserializer, IgnoredAny, SeqAccess, Visitor};
 use std::collections::HashMap;
 use std::fmt;
 
@@ -83,7 +83,7 @@ impl<'de> Deserialize<'de> for MatchupData {
                 let mut all_matchups: Vec<Matchup> = vec![];
                 let mut total_matches: i32 = 0;
 
-                while let Ok(data_opt) = visitor.next_element::<(i64, i32, i32)>() {
+                while let Ok(data_opt) = visitor.next_element::<InnerData>() {
                     match data_opt {
                         Some(data) => {
                             let wins = data.2 - data.1;
@@ -132,5 +132,47 @@ impl<'de> Deserialize<'de> for MatchupData {
         }
 
         deserializer.deserialize_seq(MatchupDataVisitor)
+    }
+}
+
+struct InnerData(i64, i32, i32);
+
+impl<'de> Deserialize<'de> for InnerData {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        struct InnerSeqVisitor;
+
+        impl<'de> Visitor<'de> for InnerSeqVisitor {
+            type Value = InnerData;
+
+            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                formatter.write_str("a sequence with at least 3 elements")
+            }
+
+            fn visit_seq<A>(self, mut visitor: A) -> Result<Self::Value, A::Error>
+            where
+                A: SeqAccess<'de>,
+            {
+                let champion_id = visitor
+                    .next_element()?
+                    .ok_or_else(|| serde::de::Error::invalid_length(0, &self))?;
+
+                let losses = visitor
+                    .next_element()?
+                    .ok_or_else(|| serde::de::Error::invalid_length(1, &self))?;
+
+                let matches = visitor
+                    .next_element()?
+                    .ok_or_else(|| serde::de::Error::invalid_length(2, &self))?;
+
+                while let Some(IgnoredAny) = visitor.next_element()? {}
+
+                Ok(InnerData(champion_id, losses, matches))
+            }
+        }
+
+        deserializer.deserialize_seq(InnerSeqVisitor)
     }
 }
