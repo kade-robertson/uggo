@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.1](https://github.com/kade-robertson/uggo/compare/ugg-types-v0.8.0...ugg-types-v0.8.1) (2025-03-23)
+
+
+### Bug Fixes
+
+* parse matchups correctly again ([#456](https://github.com/kade-robertson/uggo/issues/456)) ([a978829](https://github.com/kade-robertson/uggo/commit/a97882950dcf457a68da98a64c443699a8c65a09))
+
 ## [0.8.0](https://github.com/kade-robertson/uggo/compare/ugg-types-v0.7.0...ugg-types-v0.8.0) (2025-03-22)
 
 

@@ -1,5 +1,11 @@
 # Changelog
 
+* The following workspace dependencies were updated
+  * dependencies
+    * ugg-types bumped from 0.8.0 to 0.8.1
+    * uggo-lol-client bumped from 0.4.1 to 0.4.2
+    * uggo-ugg-api bumped from 0.5.0 to 0.5.1
+
 ## [0.15.0](https://github.com/kade-robertson/uggo/compare/uggo-v0.14.0...uggo-v0.15.0) (2025-03-22)
 
 
