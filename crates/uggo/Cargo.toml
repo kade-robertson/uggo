@@ -1,6 +1,6 @@
 [package]
 name = "uggo"
-version = "0.15.1"
+version = "0.15.2"
 edition = "2024"
 rust-version = "1.85"
 license = "MIT"
@@ -26,7 +26,7 @@ tui-logger = "0.17.0"
 ugg-types = { version = "0.8.1", path = "../ugg-types" }
 uggo-config = { version = "0.3.0", path = "../config" }
 uggo-lol-client = { version = "0.4.2", path = "../lol-client" }
-uggo-ugg-api = { version = "0.5.1", path = "../ugg-api", default-features = false }
+uggo-ugg-api = { version = "0.5.2", path = "../ugg-api", default-features = false }
 
 [features]
 json-runtime-detection = ["uggo-ugg-api/json-runtime-detection"]
