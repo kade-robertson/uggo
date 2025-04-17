@@ -1950,7 +1950,7 @@ dependencies = [
 
 [[package]]
 name = "uggo"
-version = "0.15.1"
+version = "0.15.2"
 dependencies = [
  "anyhow",
  "ddragon",
@@ -1988,7 +1988,7 @@ dependencies = [
 
 [[package]]
 name = "uggo-ugg-api"
-version = "0.5.1"
+version = "0.5.2"
 dependencies = [
  "ddragon",
  "hex",
