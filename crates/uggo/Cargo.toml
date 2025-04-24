@@ -21,7 +21,7 @@ log = "0.4.26"
 mimalloc = "0.1.43"
 ratatui = "0.29.0"
 serde = "1.0.218"
-tui-input = "0.11.1"
+tui-input = "0.12.0"
 tui-logger = "0.17.0"
 ugg-types = { version = "0.8.1", path = "../ugg-types" }
 uggo-config = { version = "0.3.0", path = "../config" }
