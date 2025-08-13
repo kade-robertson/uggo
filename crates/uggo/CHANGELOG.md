@@ -6,6 +6,21 @@
     * uggo-lol-client bumped from 0.4.1 to 0.4.2
     * uggo-ugg-api bumped from 0.5.0 to 0.5.1
 
+## [0.15.2](https://github.com/kade-robertson/uggo/compare/uggo-v0.15.1...uggo-v0.15.2) (2025-08-13)
+
+
+### Bug Fixes
+
+* **deps:** update rust crate tui-input to 0.12.0 ([#469](https://github.com/kade-robertson/uggo/issues/469)) ([03a7836](https://github.com/kade-robertson/uggo/commit/03a78363732020d8ea5557c058fd5aeefa3e3109))
+* **deps:** update rust crate tui-input to 0.14.0 ([#477](https://github.com/kade-robertson/uggo/issues/477)) ([671e96c](https://github.com/kade-robertson/uggo/commit/671e96c3691a2d142a84b9da2dd0dd41613667a2))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * uggo-ugg-api bumped from 0.5.1 to 0.5.2
+
 ## [0.15.0](https://github.com/kade-robertson/uggo/compare/uggo-v0.14.0...uggo-v0.15.0) (2025-03-22)
 
 
