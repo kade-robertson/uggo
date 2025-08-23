@@ -8,6 +8,30 @@
   * dependencies
     * ugg-types bumped from 0.8.0 to 0.8.1
 
+## [0.5.0](https://github.com/kade-robertson/uggo/compare/uggo-lol-client-v0.4.2...uggo-lol-client-v0.5.0) (2025-08-23)
+
+
+### ⚠ BREAKING CHANGES
+
+* bump msrv to 1.89 ([#485](https://github.com/kade-robertson/uggo/issues/485))
+* ensure client can be found on Windows without WMIC ([#484](https://github.com/kade-robertson/uggo/issues/484))
+
+### Bug Fixes
+
+* ensure client can be found on Windows without WMIC ([#484](https://github.com/kade-robertson/uggo/issues/484)) ([b5311c5](https://github.com/kade-robertson/uggo/commit/b5311c59bb7a5d01262a7555f289e715fcf83fb4))
+
+
+### Miscellaneous Chores
+
+* bump msrv to 1.89 ([#485](https://github.com/kade-robertson/uggo/issues/485)) ([de82236](https://github.com/kade-robertson/uggo/commit/de82236a173aedd48f854f0bd644f62cfb9bf776))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * ugg-types bumped from 0.8.1 to 0.9.0
+
 ## [0.4.0](https://github.com/kade-robertson/uggo/compare/uggo-lol-client-v0.3.0...uggo-lol-client-v0.4.0) (2025-02-20)
 
 
