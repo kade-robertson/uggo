@@ -4,6 +4,31 @@
   * dependencies
     * ugg-types bumped from 0.8.0 to 0.8.1
 
+## [0.6.0](https://github.com/kade-robertson/uggo/compare/uggo-ugg-api-v0.5.1...uggo-ugg-api-v0.6.0) (2025-08-23)
+
+
+### ⚠ BREAKING CHANGES
+
+* bump msrv to 1.89 ([#485](https://github.com/kade-robertson/uggo/issues/485))
+
+### Bug Fixes
+
+* **deps:** update rust crate lru to 0.14.0 ([#462](https://github.com/kade-robertson/uggo/issues/462)) ([34bc1fd](https://github.com/kade-robertson/uggo/commit/34bc1fd6485321ee76320a3e0b002c5a4c61b24d))
+* **deps:** update rust crate lru to 0.15.0 ([#475](https://github.com/kade-robertson/uggo/issues/475)) ([1ab754e](https://github.com/kade-robertson/uggo/commit/1ab754e96aebc5b6561b07327cc7ebfb61af4387))
+* **deps:** update rust crate lru to 0.16.0 ([#476](https://github.com/kade-robertson/uggo/issues/476)) ([1a5240f](https://github.com/kade-robertson/uggo/commit/1a5240f98c1edd3a7c32cfec3d8b45ed7e4c387c))
+
+
+### Miscellaneous Chores
+
+* bump msrv to 1.89 ([#485](https://github.com/kade-robertson/uggo/issues/485)) ([de82236](https://github.com/kade-robertson/uggo/commit/de82236a173aedd48f854f0bd644f62cfb9bf776))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * ugg-types bumped from 0.8.1 to 0.9.0
+
 ## [0.5.0](https://github.com/kade-robertson/uggo/compare/uggo-ugg-api-v0.4.0...uggo-ugg-api-v0.5.0) (2025-03-22)
 
 

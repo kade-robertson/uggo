@@ -6,6 +6,33 @@
     * uggo-lol-client bumped from 0.4.1 to 0.4.2
     * uggo-ugg-api bumped from 0.5.0 to 0.5.1
 
+## [0.16.0](https://github.com/kade-robertson/uggo/compare/uggo-v0.15.1...uggo-v0.16.0) (2025-08-23)
+
+
+### ⚠ BREAKING CHANGES
+
+* bump msrv to 1.89 ([#485](https://github.com/kade-robertson/uggo/issues/485))
+
+### Bug Fixes
+
+* **deps:** update rust crate tui-input to 0.12.0 ([#469](https://github.com/kade-robertson/uggo/issues/469)) ([03a7836](https://github.com/kade-robertson/uggo/commit/03a78363732020d8ea5557c058fd5aeefa3e3109))
+* **deps:** update rust crate tui-input to 0.14.0 ([#477](https://github.com/kade-robertson/uggo/issues/477)) ([671e96c](https://github.com/kade-robertson/uggo/commit/671e96c3691a2d142a84b9da2dd0dd41613667a2))
+
+
+### Miscellaneous Chores
+
+* bump msrv to 1.89 ([#485](https://github.com/kade-robertson/uggo/issues/485)) ([de82236](https://github.com/kade-robertson/uggo/commit/de82236a173aedd48f854f0bd644f62cfb9bf776))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * ugg-types bumped from 0.8.1 to 0.9.0
+    * uggo-config bumped from 0.3.0 to 0.4.0
+    * uggo-lol-client bumped from 0.4.2 to 0.5.0
+    * uggo-ugg-api bumped from 0.5.1 to 0.6.0
+
 ## [0.15.0](https://github.com/kade-robertson/uggo/compare/uggo-v0.14.0...uggo-v0.15.0) (2025-03-22)
 
 

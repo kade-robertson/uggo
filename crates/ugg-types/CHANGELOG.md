@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.9.0](https://github.com/kade-robertson/uggo/compare/ugg-types-v0.8.1...ugg-types-v0.9.0) (2025-08-23)
+
+
+### ⚠ BREAKING CHANGES
+
+* bump msrv to 1.89 ([#485](https://github.com/kade-robertson/uggo/issues/485))
+
+### Miscellaneous Chores
+
+* bump msrv to 1.89 ([#485](https://github.com/kade-robertson/uggo/issues/485)) ([de82236](https://github.com/kade-robertson/uggo/commit/de82236a173aedd48f854f0bd644f62cfb9bf776))
+
 ## [0.8.1](https://github.com/kade-robertson/uggo/compare/ugg-types-v0.8.0...ugg-types-v0.8.1) (2025-03-23)
 
 
