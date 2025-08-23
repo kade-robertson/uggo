@@ -1,6 +1,5 @@
 use std::sync::Arc;
 
-use league_client_connector::{LeagueClientConnector, RiotLockFile};
 use native_tls::TlsConnector;
 use serde::Serialize;
 use serde::de::DeserializeOwned;
@@ -10,12 +9,15 @@ use ureq::{Agent, AgentBuilder};
 use ugg_types::client_runepage::{NewRunePage, RunePage, RunePages};
 use ugg_types::client_summoner::ClientSummoner;
 
+mod lcc;
+use lcc::{LeagueClientConnector, RiotLockFile};
+
 #[derive(Error, Debug)]
 pub enum LOLClientError {
     #[error("Unable to create TLS connector")]
     TlsConnectorError(#[from] native_tls::Error),
     #[error("Unable to read lockfile")]
-    LockfileReadError(#[from] league_client_connector::LeagueConnectorError),
+    LockfileReadError(#[from] lcc::LeagueConnectorError),
     #[error("Linux is not supported")]
     LinuxNotSupported,
 }

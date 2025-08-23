@@ -15,9 +15,11 @@ categories = ["api-bindings"]
 workspace = true
 
 [dependencies]
-league-client-connector = "0.1.2"
+base64 = "0.22.1"
 native-tls = "0.2.14"
-serde = "1.0.218"
+regex = "1.11.1"
+serde = { version = "1.0.218", features = ["derive"] }
+snafu = "0.8.7"
 thiserror = "2.0.11"
 ureq = { version = "2.12.1", features = ["native-tls", "brotli", "json"] }
 ugg-types = { version = "0.8.1", path = "../ugg-types" }
