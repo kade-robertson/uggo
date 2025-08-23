@@ -51,20 +51,17 @@ pub struct LeagueClientConnector {}
 impl LeagueClientConnector {
     /// Parses League's client file which contains information needed to connect to
     /// [Game Client API](https://developer.riotgames.com/docs/lol#game-client-api)
-    /// Which uses RESTful to interact with League's Client
+    /// Which uses `RESTful` to interact with League's Client
     pub fn parse_lockfile() -> Result<RiotLockFile> {
         let mut path = PathBuf::from(Self::get_path()?);
         path.push("lockfile");
-        let lockfile = match path.to_str() {
-            Some(l) => l,
-            None => {
-                return Err(LeagueConnectorError::EmptyPath {});
-            }
+        let Some(lockfile) = path.to_str() else {
+            return Err(LeagueConnectorError::EmptyPath {});
         };
 
         let contents = fs::read_to_string(lockfile).context(UnableToReadSnafu)?;
 
-        let pieces: Vec<&str> = contents.split(":").collect();
+        let pieces: Vec<&str> = contents.split(':').collect();
 
         let username = "riot".to_string();
         let address = "127.0.0.1".to_string();
@@ -77,7 +74,7 @@ impl LeagueClientConnector {
             .context(NumberParseSnafu { name: "port" })?;
         let password = pieces[3].to_string();
         let protocol = pieces[4].to_string();
-        let b64_auth = BASE64_STANDARD.encode(format!("{}:{}", username, password).as_bytes());
+        let b64_auth = BASE64_STANDARD.encode(format!("{username}:{password}").as_bytes());
 
         Ok(RiotLockFile {
             process,
@@ -102,11 +99,8 @@ impl LeagueClientConnector {
 
         let pattern = Regex::new(r"--install-directory=(?P<dir>[[:alnum:][:space:]:\./\\]+)")
             .context(RegexParseSnafu)?;
-        let caps = match pattern.captures(&raw_info) {
-            Some(c) => c,
-            None => {
-                return Err(LeagueConnectorError::NoInstallationPath {});
-            }
+        let Some(caps) = pattern.captures(&raw_info) else {
+            return Err(LeagueConnectorError::NoInstallationPath {});
         };
         let path = caps["dir"].to_string().trim().to_string();
 
@@ -115,7 +109,7 @@ impl LeagueClientConnector {
 
     fn get_raw_league_info_in_windows() -> Result<String> {
         let output_child = Command::new("powershell")
-            .args(&[
+            .args([
                 "-NoLogo",
                 "-NoProfile",
                 "-Command",
@@ -133,19 +127,17 @@ impl LeagueClientConnector {
 
     fn get_raw_league_info_in_macos() -> Result<String> {
         let mut ps_output_child = Command::new("ps")
-            .args(&["x", "-o", "args"])
+            .args(["x", "-o", "args"])
             .stdout(Stdio::piped())
             .spawn()
             .context(GetRawPathSnafu)?;
 
-        let ps_output = if let Some(ps_output) = ps_output_child.stdout.take() {
-            ps_output
-        } else {
+        let Some(ps_output) = ps_output_child.stdout.take() else {
             return Err(LeagueConnectorError::EmptyStdout {});
         };
 
         let output_child = Command::new("grep")
-            .args(&["LeagueClientUx"])
+            .args(["LeagueClientUx"])
             .stdin(ps_output)
             .stdout(Stdio::piped())
             .spawn()
@@ -171,7 +163,7 @@ impl LeagueClientConnector {
 /// Note that all the information is gotten from the lockfile:
 /// - protocol: https
 /// - address: 127.0.0.1
-/// - b64_auth: cmlvdDpDMERXVDZWREoySDUwSEZKMkJFU2hR
+/// - `b64_auth`: cmlvdDpDMERXVDZWREoySDUwSEZKMkJFU2hR
 ///
 /// For the actual endpoint, download the [Rift Explorer](https://github.com/Pupix/rift-explorer)
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
