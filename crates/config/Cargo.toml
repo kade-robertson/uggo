@@ -2,7 +2,7 @@
 name = "uggo-config"
 version = "0.3.0"
 edition = "2024"
-rust-version = "1.85"
+rust-version = "1.89"
 license = "MIT"
 description = "uggo dependency -- shared config definition"
 homepage = "https://github.com/kade-robertson/uggo"

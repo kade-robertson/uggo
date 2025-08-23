@@ -22,9 +22,9 @@ pub fn group_runes<'a>(
         grouped_runes.reverse();
     }
 
-    grouped_runes
-        .iter_mut()
-        .for_each(|group| group.1.sort_by(|&a, &b| a.slot.cmp(&b.slot)));
+    for group in &mut grouped_runes {
+        group.1.sort_by(|&a, &b| a.slot.cmp(&b.slot));
+    }
 
     [grouped_runes[0].to_owned(), grouped_runes[1].to_owned()]
 }

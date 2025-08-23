@@ -31,13 +31,11 @@ fn make_bottom_right_title<'a>(ctx: &'a AppContext) -> Line<'a> {
 }
 
 pub fn make<'a>(ctx: &'a AppContext) -> impl Widget + 'a {
-    let app_border = Block::default()
+    Block::default()
         .title_top(Line::from(format!(" uggo v{} ", env!("CARGO_PKG_VERSION"))).centered())
         .title_bottom(Line::from(" [Help: ?] ").left_aligned())
         .title_bottom(make_bottom_right_title(ctx))
         .title_style(Style::default().bold())
         .borders(Borders::ALL)
-        .magenta();
-
-    app_border
+        .magenta()
 }

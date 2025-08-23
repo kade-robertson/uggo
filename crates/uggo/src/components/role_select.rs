@@ -50,18 +50,18 @@ pub fn make<'a>(ctx: &AppContext) -> (List<'a>, ListState, Rect) {
 
 impl AppContext<'_> {
     pub fn next_role(&mut self) {
-        if let Some(pos) = self.role_scroll_pos {
-            if pos < Role::all().len() - 1 {
-                self.role_scroll_pos = Some(pos + 1);
-            }
+        if let Some(pos) = self.role_scroll_pos
+            && pos < Role::all().len() - 1
+        {
+            self.role_scroll_pos = Some(pos + 1);
         }
     }
 
     pub fn prev_role(&mut self) {
-        if let Some(pos) = self.role_scroll_pos {
-            if pos > 0 {
-                self.role_scroll_pos = Some(pos - 1);
-            }
+        if let Some(pos) = self.role_scroll_pos
+            && pos > 0
+        {
+            self.role_scroll_pos = Some(pos - 1);
         }
     }
 

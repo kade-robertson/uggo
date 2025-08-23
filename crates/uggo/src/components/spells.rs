@@ -5,7 +5,7 @@ use ratatui::{
 
 use crate::context::AppContext;
 
-fn spell_dot(spell: &str) -> Span {
+fn spell_dot(spell: &'_ str) -> Span<'_> {
     Span::styled(
         " ● ",
         Style::default().fg(match spell {

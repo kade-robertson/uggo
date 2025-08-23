@@ -40,7 +40,7 @@ pub fn make_placeholder() -> impl Widget {
         .borders(Borders::ALL)
 }
 
-fn make_shard_row(name: &str, shard: i64) -> Row {
+fn make_shard_row(name: &'_ str, shard: i64) -> Row<'_> {
     Row::new(vec![
         Cell::from(Line::from(name).alignment(Alignment::Right)),
         Cell::from(Text::styled(
