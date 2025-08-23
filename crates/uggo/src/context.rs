@@ -174,25 +174,23 @@ impl AppContext<'_> {
                 .ok();
         }
 
-        if let Some(Overview::Default(ref overview)) = self.selected_champ_overview {
-            if let Some(ref api) = self.client_api {
-                if let Some(data) = api.get_current_rune_page() {
-                    let (primary_style_id, sub_style_id, selected_perk_ids) =
-                        util::generate_perk_array(
-                            &util::group_runes(&overview.runes.rune_ids, &self.api.runes),
-                            &overview.shards.shard_ids,
-                        );
-                    api.update_rune_page(
-                        data.id,
-                        &NewRunePage {
-                            name: format!("uggo: {}, {}", &champ.name, self.mode),
-                            primary_style_id,
-                            sub_style_id,
-                            selected_perk_ids,
-                        },
-                    );
-                }
-            }
+        if let Some(Overview::Default(ref overview)) = self.selected_champ_overview
+            && let Some(ref api) = self.client_api
+            && let Some(data) = api.get_current_rune_page()
+        {
+            let (primary_style_id, sub_style_id, selected_perk_ids) = util::generate_perk_array(
+                &util::group_runes(&overview.runes.rune_ids, &self.api.runes),
+                &overview.shards.shard_ids,
+            );
+            api.update_rune_page(
+                data.id,
+                &NewRunePage {
+                    name: format!("uggo: {}, {}", &champ.name, self.mode),
+                    primary_style_id,
+                    sub_style_id,
+                    selected_perk_ids,
+                },
+            );
         }
 
         self.state = State::ChampSelected;

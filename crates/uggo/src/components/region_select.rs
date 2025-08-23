@@ -50,18 +50,18 @@ pub fn make<'a>(ctx: &AppContext) -> (List<'a>, ListState, Rect) {
 
 impl AppContext<'_> {
     pub fn next_region(&mut self) {
-        if let Some(pos) = self.region_scroll_pos {
-            if pos < Region::all().len() - 1 {
-                self.region_scroll_pos = Some(pos + 1);
-            }
+        if let Some(pos) = self.region_scroll_pos
+            && pos < Region::all().len() - 1
+        {
+            self.region_scroll_pos = Some(pos + 1);
         }
     }
 
     pub fn prev_region(&mut self) {
-        if let Some(pos) = self.region_scroll_pos {
-            if pos > 0 {
-                self.region_scroll_pos = Some(pos - 1);
-            }
+        if let Some(pos) = self.region_scroll_pos
+            && pos > 0
+        {
+            self.region_scroll_pos = Some(pos - 1);
         }
     }
 

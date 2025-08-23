@@ -50,18 +50,18 @@ pub fn make<'a>(ctx: &AppContext) -> (List<'a>, ListState, Rect) {
 
 impl AppContext<'_> {
     pub fn next_mode(&mut self) {
-        if let Some(pos) = self.mode_scroll_pos {
-            if pos < Mode::all().len() - 1 {
-                self.mode_scroll_pos = Some(pos + 1);
-            }
+        if let Some(pos) = self.mode_scroll_pos
+            && pos < Mode::all().len() - 1
+        {
+            self.mode_scroll_pos = Some(pos + 1);
         }
     }
 
     pub fn prev_mode(&mut self) {
-        if let Some(pos) = self.mode_scroll_pos {
-            if pos > 0 {
-                self.mode_scroll_pos = Some(pos - 1);
-            }
+        if let Some(pos) = self.mode_scroll_pos
+            && pos > 0
+        {
+            self.mode_scroll_pos = Some(pos - 1);
         }
     }
 

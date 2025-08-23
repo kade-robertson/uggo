@@ -27,18 +27,18 @@ pub fn make<'a>(ctx: &'a AppContext) -> (List<'a>, ListState) {
 
 impl AppContext<'_> {
     pub fn next_champ(&mut self) {
-        if let Some(pos) = self.champ_scroll_pos {
-            if pos < self.champ_list.len() - 1 {
-                self.champ_scroll_pos = Some(pos + 1);
-            }
+        if let Some(pos) = self.champ_scroll_pos
+            && pos < self.champ_list.len() - 1
+        {
+            self.champ_scroll_pos = Some(pos + 1);
         }
     }
 
     pub fn prev_champ(&mut self) {
-        if let Some(pos) = self.champ_scroll_pos {
-            if pos > 0 {
-                self.champ_scroll_pos = Some(pos - 1);
-            }
+        if let Some(pos) = self.champ_scroll_pos
+            && pos > 0
+        {
+            self.champ_scroll_pos = Some(pos - 1);
         }
     }
 

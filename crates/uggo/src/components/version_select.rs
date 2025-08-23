@@ -35,18 +35,18 @@ pub fn make<'a>(ctx: &AppContext) -> (List<'a>, ListState, Rect) {
 
 impl AppContext<'_> {
     pub fn next_version(&mut self) {
-        if let Some(pos) = self.version_scroll_pos {
-            if pos < self.api.allowed_versions.len() - 1 {
-                self.version_scroll_pos = Some(pos + 1);
-            }
+        if let Some(pos) = self.version_scroll_pos
+            && pos < self.api.allowed_versions.len() - 1
+        {
+            self.version_scroll_pos = Some(pos + 1);
         }
     }
 
     pub fn prev_version(&mut self) {
-        if let Some(pos) = self.version_scroll_pos {
-            if pos > 0 {
-                self.version_scroll_pos = Some(pos - 1);
-            }
+        if let Some(pos) = self.version_scroll_pos
+            && pos > 0
+        {
+            self.version_scroll_pos = Some(pos - 1);
         }
     }
 
@@ -55,10 +55,9 @@ impl AppContext<'_> {
         if let Some(version) = self
             .version_scroll_pos
             .and_then(|p| allowed_versions.get(p))
+            && self.version != version.ddragon
         {
-            if self.version != version.ddragon {
-                *self = Self::new_with_version(&version.ddragon)?;
-            }
+            *self = Self::new_with_version(&version.ddragon)?;
         }
         Ok(())
     }

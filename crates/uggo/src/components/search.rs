@@ -27,16 +27,15 @@ impl AppContext<'_> {
         if !self.champ_list.is_empty() {
             self.champ_scroll_pos = Some(0);
         }
-        if self.champ_list.len() == 1 {
-            if let Some(champ) = self
+        if self.champ_list.len() == 1
+            && let Some(champ) = self
                 .list_indices
                 .first()
                 .and_then(|p| self.champ_data.iter().find(|(i, _)| i == p))
                 .map(|(_, c)| c)
                 .cloned()
-            {
-                self.select_champion(&champ);
-            }
+        {
+            self.select_champion(&champ);
         }
     }
 

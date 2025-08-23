@@ -53,7 +53,7 @@ pub struct SupportedVersion {
 
 pub struct UggApi {
     api: DataApi,
-    ugg_api_versions: UggAPIVersions,
+    api_versions: UggAPIVersions,
 
     pub current_version: String,
     pub allowed_versions: Vec<SupportedVersion>,
@@ -326,7 +326,7 @@ impl UggApi {
         Ok(Self {
             api: inner_api,
             allowed_versions: versions_ugg_supports,
-            ugg_api_versions,
+            api_versions: ugg_api_versions,
             current_version,
             patch_version,
             champ_data,
@@ -382,7 +382,7 @@ impl UggApi {
             region,
             mode,
             build,
-            &self.ugg_api_versions,
+            &self.api_versions,
         )
     }
 
@@ -399,7 +399,7 @@ impl UggApi {
             role,
             region,
             mode,
-            &self.ugg_api_versions,
+            &self.api_versions,
         )
     }
 }

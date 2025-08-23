@@ -108,11 +108,12 @@ fn render_default_overview(frame: &mut Frame, ctx: &AppContext, main_layout: Rec
                 .into_iter()
                 .zip(item_columns.iter())
                 .for_each(|(w, r)| frame.render_widget(w, *r));
-        };
+        }
 
-        ability_order::make(shard_ability_split[1].inner(Margin::new(1, 1)), overview)
-            .into_iter()
-            .for_each(|(w, r)| frame.render_widget(w, r));
+        for (w, r) in ability_order::make(shard_ability_split[1].inner(Margin::new(1, 1)), overview)
+        {
+            frame.render_widget(w, r);
+        }
     }
 
     if let Some(matchups) = &ctx.selected_champ_matchups {
@@ -212,9 +213,11 @@ fn render_arena_overview(frame: &mut Frame, ctx: &AppContext, main_layout: Rect)
             );
         }
 
-        ability_order::make(ability_order_layout[0].inner(Margin::new(1, 1)), overview)
-            .into_iter()
-            .for_each(|(w, r)| frame.render_widget(w, r));
+        for (w, r) in
+            ability_order::make(ability_order_layout[0].inner(Margin::new(1, 1)), overview)
+        {
+            frame.render_widget(w, r);
+        }
     }
 }
 
