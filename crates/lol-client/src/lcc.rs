@@ -1,4 +1,4 @@
-//! # league_client_connector
+//! # `league_client_connector`
 //!
 //! Rust implementation for [lcu-connector](https://github.com/Pupix/lcu-connector) minus the
 //! file watching mechanism. This crate needs the League Client to be opened, in order to get the
