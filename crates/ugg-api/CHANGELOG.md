@@ -4,6 +4,13 @@
   * dependencies
     * ugg-types bumped from 0.8.0 to 0.8.1
 
+## [0.6.1](https://github.com/kade-robertson/uggo/compare/uggo-ugg-api-v0.6.0...uggo-ugg-api-v0.6.1) (2025-09-11)
+
+
+### Bug Fixes
+
+* **deps:** update rust crate simd-json to 0.16.0 ([#495](https://github.com/kade-robertson/uggo/issues/495)) ([1012c8c](https://github.com/kade-robertson/uggo/commit/1012c8c04946128d3396cdfa529561403e5d1bfb))
+
 ## [0.6.0](https://github.com/kade-robertson/uggo/compare/uggo-ugg-api-v0.5.1...uggo-ugg-api-v0.6.0) (2025-08-23)
 
 
