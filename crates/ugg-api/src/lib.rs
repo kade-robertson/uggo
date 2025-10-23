@@ -317,7 +317,9 @@ impl UggApi {
         let items = inner_api.get_items()?;
         let runes = inner_api.get_runes()?;
         let summoner_spells = inner_api.get_summoner_spells()?;
-        let arena_augments = inner_api.get_arena_augments()?;
+        let arena_augments = inner_api
+            .get_arena_augments()
+            .unwrap_or_else(|_| HashMap::new());
 
         let mut patch_version_split = current_version.split('.').collect::<Vec<&str>>();
         patch_version_split.remove(patch_version_split.len() - 1);
