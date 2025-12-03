@@ -18,7 +18,7 @@ jobs:
         toolchain: [1.89.0, stable, beta, nightly]
         os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - id: toolchain
         uses: dtolnay/rust-toolchain@master
