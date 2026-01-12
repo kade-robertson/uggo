@@ -27,7 +27,7 @@
       "groupName": "ratatui",
       "groupSlug": "ratatui",
       "matchDatasources": ["crate"],
-      "matchPackageNames": ["ratatui", "tui-input"]
+      "matchPackageNames": ["ratatui", "tui-input", "tui-logger"]
     },
     {
       "matchFileNames": ["crates/lol-client/Cargo.toml"],
