@@ -2444,7 +2444,7 @@ dependencies = [
 
 [[package]]
 name = "uggo"
-version = "0.16.1"
+version = "0.16.2"
 dependencies = [
  "anyhow",
  "ddragon",
