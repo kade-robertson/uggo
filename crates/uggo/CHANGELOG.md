@@ -10,6 +10,13 @@
   * dependencies
     * uggo-ugg-api bumped from 0.6.0 to 0.6.1
 
+## [0.16.2](https://github.com/kade-robertson/uggo/compare/uggo-v0.16.1...uggo-v0.16.2) (2026-02-20)
+
+
+### Bug Fixes
+
+* **deps:** update ratatui ([#520](https://github.com/kade-robertson/uggo/issues/520)) ([e1b3939](https://github.com/kade-robertson/uggo/commit/e1b3939b04a22cf1adb995bfadef6a38d182abb4))
+
 ## [0.16.0](https://github.com/kade-robertson/uggo/compare/uggo-v0.15.1...uggo-v0.16.0) (2025-08-23)
 
 
