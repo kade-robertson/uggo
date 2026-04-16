@@ -2484,11 +2484,12 @@ dependencies = [
 
 [[package]]
 name = "tui-input"
-version = "0.15.1"
+version = "0.15.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "932708e36347b2a0c4784b405c85b7a3d2f937f16660f37e2776b040fe680632"
+checksum = "1b1008d4ecf7480f905288022b62588424440553f2ab5cd123edce0469439da6"
 dependencies = [
  "ratatui",
+ "unicode-segmentation",
  "unicode-width 0.2.2",
 ]
 
@@ -2591,9 +2592,9 @@ checksum = "00e2473a93778eb0bad35909dff6a10d28e63f792f16ed15e404fca9d5eeedbe"
 
 [[package]]
 name = "unicode-segmentation"
-version = "1.12.0"
+version = "1.13.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f6ccf251212114b54433ec949fd6a7841275f9ada20dddd2f29e9ceea4501493"
+checksum = "9629274872b2bfaf8d66f5f15725007f635594914870f65218920345aa11aa8c"
 
 [[package]]
 name = "unicode-truncate"
