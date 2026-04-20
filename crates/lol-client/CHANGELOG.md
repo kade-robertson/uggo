@@ -8,6 +8,13 @@
   * dependencies
     * ugg-types bumped from 0.8.0 to 0.8.1
 
+## [0.5.1](https://github.com/kade-robertson/uggo/compare/uggo-lol-client-v0.5.0...uggo-lol-client-v0.5.1) (2026-04-20)
+
+
+### Bug Fixes
+
+* **deps:** update rust crate snafu to 0.9.0 ([#534](https://github.com/kade-robertson/uggo/issues/534)) ([3d6b185](https://github.com/kade-robertson/uggo/commit/3d6b185edd097ddff2c3e5ace868d1da576f3ebc))
+
 ## [0.5.0](https://github.com/kade-robertson/uggo/compare/uggo-lol-client-v0.4.2...uggo-lol-client-v0.5.0) (2025-08-23)
 
 
