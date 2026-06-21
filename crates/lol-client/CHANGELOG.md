@@ -8,6 +8,25 @@
   * dependencies
     * ugg-types bumped from 0.8.0 to 0.8.1
 
+## [0.6.0](https://github.com/kade-robertson/uggo/compare/uggo-lol-client-v0.5.0...uggo-lol-client-v0.6.0) (2026-06-21)
+
+
+### ⚠ BREAKING CHANGES
+
+* **deps:** cargo update, bump msrv to 1.96 ([#561](https://github.com/kade-robertson/uggo/issues/561))
+
+### Bug Fixes
+
+* **deps:** cargo update, bump msrv to 1.96 ([#561](https://github.com/kade-robertson/uggo/issues/561)) ([7a5561f](https://github.com/kade-robertson/uggo/commit/7a5561f8b7591e191e55c56510c1276b631fcb23))
+* **deps:** update rust crate snafu to 0.9.0 ([#534](https://github.com/kade-robertson/uggo/issues/534)) ([3d6b185](https://github.com/kade-robertson/uggo/commit/3d6b185edd097ddff2c3e5ace868d1da576f3ebc))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * ugg-types bumped from 0.9.0 to 0.10.0
+
 ## [0.5.0](https://github.com/kade-robertson/uggo/compare/uggo-lol-client-v0.4.2...uggo-lol-client-v0.5.0) (2025-08-23)
 
 

@@ -10,6 +10,29 @@
   * dependencies
     * uggo-ugg-api bumped from 0.6.0 to 0.6.1
 
+## [0.17.0](https://github.com/kade-robertson/uggo/compare/uggo-v0.16.1...uggo-v0.17.0) (2026-06-21)
+
+
+### ⚠ BREAKING CHANGES
+
+* **deps:** cargo update, bump msrv to 1.96 ([#561](https://github.com/kade-robertson/uggo/issues/561))
+
+### Bug Fixes
+
+* **deps:** cargo update, bump msrv to 1.96 ([#561](https://github.com/kade-robertson/uggo/issues/561)) ([7a5561f](https://github.com/kade-robertson/uggo/commit/7a5561f8b7591e191e55c56510c1276b631fcb23))
+* **deps:** update ratatui ([#520](https://github.com/kade-robertson/uggo/issues/520)) ([e1b3939](https://github.com/kade-robertson/uggo/commit/e1b3939b04a22cf1adb995bfadef6a38d182abb4))
+* **deps:** update rust crate ddragon to 0.10.0 ([#560](https://github.com/kade-robertson/uggo/issues/560)) ([22496ca](https://github.com/kade-robertson/uggo/commit/22496ca2e77348f6fbe7b09e32c3314932e3848b))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * ugg-types bumped from 0.9.0 to 0.10.0
+    * uggo-config bumped from 0.4.0 to 0.5.0
+    * uggo-lol-client bumped from 0.5.0 to 0.6.0
+    * uggo-ugg-api bumped from 0.6.1 to 0.7.0
+
 ## [0.16.0](https://github.com/kade-robertson/uggo/compare/uggo-v0.15.1...uggo-v0.16.0) (2025-08-23)
 
 
