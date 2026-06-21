@@ -1,6 +1,6 @@
 use ratatui::{
     crossterm::event::{Event, KeyEvent},
-    style::{Color, Style, Stylize},
+    style::{Color, Style},
     widgets::{Block, Borders, Paragraph, Widget},
 };
 use tui_input::backend::crossterm::EventHandler;
