@@ -1,6 +1,6 @@
 use ratatui::{
     layout::Rect,
-    style::{Color, Modifier, Style, Stylize},
+    style::{Color, Modifier, Style},
     widgets::{Block, Borders, List, ListItem, ListState},
 };
 use ugg_types::mappings::Region;

@@ -1,6 +1,6 @@
 use ddragon::models::champions::ChampionShort;
 use ratatui::{
-    style::{Color, Style, Stylize},
+    style::{Color, Style},
     widgets::{Paragraph, Widget},
 };
 use ugg_types::overview::Overview;

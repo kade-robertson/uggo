@@ -103,7 +103,7 @@ impl Rank {
     }
 }
 
-#[derive(Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, Debug)]
+#[derive(Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, Debug, Default)]
 pub enum Region {
     #[serde(rename = "1")]
     NA1 = 1,
@@ -139,6 +139,7 @@ pub enum Region {
     JP1,
 
     #[serde(rename = "12")]
+    #[default]
     World,
 
     #[serde(rename = "13")]
@@ -211,12 +212,6 @@ impl Region {
     }
 }
 
-impl Default for Region {
-    fn default() -> Self {
-        Self::World
-    }
-}
-
 impl Display for Region {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let region_str = match self {
@@ -264,7 +259,7 @@ impl FromStr for Region {
     }
 }
 
-#[derive(Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, Debug)]
+#[derive(Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, Debug, Default)]
 pub enum Role {
     #[serde(rename = "1")]
     Jungle = 1,
@@ -286,17 +281,12 @@ pub enum Role {
     None,
 
     #[serde(rename = "7")]
+    #[default]
     Automatic,
 
     /// Only used for Nexus Blitz.
     #[serde(rename = "8")]
     Lane,
-}
-
-impl Default for Role {
-    fn default() -> Self {
-        Self::Automatic
-    }
 }
 
 impl Role {
@@ -369,7 +359,9 @@ impl FromStr for Role {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[allow(clippy::upper_case_acronyms)]
+#[derive(Default)]
 pub enum Mode {
+    #[default]
     Normal,
     ARAM,
     OneForAll,
@@ -458,14 +450,9 @@ impl FromStr for Mode {
     }
 }
 
-impl Default for Mode {
-    fn default() -> Self {
-        Self::Normal
-    }
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub enum Build {
+    #[default]
     Recommended,
     OnHit,
     Crit,
@@ -473,12 +460,6 @@ pub enum Build {
     AD,
     AP,
     Tank,
-}
-
-impl Default for Build {
-    fn default() -> Self {
-        Self::Recommended
-    }
 }
 
 impl From<&str> for Build {

@@ -13,7 +13,7 @@ pub fn group_runes<'a>(
         let rune_info = &rune_data[rune];
         match grouped_runes.iter().position(|r| r.0 == rune_info.parent) {
             Some(group_index) => grouped_runes[group_index].1.push(rune_info),
-            None => grouped_runes.push((rune_info.parent.to_string(), vec![rune_info])),
+            None => grouped_runes.push((rune_info.parent.clone(), vec![rune_info])),
         }
     }
 
@@ -23,7 +23,7 @@ pub fn group_runes<'a>(
     }
 
     for group in &mut grouped_runes {
-        group.1.sort_by(|&a, &b| a.slot.cmp(&b.slot));
+        group.1.sort_by_key(|&a| a.slot);
     }
 
     [grouped_runes[0].to_owned(), grouped_runes[1].to_owned()]

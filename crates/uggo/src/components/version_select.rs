@@ -1,7 +1,7 @@
 use crate::context::AppContext;
 use ratatui::{
     layout::Rect,
-    style::{Color, Modifier, Style, Stylize},
+    style::{Color, Modifier, Style},
     widgets::{Block, Borders, List, ListItem, ListState},
 };
 
