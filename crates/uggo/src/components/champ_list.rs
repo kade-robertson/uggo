@@ -1,5 +1,5 @@
 use ratatui::{
-    style::{Color, Modifier, Style, Stylize},
+    style::{Color, Modifier, Style},
     widgets::{Block, Borders, List, ListState},
 };
 
