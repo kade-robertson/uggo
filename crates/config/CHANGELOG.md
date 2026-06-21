@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.5.0](https://github.com/kade-robertson/uggo/compare/uggo-config-v0.4.0...uggo-config-v0.5.0) (2026-06-21)
+
+
+### ⚠ BREAKING CHANGES
+
+* **deps:** cargo update, bump msrv to 1.96 ([#561](https://github.com/kade-robertson/uggo/issues/561))
+
+### Bug Fixes
+
+* **deps:** cargo update, bump msrv to 1.96 ([#561](https://github.com/kade-robertson/uggo/issues/561)) ([7a5561f](https://github.com/kade-robertson/uggo/commit/7a5561f8b7591e191e55c56510c1276b631fcb23))
+
 ## [0.4.0](https://github.com/kade-robertson/uggo/compare/uggo-config-v0.3.0...uggo-config-v0.4.0) (2025-08-23)
 
 
