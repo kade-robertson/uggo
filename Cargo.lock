@@ -2497,7 +2497,7 @@ dependencies = [
 
 [[package]]
 name = "uggo"
-version = "0.17.0"
+version = "0.17.1"
 dependencies = [
  "anyhow",
  "ddragon",
@@ -2523,7 +2523,7 @@ dependencies = [
 
 [[package]]
 name = "uggo-lol-client"
-version = "0.6.0"
+version = "0.6.1"
 dependencies = [
  "base64 0.23.0",
  "native-tls",

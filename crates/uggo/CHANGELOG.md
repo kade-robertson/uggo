@@ -10,6 +10,10 @@
   * dependencies
     * uggo-ugg-api bumped from 0.6.0 to 0.6.1
 
+* The following workspace dependencies were updated
+  * dependencies
+    * uggo-lol-client bumped from 0.6.0 to 0.6.1
+
 ## [0.17.0](https://github.com/kade-robertson/uggo/compare/uggo-v0.16.1...uggo-v0.17.0) (2026-06-21)
 
 
