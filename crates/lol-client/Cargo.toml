@@ -15,7 +15,7 @@ categories = ["api-bindings"]
 workspace = true
 
 [dependencies]
-base64 = "0.22.1"
+base64 = "0.23.0"
 native-tls = "0.2.14"
 regex = "1.11.1"
 serde = { version = "1.0.218", features = ["derive"] }
